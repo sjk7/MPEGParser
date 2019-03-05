@@ -1,0 +1,2100 @@
+<!DOCTYPE html PUBLIC "-//w3c//dtd html 4.0 transitional//en">
+<!-- saved from url=(0057)http://gabriel.mp3-tech.org/mp3infotag.html#versionstring -->
+<html><head><meta http-equiv="Content-Type" content="text/html; charset=windows-1252"><style class="darkreader darkreader--fallback" media="screen"></style><style class="darkreader darkreader--text" media="screen"></style><style class="darkreader darkreader--invert" media="screen"></style><style class="darkreader darkreader--inline" media="screen">[data-darkreader-inline-bgcolor] {
+  background-color: var(--darkreader-inline-bgcolor) !important;
+}
+[data-darkreader-inline-bgimage] {
+  background-image: var(--darkreader-inline-bgimage) !important;
+}
+[data-darkreader-inline-border] {
+  border-color: var(--darkreader-inline-border) !important;
+}
+[data-darkreader-inline-border-bottom] {
+  border-bottom-color: var(--darkreader-inline-border-bottom) !important;
+}
+[data-darkreader-inline-border-left] {
+  border-left-color: var(--darkreader-inline-border-left) !important;
+}
+[data-darkreader-inline-border-right] {
+  border-right-color: var(--darkreader-inline-border-right) !important;
+}
+[data-darkreader-inline-border-top] {
+  border-top-color: var(--darkreader-inline-border-top) !important;
+}
+[data-darkreader-inline-boxshadow] {
+  box-shadow: var(--darkreader-inline-boxshadow) !important;
+}
+[data-darkreader-inline-color] {
+  color: var(--darkreader-inline-color) !important;
+}
+[data-darkreader-inline-fill] {
+  fill: var(--darkreader-inline-fill) !important;
+}
+[data-darkreader-inline-stroke] {
+  stroke: var(--darkreader-inline-stroke) !important;
+}
+[data-darkreader-inline-outline] {
+  outline-color: var(--darkreader-inline-outline) !important;
+}</style><style class="darkreader darkreader--user-agent" media="screen">html {
+    background-color: #17181c !important;
+}
+html, body, input, textarea, select, button {
+    background-color: #17181c;
+}
+html, body, input, textarea, select, button {
+    border-color: #575757;
+    color: #e8e7e3;
+}
+a {
+    color: #3391ff;
+}
+table {
+    border-color: #4c4c4c;
+}
+::placeholder {
+    color: #b9b4ac;
+}
+::selection {
+    background-color: #005ccc;
+    color: #ffffff;
+}
+::-moz-selection {
+    background-color: #005ccc;
+    color: #ffffff;
+}
+input:-webkit-autofill,
+textarea:-webkit-autofill,
+select:-webkit-autofill {
+    background-color: #545b00 !important;
+    color: #e8e7e3 !important;
+}
+::-webkit-scrollbar {
+    background-color: #1b1c21;
+    color: #c4c0ba;
+}
+::-webkit-scrollbar-thumb {
+    background-color: #252a33;
+}
+::-webkit-scrollbar-thumb:hover {
+    background-color: #2a323e;
+}
+::-webkit-scrollbar-thumb:active {
+    background-color: #303d4f;
+}
+::-webkit-scrollbar-corner {
+    background-color: #17181c;
+}
+* {
+    scrollbar-color: #252a33 #1b1c21;
+}</style>
+   
+   <meta name="GENERATOR" content="Mozilla/4.78 [en] (Windows NT 5.0; U) [Netscape]">
+   <title>Mp3 Info Tag revision 1 Specifications</title>
+<style class="darkreader darkreader--override" media="screen">.jfk-bubble {
+    background-color: #000000 !important;
+}
+.vimvixen-hint {
+    background-color: #7b5300 !important;
+    border-color: #d8b013 !important;
+    color: #f3e8c8 !important;
+}</style></head>
+<body text="#000000" bgcolor="#CCCCCC" link="#0000EE" vlink="#551A8B" alink="#FF0000" nosave="" data-darkreader-inline-bgcolor="" style="--darkreader-inline-bgcolor:#23272f;">
+
+<center>
+  <u><font face="Arial,Helvetica" size="-1">Mp3 Info Tag rev 1 specifications 
+  - draft 0</font></u> 
+</center>
+
+<p>The purpose of this tag is to provide extra information about the mp3 bistream, 
+  encoder and parameters used. This tag should, as much as possible, be meaningfull 
+  for as many encoders as possible, even if it is unlikely that other encoders 
+  than Lame will implement it.
+</p><p>This tag should be backward compatible with tha Xing vbr tag, providing basic 
+  support for a lot of already written software. As much as possible the current 
+  revision (revision 1) should provide information similar to the one already 
+  provided by revision 0.
+</p><p>A few fields, as they could be necessary for some functionnalities of already 
+  existing software, should not be moved in any version of the tag. They are indicated 
+  as "UNMOVABLE".
+</p><p>&nbsp;
+</p><p><font face="Arial,Helvetica" color="#000000" size="-1" data-darkreader-inline-color="" style="--darkreader-inline-color:#e8e7e3;"><u>LAME 3.88 Tag example</u> 
+  :</font> 
+</p><p><font face="Arial,Helvetica" color="#000000" size="-1" data-darkreader-inline-color="" style="--darkreader-inline-color:#e8e7e3;">frame at 44.1kHz samplerate:</font> 
+  <br>
+  &nbsp;
+</p><center><table border="">
+<tbody><tr>
+      <td><font face="Courier New,Courier" color="#000000" size="-1" data-darkreader-inline-color="" style="--darkreader-inline-color:#e8e7e3;">0000:</font> 
+        <br>
+        <font face="Courier New,Courier" color="#000000" size="-1" data-darkreader-inline-color="" style="--darkreader-inline-color:#e8e7e3;">0010:</font> 
+        <br>
+        <font face="Courier New,Courier" color="#000000" size="-1" data-darkreader-inline-color="" style="--darkreader-inline-color:#e8e7e3;">0020:</font> 
+        <br>
+        <font face="Courier New,Courier" color="#000000" size="-1" data-darkreader-inline-color="" style="--darkreader-inline-color:#e8e7e3;">0030:</font> 
+        <br>
+        <font face="Courier New,Courier" color="#000000" size="-1" data-darkreader-inline-color="" style="--darkreader-inline-color:#e8e7e3;">0040:</font> 
+        <br>
+        <font face="Courier New,Courier" color="#000000" size="-1" data-darkreader-inline-color="" style="--darkreader-inline-color:#e8e7e3;">0050:</font> 
+        <br>
+        <font face="Courier New,Courier" color="#000000" size="-1" data-darkreader-inline-color="" style="--darkreader-inline-color:#e8e7e3;">0060:</font> 
+        <br>
+        <font face="Courier New,Courier" color="#000000" size="-1" data-darkreader-inline-color="" style="--darkreader-inline-color:#e8e7e3;">0070:</font> 
+        <br>
+        <font face="Courier New,Courier" color="#000000" size="-1" data-darkreader-inline-color="" style="--darkreader-inline-color:#e8e7e3;">0080:</font> 
+        <br>
+        <font face="Courier New,Courier" color="#000000" size="-1" data-darkreader-inline-color="" style="--darkreader-inline-color:#e8e7e3;">0090:</font> 
+        <br>
+        <font face="Courier New,Courier" color="#000000" size="-1" data-darkreader-inline-color="" style="--darkreader-inline-color:#e8e7e3;">00A0:</font> 
+        <br>
+        <font face="Courier New,Courier" color="#000000" size="-1" data-darkreader-inline-color="" style="--darkreader-inline-color:#e8e7e3;">00B0:</font> 
+        <br>
+        <font face="Courier New,Courier" color="#000000" size="-1" data-darkreader-inline-color="" style="--darkreader-inline-color:#e8e7e3;">00C0:</font> 
+        <br>
+        <font face="Courier New,Courier" color="#000000" size="-1" data-darkreader-inline-color="" style="--darkreader-inline-color:#e8e7e3;">00D0:</font> 
+        <br>
+        <font face="Courier New,Courier" color="#000000" size="-1" data-darkreader-inline-color="" style="--darkreader-inline-color:#e8e7e3;">00E0:</font> 
+        <br>
+        <font face="Courier New,Courier" color="#000000" size="-1" data-darkreader-inline-color="" style="--darkreader-inline-color:#e8e7e3;">00F0:</font> 
+        <br>
+        <font face="Courier New,Courier" color="#000000" size="-1" data-darkreader-inline-color="" style="--darkreader-inline-color:#e8e7e3;">0100:</font> 
+        <br>
+        <font face="Courier New,Courier" color="#000000" size="-1" data-darkreader-inline-color="" style="--darkreader-inline-color:#e8e7e3;">0110:</font> 
+        <br>
+        <font face="Courier New,Courier" color="#000000" size="-1" data-darkreader-inline-color="" style="--darkreader-inline-color:#e8e7e3;">0120:</font> 
+        <br>
+        <font face="Courier New,Courier" color="#000000" size="-1" data-darkreader-inline-color="" style="--darkreader-inline-color:#e8e7e3;">0130:</font> 
+        <br>
+        <font face="Courier New,Courier" color="#000000" size="-1" data-darkreader-inline-color="" style="--darkreader-inline-color:#e8e7e3;">0140:</font> 
+        <br>
+        <font face="Courier New,Courier" color="#000000" size="-1" data-darkreader-inline-color="" style="--darkreader-inline-color:#e8e7e3;">0150:</font> 
+        <br>
+        <font face="Courier New,Courier" color="#000000" size="-1" data-darkreader-inline-color="" style="--darkreader-inline-color:#e8e7e3;">0160:</font> 
+        <br>
+        <font face="Courier New,Courier" color="#000000" size="-1" data-darkreader-inline-color="" style="--darkreader-inline-color:#e8e7e3;">0170:</font> 
+        <br>
+        <font face="Courier New,Courier" color="#000000" size="-1" data-darkreader-inline-color="" style="--darkreader-inline-color:#e8e7e3;">0180:</font> 
+        <br>
+        <font face="Courier New,Courier" color="#000000" size="-1" data-darkreader-inline-color="" style="--darkreader-inline-color:#e8e7e3;">0190:</font> 
+        <br>
+        <font face="Courier New,Courier" color="#000000" size="-1" data-darkreader-inline-color="" style="--darkreader-inline-color:#e8e7e3;">01A0:</font></td>
+
+      <td><b><font face="Courier New,Courier" color="#000000" size="-1" data-darkreader-inline-color="" style="--darkreader-inline-color:#e8e7e3;">FF FB 
+        90 64-00 00 00 00-00 00 00 00-00 00 00 00</font></b> <br>
+        <b><font face="Courier New,Courier" color="#000000" size="-1" data-darkreader-inline-color="" style="--darkreader-inline-color:#e8e7e3;">00 00 00 
+        00-00 00 00 00-00 00 00 00-00 00 00 00</font></b> <br>
+        <b><font face="Courier New,Courier" size="-1"><font color="#000000" data-darkreader-inline-color="" style="--darkreader-inline-color:#e8e7e3;">00 
+        00 00 00-</font><font color="#009900" data-darkreader-inline-color="" style="--darkreader-inline-color:#70ff70;">58 69 6E 67-00 00 00 0F-00 00 00 
+        74</font></font></b> <br>
+        <b><font face="Courier New,Courier" color="#009900" size="-1" data-darkreader-inline-color="" style="--darkreader-inline-color:#70ff70;">00 00 30 
+        C1-00 04 07 09-0B 0D 0F 14-16 18 1A 1D</font></b> <br>
+        <b><font face="Courier New,Courier" color="#009900" size="-1" data-darkreader-inline-color="" style="--darkreader-inline-color:#70ff70;">1F 23 26 
+        28-2A 2C 2E 33-35 37 39 3C-3E 40 44 47</font></b> <br>
+        <b><font face="Courier New,Courier" color="#009900" size="-1" data-darkreader-inline-color="" style="--darkreader-inline-color:#70ff70;">49 4B 4D 
+        4F-54 56 58 5A-5D 5F 63 66-68 6A 6C 6E</font></b> <br>
+        <b><font face="Courier New,Courier" color="#009900" size="-1" data-darkreader-inline-color="" style="--darkreader-inline-color:#70ff70;">73 75 77 
+        79-7C 7E 80 84-87 89 8B 8D-8F 94 96 98</font></b> <br>
+        <b><font face="Courier New,Courier" color="#009900" size="-1" data-darkreader-inline-color="" style="--darkreader-inline-color:#70ff70;">9A 9D 9F 
+        A3-A6 A8 AA AC-AE B3 B5 B7-B9 BC BE C0</font></b> <br>
+        <b><font face="Courier New,Courier" color="#009900" size="-1" data-darkreader-inline-color="" style="--darkreader-inline-color:#70ff70;">C4 C7 C9 
+        CB-CD CF D4 D6-D8 DA DD DF-E3 E6 E8 EA</font></b> <br>
+        <b><font face="Courier New,Courier" size="-1"><font color="#009900" data-darkreader-inline-color="" style="--darkreader-inline-color:#70ff70;">EC 
+        EE F3 F5-F7 F9 FC FE-00 00 00 58</font><font color="#000000" data-darkreader-inline-color="" style="--darkreader-inline-color:#e8e7e3;">-</font><font color="#3333FF" data-darkreader-inline-color="" style="--darkreader-inline-color:#337dff;">4C 
+        41 4D 45</font></font></b> <br>
+        <b><font face="Courier New,Courier" color="#3333FF" size="-1" data-darkreader-inline-color="" style="--darkreader-inline-color:#337dff;">33 2E 38 
+        38-20 28 62 65-74 61 29 00-00 00 00 00</font></b> <br>
+        <b><font face="Courier New,Courier" color="#990000" size="-1" data-darkreader-inline-color="" style="--darkreader-inline-color:#ff7070;">00 00 00 
+        00-00 00 00 00-00 00 00 00-00 00 00 00</font></b> <br>
+        <b><font face="Courier New,Courier" color="#990000" size="-1" data-darkreader-inline-color="" style="--darkreader-inline-color:#ff7070;">00 00 00 
+        00-00 00 00 00-00 00 00 00-00 00 00 00</font></b> <br>
+        <b><font face="Courier New,Courier" color="#990000" size="-1" data-darkreader-inline-color="" style="--darkreader-inline-color:#ff7070;">00 00 00 
+        00-00 00 00 00-00 00 00 00-00 00 00 00</font></b> <br>
+        <b><font face="Courier New,Courier" color="#990000" size="-1" data-darkreader-inline-color="" style="--darkreader-inline-color:#ff7070;">00 00 00 
+        00-00 00 00 00-00 00 00 00-00 00 00 00</font></b> <br>
+        <b><font face="Courier New,Courier" color="#990000" size="-1" data-darkreader-inline-color="" style="--darkreader-inline-color:#ff7070;">00 00 00 
+        00-00 00 00 00-00 00 00 00-00 00 00 00</font></b> <br>
+        <b><font face="Courier New,Courier" color="#990000" size="-1" data-darkreader-inline-color="" style="--darkreader-inline-color:#ff7070;">00 00 00 
+        00-00 00 00 00-00 00 00 00-00 00 00 00</font></b> <br>
+        <b><font face="Courier New,Courier" color="#990000" size="-1" data-darkreader-inline-color="" style="--darkreader-inline-color:#ff7070;">00 00 00 
+        00-00 00 00 00-00 00 00 00-00 00 00 00</font></b> <br>
+        <b><font face="Courier New,Courier" color="#990000" size="-1" data-darkreader-inline-color="" style="--darkreader-inline-color:#ff7070;">00 00 00 
+        00-00 00 00 00-00 00 00 00-00 00 00 00</font></b> <br>
+        <b><font face="Courier New,Courier" color="#990000" size="-1" data-darkreader-inline-color="" style="--darkreader-inline-color:#ff7070;">00 00 00 
+        00-00 00 00 00-00 00 00 00-00 00 00 00</font></b> <br>
+        <b><font face="Courier New,Courier" color="#990000" size="-1" data-darkreader-inline-color="" style="--darkreader-inline-color:#ff7070;">00 00 00 
+        00-00 00 00 00-00 00 00 00-00 00 00 00</font></b> <br>
+        <b><font face="Courier New,Courier" color="#990000" size="-1" data-darkreader-inline-color="" style="--darkreader-inline-color:#ff7070;">00 00 00 
+        00-00 00 00 00-00 00 00 00-00 00 00 00</font></b> <br>
+        <b><font face="Courier New,Courier" color="#990000" size="-1" data-darkreader-inline-color="" style="--darkreader-inline-color:#ff7070;">00 00 00 
+        00-00 00 00 00-00 00 00 00-00 00 00 00</font></b> <br>
+        <b><font face="Courier New,Courier" color="#990000" size="-1" data-darkreader-inline-color="" style="--darkreader-inline-color:#ff7070;">00 00 00 
+        00-00 00 00 00-00 00 00 00-00 00 00 00</font></b> <br>
+        <b><font face="Courier New,Courier" color="#000000" size="-1" data-darkreader-inline-color="" style="--darkreader-inline-color:#e8e7e3;">00 00 00 
+        00-00 00 00 00-00 00 00 00-00 00 00 00</font></b> <br>
+        <b><font face="Courier New,Courier" color="#000000" size="-1" data-darkreader-inline-color="" style="--darkreader-inline-color:#e8e7e3;">00 00 00 
+        00-00 00 00 00-00 00 00 00-00 00 00 00</font></b> <br>
+        <b><font face="Courier New,Courier" color="#000000" size="-1" data-darkreader-inline-color="" style="--darkreader-inline-color:#e8e7e3;">00</font></b></td>
+
+      <td><b><font face="Arial,Helvetica" color="#000000" size="-1" data-darkreader-inline-color="" style="--darkreader-inline-color:#e8e7e3;">&nbsp;?Éd</font></b> 
+        <p><b><font face="Arial,Helvetica" size="-1"><font color="#000000" data-darkreader-inline-color="" style="--darkreader-inline-color:#e8e7e3;">&nbsp; 
+          </font><font color="#009900" data-darkreader-inline-color="" style="--darkreader-inline-color:#70ff70;">Xing&nbsp;&nbsp; ?&nbsp;&nbsp; t</font></font></b> 
+          <br>
+          <b><font face="Arial,Helvetica" color="#009900" size="-1" data-darkreader-inline-color="" style="--darkreader-inline-color:#70ff70;">&nbsp; 0? 
+          ?•????¶????</font></b> <br>
+          <b><font face="Arial,Helvetica" color="#009900" size="-1" data-darkreader-inline-color="" style="--darkreader-inline-color:#70ff70;">?#&amp;(*,.3579&lt;&gt;@DG</font></b> 
+          <br>
+          <b><font face="Arial,Helvetica" color="#009900" size="-1" data-darkreader-inline-color="" style="--darkreader-inline-color:#70ff70;">IKMOTVXZ]_cfhjln</font></b> 
+          <br>
+          <b><font face="Arial,Helvetica" color="#009900" size="-1" data-darkreader-inline-color="" style="--darkreader-inline-color:#70ff70;">suwy|~ÇäçëïìÅöûÿ</font></b> 
+          <br>
+          <b><font face="Arial,Helvetica" color="#009900" size="-1" data-darkreader-inline-color="" style="--darkreader-inline-color:#70ff70;">Ü¥ƒúª¿¬¼«???????</font></b> 
+          <br>
+          <b><font face="Arial,Helvetica" color="#009900" size="-1" data-darkreader-inline-color="" style="--darkreader-inline-color:#70ff70;">?????????????µ??</font></b> 
+          <br>
+          <b><font face="Arial,Helvetica" size="-1"><font color="#009900" data-darkreader-inline-color="" style="--darkreader-inline-color:#70ff70;">????????&nbsp;&nbsp; 
+          X</font><font color="#3333FF" data-darkreader-inline-color="" style="--darkreader-inline-color:#337dff;">LAME</font></font></b> <br>
+          <b><font face="Arial,Helvetica" color="#3333FF" size="-1" data-darkreader-inline-color="" style="--darkreader-inline-color:#337dff;">3.88 (beta)</font></b> 
+          <br>
+          &nbsp;
+<br>&nbsp;
+<br>&nbsp;
+<br>&nbsp;
+<br>&nbsp;
+<br>&nbsp;
+<br>&nbsp;
+<br>&nbsp;
+<br>&nbsp;
+<br>&nbsp;
+<br>&nbsp;
+<br>&nbsp;
+<br>&nbsp;
+<br>&nbsp;
+        </p><p><font face="Arial,Helvetica" size="-1">&nbsp;</font>
+      </p></td>
+</tr>
+</tbody></table></center>
+
+<p><font face="Arial,Helvetica" color="#000000" size="-1" data-darkreader-inline-color="" style="--darkreader-inline-color:#e8e7e3;">/*</font> 
+</p><p><font face="Arial,Helvetica" color="#009900" size="-1" data-darkreader-inline-color="" style="--darkreader-inline-color:#70ff70;">//&nbsp;&nbsp;&nbsp; 
+  ZONE A - <u>Traditional Xing VBR Tag data</u></font> <br>
+  <font face="Arial,Helvetica" color="#009900" size="-1" data-darkreader-inline-color="" style="--darkreader-inline-color:#70ff70;">//&nbsp;&nbsp;&nbsp; 
+  4 bytes for Header Tag</font> <br>
+  <font face="Arial,Helvetica" color="#009900" size="-1" data-darkreader-inline-color="" style="--darkreader-inline-color:#70ff70;">//&nbsp;&nbsp;&nbsp; 
+  4 bytes for Header Flags</font> <br>
+  <font face="Arial,Helvetica" color="#009900" size="-1" data-darkreader-inline-color="" style="--darkreader-inline-color:#70ff70;">//&nbsp; 100 bytes for 
+  entry (NUMTOCENTRIES)</font> <br>
+  <font face="Arial,Helvetica" color="#009900" size="-1" data-darkreader-inline-color="" style="--darkreader-inline-color:#70ff70;">//&nbsp;&nbsp;&nbsp; 
+  4 bytes for FRAME SIZE</font> <br>
+  <font face="Arial,Helvetica" color="#009900" size="-1" data-darkreader-inline-color="" style="--darkreader-inline-color:#70ff70;">//&nbsp;&nbsp;&nbsp; 
+  4 bytes for STREAM_SIZE</font> <br>
+  <font face="Arial,Helvetica" color="#009900" size="-1" data-darkreader-inline-color="" style="--darkreader-inline-color:#70ff70;">//&nbsp;&nbsp;&nbsp; 
+  4 bytes for VBR SCALE. a VBR quality indicator: 0=best 100=worst</font> 
+</p><p><font face="Arial,Helvetica" color="#3333FF" size="-1" data-darkreader-inline-color="" style="--darkreader-inline-color:#337dff;">//&nbsp;&nbsp; ZONE 
+  B - <u>Initial LAME info</u></font> <br>
+  <font face="Arial,Helvetica" color="#3333FF" size="-1" data-darkreader-inline-color="" style="--darkreader-inline-color:#337dff;">//&nbsp;&nbsp; 20 bytes 
+  for LAME tag.&nbsp; for example, "LAME3.12 (beta 6)"</font> <br>
+  <font face="Arial,Helvetica" color="#000000" size="-1" data-darkreader-inline-color="" style="--darkreader-inline-color:#e8e7e3;">// ___________</font> 
+  <br>
+  <font face="Arial,Helvetica" color="#000000" size="-1" data-darkreader-inline-color="" style="--darkreader-inline-color:#e8e7e3;">//&nbsp; 140 bytes</font> 
+  <br>
+  <font face="Arial,Helvetica" color="#000000" size="-1" data-darkreader-inline-color="" style="--darkreader-inline-color:#e8e7e3;">//</font> 
+</p><p><font face="Arial,Helvetica" color="#CC0000" size="-1" data-darkreader-inline-color="" style="--darkreader-inline-color:#ff5252;">//&nbsp;&nbsp; ZONE 
+  C - <u>LAME Tag</u></font> <br>
+  <font face="Arial,Helvetica" color="#CC0000" size="-1" data-darkreader-inline-color="" style="--darkreader-inline-color:#ff5252;">//&nbsp;&nbsp; 208 bytes 
+  unused in 128k frame (in 48kHz case)</font> <br>
+  <font face="Arial,Helvetica" color="#CC0000" size="-1" data-darkreader-inline-color="" style="--darkreader-inline-color:#ff5252;">//</font> <br>
+  <font face="Arial,Helvetica" color="#CC0000" size="-1" data-darkreader-inline-color="" style="--darkreader-inline-color:#ff5252;">//&nbsp;&nbsp; using</font> 
+  <br>
+  <font face="Arial,Helvetica" color="#CC0000" size="-1" data-darkreader-inline-color="" style="--darkreader-inline-color:#ff5252;">//&nbsp;&nbsp; FrameLengthInBytes 
+  = 144 * BitRate / SampleRate + Padding</font> <br>
+  <font face="Arial,Helvetica" color="#CC0000" size="-1" data-darkreader-inline-color="" style="--darkreader-inline-color:#ff5252;">//</font> <br>
+  <font face="Arial,Helvetica" color="#CC0000" size="-1" data-darkreader-inline-color="" style="--darkreader-inline-color:#ff5252;">//&nbsp;&nbsp; this gives</font> 
+  <br>
+  <font face="Arial,Helvetica" color="#CC0000" size="-1" data-darkreader-inline-color="" style="--darkreader-inline-color:#ff5252;">//&nbsp;&nbsp; Layer 
+  III, BitRate=128000, SampleRate=44100, Padding=0</font> <br>
+  <font face="Arial,Helvetica" color="#CC0000" size="-1" data-darkreader-inline-color="" style="--darkreader-inline-color:#ff5252;">//&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 
+  ==&gt;&nbsp; FrameSize=417 bytes</font> <br>
+  <font face="Arial,Helvetica" color="#CC0000" size="-1" data-darkreader-inline-color="" style="--darkreader-inline-color:#ff5252;">//&nbsp;&nbsp; Layer 
+  III, BitRate=128000, SampleRate=48000, Padding=0</font> <br>
+  <font face="Arial,Helvetica" color="#CC0000" size="-1" data-darkreader-inline-color="" style="--darkreader-inline-color:#ff5252;">//&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 
+  ==&gt;&nbsp; FrameSize=384 bytes</font> <br>
+  <font face="Arial,Helvetica" color="#CC0000" size="-1" data-darkreader-inline-color="" style="--darkreader-inline-color:#ff5252;">//</font> <br>
+  <font face="Arial,Helvetica" color="#CC0000" size="-1" data-darkreader-inline-color="" style="--darkreader-inline-color:#ff5252;">//&nbsp;&nbsp; so this 
+  would make the minimal frame size 384 bytes ($0-$17F), hence the available bytes 
+  for this field are not 241 as in this 44100Hz case, but <u>at most 208</u> bytes.</font> 
+  <br>
+  <font face="Arial,Helvetica" color="#000000" size="-1" data-darkreader-inline-color="" style="--darkreader-inline-color:#e8e7e3;">*/</font> 
+</p><p><font face="Arial,Helvetica" color="#000000" size="-1" data-darkreader-inline-color="" style="--darkreader-inline-color:#e8e7e3;">frame at a 48.0kHz samplerate:</font> 
+  <br>
+  &nbsp;
+</p><center><table border="">
+<tbody><tr>
+      <td><font face="Courier New,Courier" color="#000000" size="-1" data-darkreader-inline-color="" style="--darkreader-inline-color:#e8e7e3;">0000:</font> 
+        <br>
+        <font face="Courier New,Courier" color="#000000" size="-1" data-darkreader-inline-color="" style="--darkreader-inline-color:#e8e7e3;">0010:</font> 
+        <br>
+        <font face="Courier New,Courier" color="#000000" size="-1" data-darkreader-inline-color="" style="--darkreader-inline-color:#e8e7e3;">0020:</font> 
+        <br>
+        <font face="Courier New,Courier" color="#000000" size="-1" data-darkreader-inline-color="" style="--darkreader-inline-color:#e8e7e3;">0030:</font> 
+        <br>
+        <font face="Courier New,Courier" color="#000000" size="-1" data-darkreader-inline-color="" style="--darkreader-inline-color:#e8e7e3;">0040:</font> 
+        <br>
+        <font face="Courier New,Courier" color="#000000" size="-1" data-darkreader-inline-color="" style="--darkreader-inline-color:#e8e7e3;">0050:</font> 
+        <br>
+        <font face="Courier New,Courier" color="#000000" size="-1" data-darkreader-inline-color="" style="--darkreader-inline-color:#e8e7e3;">0060:</font> 
+        <br>
+        <font face="Courier New,Courier" color="#000000" size="-1" data-darkreader-inline-color="" style="--darkreader-inline-color:#e8e7e3;">0070:</font> 
+        <br>
+        <font face="Courier New,Courier" color="#000000" size="-1" data-darkreader-inline-color="" style="--darkreader-inline-color:#e8e7e3;">0080:</font> 
+        <br>
+        <font face="Courier New,Courier" color="#000000" size="-1" data-darkreader-inline-color="" style="--darkreader-inline-color:#e8e7e3;">0090:</font> 
+        <br>
+        <font face="Courier New,Courier" color="#000000" size="-1" data-darkreader-inline-color="" style="--darkreader-inline-color:#e8e7e3;">00A0:</font> 
+        <br>
+        <font face="Courier New,Courier" color="#000000" size="-1" data-darkreader-inline-color="" style="--darkreader-inline-color:#e8e7e3;">00B0:</font> 
+        <br>
+        <font face="Courier New,Courier" color="#000000" size="-1" data-darkreader-inline-color="" style="--darkreader-inline-color:#e8e7e3;">00C0:</font> 
+        <br>
+        <font face="Courier New,Courier" color="#000000" size="-1" data-darkreader-inline-color="" style="--darkreader-inline-color:#e8e7e3;">00D0:</font> 
+        <br>
+        <font face="Courier New,Courier" color="#000000" size="-1" data-darkreader-inline-color="" style="--darkreader-inline-color:#e8e7e3;">00E0:</font> 
+        <br>
+        <font face="Courier New,Courier" color="#000000" size="-1" data-darkreader-inline-color="" style="--darkreader-inline-color:#e8e7e3;">00F0:</font> 
+        <br>
+        <font face="Courier New,Courier" color="#000000" size="-1" data-darkreader-inline-color="" style="--darkreader-inline-color:#e8e7e3;">0100:</font> 
+        <br>
+        <font face="Courier New,Courier" color="#000000" size="-1" data-darkreader-inline-color="" style="--darkreader-inline-color:#e8e7e3;">0110:</font> 
+        <br>
+        <font face="Courier New,Courier" color="#000000" size="-1" data-darkreader-inline-color="" style="--darkreader-inline-color:#e8e7e3;">0120:</font> 
+        <br>
+        <font face="Courier New,Courier" color="#000000" size="-1" data-darkreader-inline-color="" style="--darkreader-inline-color:#e8e7e3;">0130:</font> 
+        <br>
+        <font face="Courier New,Courier" color="#000000" size="-1" data-darkreader-inline-color="" style="--darkreader-inline-color:#e8e7e3;">0140:</font> 
+        <br>
+        <font face="Courier New,Courier" color="#000000" size="-1" data-darkreader-inline-color="" style="--darkreader-inline-color:#e8e7e3;">0150:</font> 
+        <br>
+        <font face="Courier New,Courier" color="#000000" size="-1" data-darkreader-inline-color="" style="--darkreader-inline-color:#e8e7e3;">0160:</font> 
+        <br>
+        <font face="Courier New,Courier" color="#000000" size="-1" data-darkreader-inline-color="" style="--darkreader-inline-color:#e8e7e3;">0170:</font></td>
+
+      <td><b><font face="Courier New,Courier" color="#000000" size="-1" data-darkreader-inline-color="" style="--darkreader-inline-color:#e8e7e3;">FF FB 
+        94 64-00 00 00 00-00 00 00 00-00 00 00 00</font></b> <br>
+        <b><font face="Courier New,Courier" color="#000000" size="-1" data-darkreader-inline-color="" style="--darkreader-inline-color:#e8e7e3;">00 00 00 
+        00-00 00 00 00-00 00 00 00-00 00 00 00</font></b> <br>
+        <b><font face="Courier New,Courier" size="-1"><font color="#000000" data-darkreader-inline-color="" style="--darkreader-inline-color:#e8e7e3;">00 
+        00 00 00-</font><font color="#009900" data-darkreader-inline-color="" style="--darkreader-inline-color:#70ff70;">58 69 6E 67-00 00 00 0F-00 00 00 
+        7E</font></font></b> <br>
+        <b><font face="Courier New,Courier" color="#009900" size="-1" data-darkreader-inline-color="" style="--darkreader-inline-color:#70ff70;">00 00 30 
+        C0-00 04 06 08-0C 0E 10 12-16 18 1A 1C</font></b> <br>
+        <b><font face="Courier New,Courier" color="#009900" size="-1" data-darkreader-inline-color="" style="--darkreader-inline-color:#70ff70;">21 23 25 
+        27-2B 2D 2F 31-35 37 39 3B-3F 41 43 47</font></b> <br>
+        <b><font face="Courier New,Courier" color="#009900" size="-1" data-darkreader-inline-color="" style="--darkreader-inline-color:#70ff70;">49 4B 4D 
+        51-53 55 57 5B-5D 5F 62 66-68 6A 6C 70</font></b> <br>
+        <b><font face="Courier New,Courier" color="#009900" size="-1" data-darkreader-inline-color="" style="--darkreader-inline-color:#70ff70;">72 74 76 
+        7A-7C 7E 80 84-86 88 8C 8E-90 92 96 98</font></b> <br>
+        <b><font face="Courier New,Courier" color="#009900" size="-1" data-darkreader-inline-color="" style="--darkreader-inline-color:#70ff70;">9A 9C A1 
+        A3-A5 A7 AB AD-AF B1 B5 B7-B9 BB BF C1</font></b> <br>
+        <b><font face="Courier New,Courier" color="#009900" size="-1" data-darkreader-inline-color="" style="--darkreader-inline-color:#70ff70;">C3 C7 C9 
+        CB-CD D1 D3 D5-D7 DB DD DF-E2 E6 E8 EA</font></b> <br>
+        <b><font face="Courier New,Courier" size="-1"><font color="#009900" data-darkreader-inline-color="" style="--darkreader-inline-color:#70ff70;">EC 
+        F0 F2 F4-F6 FA FC FE-00 00 00 58</font><font color="#000000" data-darkreader-inline-color="" style="--darkreader-inline-color:#e8e7e3;">-</font><font color="#3333FF" data-darkreader-inline-color="" style="--darkreader-inline-color:#337dff;">4C 
+        41 4D 45</font></font></b> <br>
+        <b><font face="Courier New,Courier" color="#3333FF" size="-1" data-darkreader-inline-color="" style="--darkreader-inline-color:#337dff;">33 2E 38 
+        38-20 28 62 65-74 61 29 00-00 00 00 00</font></b> <br>
+        <b><font face="Courier New,Courier" color="#990000" size="-1" data-darkreader-inline-color="" style="--darkreader-inline-color:#ff7070;">00 00 00 
+        00-00 00 00 00-00 00 00 00-00 00 00 00</font></b> <br>
+        <b><font face="Courier New,Courier" color="#990000" size="-1" data-darkreader-inline-color="" style="--darkreader-inline-color:#ff7070;">00 00 00 
+        00-00 00 00 00-00 00 00 00-00 00 00 00</font></b> <br>
+        <b><font face="Courier New,Courier" color="#990000" size="-1" data-darkreader-inline-color="" style="--darkreader-inline-color:#ff7070;">00 00 00 
+        00-00 00 00 00-00 00 00 00-00 00 00 00</font></b> <br>
+        <b><font face="Courier New,Courier" color="#990000" size="-1" data-darkreader-inline-color="" style="--darkreader-inline-color:#ff7070;">00 00 00 
+        00-00 00 00 00-00 00 00 00-00 00 00 00</font></b> <br>
+        <b><font face="Courier New,Courier" color="#990000" size="-1" data-darkreader-inline-color="" style="--darkreader-inline-color:#ff7070;">00 00 00 
+        00-00 00 00 00-00 00 00 00-00 00 00 00</font></b> <br>
+        <b><font face="Courier New,Courier" color="#990000" size="-1" data-darkreader-inline-color="" style="--darkreader-inline-color:#ff7070;">00 00 00 
+        00-00 00 00 00-00 00 00 00-00 00 00 00</font></b> <br>
+        <b><font face="Courier New,Courier" color="#990000" size="-1" data-darkreader-inline-color="" style="--darkreader-inline-color:#ff7070;">00 00 00 
+        00-00 00 00 00-00 00 00 00-00 00 00 00</font></b> <br>
+        <b><font face="Courier New,Courier" color="#990000" size="-1" data-darkreader-inline-color="" style="--darkreader-inline-color:#ff7070;">00 00 00 
+        00-00 00 00 00-00 00 00 00-00 00 00 00</font></b> <br>
+        <b><font face="Courier New,Courier" color="#990000" size="-1" data-darkreader-inline-color="" style="--darkreader-inline-color:#ff7070;">00 00 00 
+        00-00 00 00 00-00 00 00 00-00 00 00 00</font></b> <br>
+        <b><font face="Courier New,Courier" color="#990000" size="-1" data-darkreader-inline-color="" style="--darkreader-inline-color:#ff7070;">00 00 00 
+        00-00 00 00 00-00 00 00 00-00 00 00 00</font></b> <br>
+        <b><font face="Courier New,Courier" color="#990000" size="-1" data-darkreader-inline-color="" style="--darkreader-inline-color:#ff7070;">00 00 00 
+        00-00 00 00 00-00 00 00 00-00 00 00 00</font></b> <br>
+        <b><font face="Courier New,Courier" color="#990000" size="-1" data-darkreader-inline-color="" style="--darkreader-inline-color:#ff7070;">00 00 00 
+        00-00 00 00 00-00 00 00 00-00 00 00 00</font></b> <br>
+        <b><font face="Courier New,Courier" color="#990000" size="-1" data-darkreader-inline-color="" style="--darkreader-inline-color:#ff7070;">00 00 00 
+        00-00 00 00 00-00 00 00 00-00 00 00 00</font></b></td>
+
+      <td><b><font face="Arial,Helvetica" color="#000000" size="-1" data-darkreader-inline-color="" style="--darkreader-inline-color:#e8e7e3;">&nbsp;?öd</font></b> 
+        <p><b><font face="Arial,Helvetica" size="-1"><font color="#000000" data-darkreader-inline-color="" style="--darkreader-inline-color:#e8e7e3;">&nbsp; 
+          </font><font color="#009900" data-darkreader-inline-color="" style="--darkreader-inline-color:#70ff70;">Xing&nbsp;&nbsp; ?&nbsp;&nbsp; ~</font></font></b> 
+          <br>
+          <b><font face="Arial,Helvetica" color="#009900" size="-1" data-darkreader-inline-color="" style="--darkreader-inline-color:#70ff70;">&nbsp; 0? 
+          ???????????</font></b> <br>
+          <b><font face="Arial,Helvetica" color="#009900" size="-1" data-darkreader-inline-color="" style="--darkreader-inline-color:#70ff70;">!#%'+-/1579;?ACG</font></b> 
+          <br>
+          <b><font face="Arial,Helvetica" color="#009900" size="-1" data-darkreader-inline-color="" style="--darkreader-inline-color:#70ff70;">IKMQSUW[]_bfhjlp</font></b> 
+          <br>
+          <b><font face="Arial,Helvetica" color="#009900" size="-1" data-darkreader-inline-color="" style="--darkreader-inline-color:#70ff70;">rtvz|~ÇäåêîÄÉÆûÿ</font></b> 
+          <br>
+          <b><font face="Arial,Helvetica" color="#009900" size="-1" data-darkreader-inline-color="" style="--darkreader-inline-color:#70ff70;">Ü£íúÑº½¡»???????</font></b> 
+          <br>
+          <b><font face="Arial,Helvetica" color="#009900" size="-1" data-darkreader-inline-color="" style="--darkreader-inline-color:#70ff70;">?????????????µ??</font></b> 
+          <br>
+          <b><font face="Arial,Helvetica" size="-1"><font color="#009900" data-darkreader-inline-color="" style="--darkreader-inline-color:#70ff70;">????÷·??&nbsp;&nbsp; 
+          X</font><font color="#3333FF" data-darkreader-inline-color="" style="--darkreader-inline-color:#337dff;">LAME</font></font></b> <br>
+          <b><font face="Arial,Helvetica" color="#3333FF" size="-1" data-darkreader-inline-color="" style="--darkreader-inline-color:#337dff;">3.88 (beta)</font></b> 
+          <br>
+          &nbsp;
+<br>&nbsp;
+<br>&nbsp;
+<br>&nbsp;
+<br>&nbsp;
+<br>&nbsp;
+<br>&nbsp;
+<br>&nbsp;
+<br>&nbsp;
+<br>&nbsp;
+<br>&nbsp;
+        </p><p><font face="Arial,Helvetica" size="-1">&nbsp;</font>
+      </p></td>
+</tr>
+</tbody></table></center>
+
+<p>
+</p><hr width="100%">
+<br>
+<a name="layout"></a><font face="Arial,Helvetica" color="#000000" size="-1" data-darkreader-inline-color="" style="--darkreader-inline-color:#e8e7e3;"><u>Suggested 
+Info Tag extension fields + layout</u> :</font> <br>
+&nbsp;
+<center><table border="">
+<tbody><tr>
+<td bgcolor="#FF6666" data-darkreader-inline-bgcolor="" style="--darkreader-inline-bgcolor:#8f0000;">
+<center>
+          <b><u><font face="Arial,Helvetica" size="-1">REMARK:</font></u></b> 
+          <br>
+<hr width="100%">
+          <div align="left"><font face="Arial,Helvetica" size="-1">In the Info 
+            Tag, the "<b>Xing</b>" identification string (mostly at 0x24) of the 
+            header is replaced by "<b>Info</b>" in case of a CBR file.&nbsp;</font> 
+            <br>
+            <font face="Arial,Helvetica" size="-1">This was done to avoid CBR 
+            files to be recognized as traditional Xing VBR files by some decoders.</font> 
+            Although the two identification strings "Xing" and "Info" 
+            are both valid, it is suggested that you keep the identification string 
+            "Xing" in case of VBR bistream in order to keep compatibility.</div>
+          <p><font face="Arial,Helvetica" size="-1">now:&nbsp;</font> 
+          </p><p><font face="Arial,Helvetica" size="-1">LAME VBR &amp; ABR:</font> 
+                    
+          </p><p><font face="Arial,Helvetica" size="-1">"Xing"</font> 
+          </p><p><font face="Arial,Helvetica" size="-1">LAME CBR:</font> 
+                    
+          </p><p><font face="Arial,Helvetica" size="-1">"Info"</font>
+        </p></center>
+</td>
+</tr>
+</tbody></table></center>
+
+<center><table border="" cols="16" width="100%">
+<tbody><tr>
+<td bgcolor="#000000" data-darkreader-inline-bgcolor="" style="--darkreader-inline-bgcolor:#000000;">
+<center>
+          <b><font face="Arial,Helvetica" size="-1">&nbsp;</font></b> 
+        </center>
+</td>
+
+<td bgcolor="#000000" data-darkreader-inline-bgcolor="" style="--darkreader-inline-bgcolor:#000000;">
+<center>
+          <b><font face="Arial,Helvetica" size="-1">&nbsp;</font></b> 
+        </center>
+</td>
+
+<td bgcolor="#000000" data-darkreader-inline-bgcolor="" style="--darkreader-inline-bgcolor:#000000;">
+<center>
+          <b><font face="Arial,Helvetica" size="-1">&nbsp;</font></b> 
+        </center>
+</td>
+
+<td bgcolor="#000000" data-darkreader-inline-bgcolor="" style="--darkreader-inline-bgcolor:#000000;">
+<center>
+          <b><font face="Arial,Helvetica" size="-1">&nbsp;</font></b> 
+        </center>
+</td>
+
+<td bgcolor="#000000" data-darkreader-inline-bgcolor="" style="--darkreader-inline-bgcolor:#000000;">
+<center>
+          <b><font face="Arial,Helvetica" size="-1">&nbsp;</font></b> 
+        </center>
+</td>
+
+<td bgcolor="#000000" data-darkreader-inline-bgcolor="" style="--darkreader-inline-bgcolor:#000000;">
+<center>
+          <b><font face="Arial,Helvetica" size="-1">&nbsp;</font></b> 
+        </center>
+</td>
+
+<td bgcolor="#000000" data-darkreader-inline-bgcolor="" style="--darkreader-inline-bgcolor:#000000;">
+<center>
+          <b><font face="Arial,Helvetica" size="-1">&nbsp;</font></b> 
+        </center>
+</td>
+
+<td bgcolor="#000000" data-darkreader-inline-bgcolor="" style="--darkreader-inline-bgcolor:#000000;">
+<center>
+          <b><font face="Arial,Helvetica" size="-1">&nbsp;</font></b> 
+        </center>
+</td>
+
+<td bgcolor="#FFCCFF" data-darkreader-inline-bgcolor="" style="--darkreader-inline-bgcolor:#520052;">
+<center>
+          <b><font face="Arial,Helvetica" color="#000000" size="-1" data-darkreader-inline-color="" style="--darkreader-inline-color:#e8e7e3;">00h</font></b> 
+        </center>
+</td>
+
+<td bgcolor="#FFCCFF" data-darkreader-inline-bgcolor="" style="--darkreader-inline-bgcolor:#520052;">
+<center>
+          <b><font face="Arial,Helvetica" color="#000000" size="-1" data-darkreader-inline-color="" style="--darkreader-inline-color:#e8e7e3;">00h</font></b> 
+        </center>
+</td>
+
+<td bgcolor="#FFCCFF" data-darkreader-inline-bgcolor="" style="--darkreader-inline-bgcolor:#520052;">
+<center>
+          <b><font face="Arial,Helvetica" color="#000000" size="-1" data-darkreader-inline-color="" style="--darkreader-inline-color:#e8e7e3;">00h</font></b> 
+        </center>
+</td>
+
+<td bgcolor="#FFCCFF" data-darkreader-inline-bgcolor="" style="--darkreader-inline-bgcolor:#520052;">
+<center>
+          <b><font face="Arial,Helvetica" color="#000000" size="-1" data-darkreader-inline-color="" style="--darkreader-inline-color:#e8e7e3;"><a href="http://gabriel.mp3-tech.org/mp3infotag.html#quality">$9B</a></font></b> 
+        </center>
+</td>
+
+<td bgcolor="#FFFFCC" data-darkreader-inline-bgcolor="" style="--darkreader-inline-bgcolor:#525200;">
+<center>
+          <b><font face="Arial,Helvetica" color="#000000" size="-1" data-darkreader-inline-color="" style="--darkreader-inline-color:#e8e7e3;">"L"</font></b> 
+        </center>
+</td>
+
+<td bgcolor="#FFFFCC" data-darkreader-inline-bgcolor="" style="--darkreader-inline-bgcolor:#525200;">
+<center>
+          <b><font face="Arial,Helvetica" color="#000000" size="-1" data-darkreader-inline-color="" style="--darkreader-inline-color:#e8e7e3;">"A"</font></b> 
+        </center>
+</td>
+
+<td bgcolor="#FFFFCC" data-darkreader-inline-bgcolor="" style="--darkreader-inline-bgcolor:#525200;">
+<center>
+          <b><font face="Arial,Helvetica" color="#000000" size="-1" data-darkreader-inline-color="" style="--darkreader-inline-color:#e8e7e3;">"M"</font></b> 
+        </center>
+</td>
+
+<td bgcolor="#FFFFCC" data-darkreader-inline-bgcolor="" style="--darkreader-inline-bgcolor:#525200;">
+<center>
+          <b><font face="Arial,Helvetica" color="#000000" size="-1" data-darkreader-inline-color="" style="--darkreader-inline-color:#e8e7e3;">"E"</font></b> 
+        </center>
+</td>
+</tr>
+
+<tr>
+<td bgcolor="#FFFFCC" data-darkreader-inline-bgcolor="" style="--darkreader-inline-bgcolor:#525200;">
+<center>
+          <b><font face="Arial,Helvetica" size="-1"><a href="http://gabriel.mp3-tech.org/mp3infotag.html#versionstring">$A0</a></font></b> 
+        </center>
+</td>
+
+<td bgcolor="#FFFFCC" data-darkreader-inline-bgcolor="" style="--darkreader-inline-bgcolor:#525200;">
+<center>
+          <b><font face="Arial,Helvetica" color="#000000" size="-1" data-darkreader-inline-color="" style="--darkreader-inline-color:#e8e7e3;">"."</font></b> 
+        </center>
+</td>
+
+<td bgcolor="#FFFFCC" data-darkreader-inline-bgcolor="" style="--darkreader-inline-bgcolor:#525200;">
+<center>
+          <b><font face="Arial,Helvetica" size="-1"><a href="http://gabriel.mp3-tech.org/mp3infotag.html#versionstring">$A2</a></font></b> 
+        </center>
+</td>
+
+<td bgcolor="#FFFFCC" data-darkreader-inline-bgcolor="" style="--darkreader-inline-bgcolor:#525200;">
+<center>
+          <b><font face="Arial,Helvetica" size="-1"><a href="http://gabriel.mp3-tech.org/mp3infotag.html#versionstring">$A3</a></font></b> 
+        </center>
+</td>
+
+<td bgcolor="#FFFFCC" data-darkreader-inline-bgcolor="" style="--darkreader-inline-bgcolor:#525200;">
+<center>
+          <b><font face="Arial,Helvetica" size="-1"><a href="http://gabriel.mp3-tech.org/mp3infotag.html#versionstring">$A4</a></font></b> 
+        </center>
+</td>
+
+<td bgcolor="#33CCFF" data-darkreader-inline-bgcolor="" style="--darkreader-inline-bgcolor:#0082ad;">
+<center>
+          <b><font face="Arial,Helvetica" color="#000000" size="-1" data-darkreader-inline-color="" style="--darkreader-inline-color:#e8e7e3;"><a href="http://gabriel.mp3-tech.org/mp3infotag.html#rev-method">$A5</a></font></b> 
+        </center>
+</td>
+
+<td bgcolor="#FF6666" data-darkreader-inline-bgcolor="" style="--darkreader-inline-bgcolor:#8f0000;">
+<center>
+          <b><font face="Arial,Helvetica" color="#000000" size="-1" data-darkreader-inline-color="" style="--darkreader-inline-color:#e8e7e3;"><a href="http://gabriel.mp3-tech.org/mp3infotag.html#lowpass">$A6</a></font></b> 
+        </center>
+</td>
+
+<td bgcolor="#FFFFFF" data-darkreader-inline-bgcolor="" style="--darkreader-inline-bgcolor:#17181c;">
+<center>
+          <b><font face="Arial,Helvetica" color="#000000" size="-1" data-darkreader-inline-color="" style="--darkreader-inline-color:#e8e7e3;"><a href="http://gabriel.mp3-tech.org/mp3infotag.html#replaygain">$A7</a></font></b> 
+        </center>
+</td>
+
+<td bgcolor="#FFFFFF" data-darkreader-inline-bgcolor="" style="--darkreader-inline-bgcolor:#17181c;">
+<center>
+          <b><font face="Arial,Helvetica" color="#000000" size="-1" data-darkreader-inline-color="" style="--darkreader-inline-color:#e8e7e3;"><a href="http://gabriel.mp3-tech.org/mp3infotag.html#replaygain">$A8</a></font></b> 
+        </center>
+</td>
+
+<td bgcolor="#FFFFFF" data-darkreader-inline-bgcolor="" style="--darkreader-inline-bgcolor:#17181c;">
+<center>
+          <b><font face="Arial,Helvetica" color="#000000" size="-1" data-darkreader-inline-color="" style="--darkreader-inline-color:#e8e7e3;"><a href="http://gabriel.mp3-tech.org/mp3infotag.html#replaygain">$A9</a></font></b> 
+        </center>
+</td>
+
+<td bgcolor="#FFFFFF" data-darkreader-inline-bgcolor="" style="--darkreader-inline-bgcolor:#17181c;">
+<center>
+          <b><font face="Arial,Helvetica" color="#000000" size="-1" data-darkreader-inline-color="" style="--darkreader-inline-color:#e8e7e3;"><a href="http://gabriel.mp3-tech.org/mp3infotag.html#replaygain">$AA</a></font></b> 
+        </center>
+</td>
+
+<td bgcolor="#FFFFFF" data-darkreader-inline-bgcolor="" style="--darkreader-inline-bgcolor:#17181c;">
+<center>
+          <b><font face="Arial,Helvetica" color="#000000" size="-1" data-darkreader-inline-color="" style="--darkreader-inline-color:#e8e7e3;"><a href="http://gabriel.mp3-tech.org/mp3infotag.html#replaygain">$AB</a></font></b> 
+        </center>
+</td>
+
+<td bgcolor="#FFFFFF" data-darkreader-inline-bgcolor="" style="--darkreader-inline-bgcolor:#17181c;">
+<center>
+          <b><font face="Arial,Helvetica" color="#000000" size="-1" data-darkreader-inline-color="" style="--darkreader-inline-color:#e8e7e3;"><a href="http://gabriel.mp3-tech.org/mp3infotag.html#replaygain">$AC</a></font></b> 
+        </center>
+</td>
+
+<td bgcolor="#FFFFFF" data-darkreader-inline-bgcolor="" style="--darkreader-inline-bgcolor:#17181c;">
+<center>
+          <b><font face="Arial,Helvetica" color="#000000" size="-1" data-darkreader-inline-color="" style="--darkreader-inline-color:#e8e7e3;"><a href="http://gabriel.mp3-tech.org/mp3infotag.html#replaygain">$AD</a></font></b> 
+        </center>
+</td>
+
+<td bgcolor="#FFFFFF" data-darkreader-inline-bgcolor="" style="--darkreader-inline-bgcolor:#17181c;">
+<center>
+          <b><font face="Arial,Helvetica" color="#000000" size="-1" data-darkreader-inline-color="" style="--darkreader-inline-color:#e8e7e3;"><a href="http://gabriel.mp3-tech.org/mp3infotag.html#replaygain">$AE</a></font></b> 
+        </center>
+</td>
+
+<td bgcolor="#FF9900" data-darkreader-inline-bgcolor="" style="--darkreader-inline-bgcolor:#cc7a00;">
+<center>
+          <b><font face="Arial,Helvetica" color="#000000" size="-1" data-darkreader-inline-color="" style="--darkreader-inline-color:#e8e7e3;"><a href="http://gabriel.mp3-tech.org/mp3infotag.html#athtype-flags">$AF</a></font></b> 
+        </center>
+</td>
+</tr>
+
+<tr>
+<td bgcolor="#99FF99" data-darkreader-inline-bgcolor="" style="--darkreader-inline-bgcolor:#007000;">
+<center>
+          <b><font face="Arial,Helvetica" color="#000000" size="-1" data-darkreader-inline-color="" style="--darkreader-inline-color:#e8e7e3;"><a href="http://gabriel.mp3-tech.org/mp3infotag.html#abrbitrate">$B0</a></font></b> 
+        </center>
+</td>
+
+<td bgcolor="#CC0000" data-darkreader-inline-bgcolor="" style="--darkreader-inline-bgcolor:#cc0000;">
+<center>
+          <b><font face="Arial,Helvetica" color="#000000" size="-1" data-darkreader-inline-color="" style="--darkreader-inline-color:#e8e7e3;"><a href="http://gabriel.mp3-tech.org/mp3infotag.html#delays">$B1</a></font></b> 
+        </center>
+</td>
+
+<td bgcolor="#CC0000" data-darkreader-inline-bgcolor="" style="--darkreader-inline-bgcolor:#cc0000;">
+<center>
+          <b><font face="Arial,Helvetica" color="#000000" size="-1" data-darkreader-inline-color="" style="--darkreader-inline-color:#e8e7e3;"><a href="http://gabriel.mp3-tech.org/mp3infotag.html#delays">$B2</a></font></b> 
+        </center>
+</td>
+
+<td bgcolor="#CC0000" data-darkreader-inline-bgcolor="" style="--darkreader-inline-bgcolor:#cc0000;">
+<center>
+          <b><font face="Arial,Helvetica" color="#000000" size="-1" data-darkreader-inline-color="" style="--darkreader-inline-color:#e8e7e3;"><a href="http://gabriel.mp3-tech.org/mp3infotag.html#delays">$B3</a></font></b> 
+        </center>
+</td>
+
+<td bgcolor="#CC66CC" data-darkreader-inline-bgcolor="" style="--darkreader-inline-bgcolor:#6b246b;">
+<center>
+          <b><font face="Arial,Helvetica" color="#000000" size="-1" data-darkreader-inline-color="" style="--darkreader-inline-color:#e8e7e3;"><a href="http://gabriel.mp3-tech.org/mp3infotag.html#misc">$B4</a></font></b> 
+        </center>
+</td>
+
+<td bgcolor="#FFFF00" data-darkreader-inline-bgcolor="" style="--darkreader-inline-bgcolor:#cccc00;">
+<center>
+          <b><font face="Arial,Helvetica" color="#000000" size="-1" data-darkreader-inline-color="" style="--darkreader-inline-color:#e8e7e3;"><a href="http://gabriel.mp3-tech.org/mp3infotag.html#mp3gain">$B5</a></font></b> 
+        </center>
+</td>
+
+<td bgcolor="#999999" data-darkreader-inline-bgcolor="" style="--darkreader-inline-bgcolor:#2c3544;">
+<center>
+          <b><font face="Arial,Helvetica" size="-1" color="#000000" data-darkreader-inline-color="" style="--darkreader-inline-color:#e8e7e3;"><a href="http://gabriel.mp3-tech.org/mp3infotag.html#preset">$B6</a></font></b> 
+        </center>
+</td>
+
+<td bgcolor="#999999" data-darkreader-inline-bgcolor="" style="--darkreader-inline-bgcolor:#2c3544;">
+<center>
+          <b><font face="Arial,Helvetica" color="#000000" size="-1" data-darkreader-inline-color="" style="--darkreader-inline-color:#e8e7e3;"><a href="http://gabriel.mp3-tech.org/mp3infotag.html#preset">$B7</a></font></b> 
+        </center>
+</td>
+
+<td bgcolor="#66FFFF" data-darkreader-inline-bgcolor="" style="--darkreader-inline-bgcolor:#008f8f;">
+<center>
+          <b><font face="Arial,Helvetica" color="#000000" size="-1" data-darkreader-inline-color="" style="--darkreader-inline-color:#e8e7e3;"><a href="http://gabriel.mp3-tech.org/mp3infotag.html#musiclength">$B8</a></font></b> 
+        </center>
+</td>
+
+<td bgcolor="#66FFFF" data-darkreader-inline-bgcolor="" style="--darkreader-inline-bgcolor:#008f8f;">
+<center>
+          <b><font face="Arial,Helvetica" color="#000000" size="-1" data-darkreader-inline-color="" style="--darkreader-inline-color:#e8e7e3;"><a href="http://gabriel.mp3-tech.org/mp3infotag.html#musiclength">$B9</a></font></b> 
+        </center>
+</td>
+
+<td bgcolor="#66FFFF" data-darkreader-inline-bgcolor="" style="--darkreader-inline-bgcolor:#008f8f;">
+<center>
+          <b><font face="Arial,Helvetica" color="#000000" size="-1" data-darkreader-inline-color="" style="--darkreader-inline-color:#e8e7e3;"><a href="http://gabriel.mp3-tech.org/mp3infotag.html#musiclength">$BA</a></font></b> 
+        </center>
+</td>
+
+<td bgcolor="#66FFFF" data-darkreader-inline-bgcolor="" style="--darkreader-inline-bgcolor:#008f8f;">
+<center>
+          <b><font face="Arial,Helvetica" color="#000000" size="-1" data-darkreader-inline-color="" style="--darkreader-inline-color:#e8e7e3;"><a href="http://gabriel.mp3-tech.org/mp3infotag.html#musiclength">$BB</a></font></b> 
+        </center>
+</td>
+
+<td bgcolor="#33FF33" data-darkreader-inline-bgcolor="" style="--darkreader-inline-bgcolor:#00ad00;">
+<center>
+          <b><font face="Arial,Helvetica" color="#000000" size="-1" data-darkreader-inline-color="" style="--darkreader-inline-color:#e8e7e3;"><a href="http://gabriel.mp3-tech.org/mp3infotag.html#musiccrc">$BC</a></font></b> 
+        </center>
+</td>
+
+<td bgcolor="#33FF33" data-darkreader-inline-bgcolor="" style="--darkreader-inline-bgcolor:#00ad00;">
+<center>
+          <b><font face="Arial,Helvetica" color="#000000" size="-1" data-darkreader-inline-color="" style="--darkreader-inline-color:#e8e7e3;"><a href="http://gabriel.mp3-tech.org/mp3infotag.html#musiccrc">$BD</a></font></b> 
+        </center>
+</td>
+
+<td bgcolor="#00CC00" data-darkreader-inline-bgcolor="" style="--darkreader-inline-bgcolor:#00cc00;">
+<center>
+          <b><font face="Arial,Helvetica" color="#000000" size="-1" data-darkreader-inline-color="" style="--darkreader-inline-color:#e8e7e3;"><a href="http://gabriel.mp3-tech.org/mp3infotag.html#tagcrc">$BE</a></font></b> 
+        </center>
+</td>
+
+<td bgcolor="#00CC00" data-darkreader-inline-bgcolor="" style="--darkreader-inline-bgcolor:#00cc00;">
+<center>
+          <b><font face="Arial,Helvetica" color="#000000" size="-1" data-darkreader-inline-color="" style="--darkreader-inline-color:#e8e7e3;"><a href="http://gabriel.mp3-tech.org/mp3infotag.html#tagcrc">$BF</a></font></b> 
+        </center>
+</td>
+</tr>
+</tbody></table></center>
+
+<p>
+</p><hr width="100%">
+<center><table border="">
+<tbody><tr bgcolor="#FFCCFF" data-darkreader-inline-bgcolor="" style="--darkreader-inline-bgcolor:#520052;">
+      <td><a name="quality"></a><font face="Arial,Helvetica" size="-1">byte $9B</font></td>
+
+      <td><font face="Arial,Helvetica" size="-1">&nbsp;VBR Quality&nbsp;</font></td>
+</tr>
+</tbody></table></center>
+
+<hr width="100%">
+<center>
+  <p align="left">This field is there to indicate a quality level, although the 
+    scale was not precised in the original Xing specifications.</p>
+  <p align="left">In case of Lame, the meaning is the following:</p>
+  <p><b><font face="Arial,Helvetica" size="-1">int&nbsp;&nbsp;&nbsp; Quality = 
+    (100 - 10 * gfp-&gt;VBR_q - gfp-&gt;quality)h</font></b></p>
+</center>
+
+<p><u><font face="Arial,Helvetica" size="-1">examples:</font></u> 
+</p><p><font face="Arial,Helvetica" size="-1">V0 and q0 = 100 - 10 * 0 - 0 = 100 =&gt; 
+  64h</font> <br>
+  <font face="Arial,Helvetica" size="-1">V0 and q2 = 100 - 10 * 0 - 2 = 98 =&gt; 
+  62h</font> <br>
+  <font face="Arial,Helvetica" size="-1">V2 and q5 = 100 - 10 * 2 - 5 = 75 =&gt; 
+  4Bh</font> <br>
+  <font face="Arial,Helvetica" size="-1">V9 and q9 = 100 - 10 * 9 - 9 = 1 =&gt; 01h</font> 
+  <br>
+</p><hr width="100%">
+<center><table border="">
+<tbody><tr bgcolor="#FFFFCC" data-darkreader-inline-bgcolor="" style="--darkreader-inline-bgcolor:#525200;">
+      <td><a name="versionstring"></a><font face="Arial,Helvetica" size="-1">bytes 
+        $9A-$A4</font></td>
+
+      <td><font face="Arial,Helvetica" size="-1">&nbsp;Encoder short VersionString&nbsp;</font></td>
+</tr>
+</tbody></table></center>
+
+<hr width="100%">
+<br>
+<font face="Arial,Helvetica" size="-1">9 characters</font> 
+<p><u><font face="Arial,Helvetica" size="-1">examples:</font></u> 
+</p><p><font face="Arial,Helvetica" size="-1">"LAME3.90a" : LAME version 3.90 alpha</font> 
+  <br>
+  <font face="Arial,Helvetica" size="-1">"GOGO3.02b" : GOGO version 3.02 beta</font> 
+</p><hr width="100%">
+<center><table border="">
+<tbody><tr bgcolor="#33CCFF" data-darkreader-inline-bgcolor="" style="--darkreader-inline-bgcolor:#0082ad;">
+      <td><a name="rev-method"></a><font face="Arial,Helvetica" size="-1">byte 
+        $A5</font></td>
+
+      <td><font face="Arial,Helvetica" size="-1">&nbsp;Info Tag revision + VBR 
+        method&nbsp;</font></td>
+</tr>
+</tbody></table></center>
+
+<hr width="100%">
+<br>
+<font face="Arial,Helvetica" size="-1">two 4 bits fields:</font> 
+<ul>
+  <li> <font face="Arial,Helvetica" size="-1">4 MSB: Info Tag revision, range 
+    0d-15d</font><br>
+    Possible values:<br>
+    0: rev0<br>
+    1: rev1<br>
+    15: reserved<br>
+    <br>
+    <br>
+  </li>
+  <li> <font face="Arial,Helvetica" size="-1">4 LSB: VBR Method, range 0d-15d<br>
+    Indicate the VBR method used for encoding.<br>
+    Possible values:<br>
+    <br>
+    </font></li>
+  <table border="">
+    <tbody><tr> 
+      <td><font face="Arial,Helvetica" size="-1">0d</font></td>
+      <td><font face="Arial,Helvetica" size="-1">unknown</font></td>
+    </tr>
+    <tr> 
+      <td><font face="Arial,Helvetica" size="-1">1d</font></td>
+      <td><font face="Arial,Helvetica" size="-1">constant bitrate</font></td>
+    </tr>
+    <tr> 
+      <td><font face="Arial,Helvetica" size="-1">2d</font></td>
+      <td><font face="Arial,Helvetica" size="-1">restricted VBR targetting a given 
+        average bitrate (ABR)</font></td>
+    </tr>
+    <tr> 
+      <td><font face="Arial,Helvetica" size="-1">3d</font></td>
+      <td><font face="Arial,Helvetica" size="-1">full VBR method1</font></td>
+    </tr>
+    <tr> 
+      <td><font face="Arial,Helvetica" size="-1">4d</font></td>
+      <td><font face="Arial,Helvetica" size="-1">full VBR method2</font></td>
+    </tr>
+    <tr> 
+      <td><font face="Arial,Helvetica" size="-1">5d</font></td>
+      <td><font face="Arial,Helvetica" size="-1">full VBR method3</font></td>
+    </tr>
+    <tr> 
+      <td><font face="Arial,Helvetica" size="-1">6d</font></td>
+      <td><font face="Arial,Helvetica" size="-1">full VBR method4</font></td>
+    </tr>
+    <tr> 
+      <td><font face="Arial,Helvetica" size="-1">7d</font></td>
+      <td></td>
+    </tr>
+    <tr> 
+      <td><font face="Arial,Helvetica" size="-1">8d</font></td>
+      <td><font face="Arial,Helvetica" size="-1">constant bitrate 2 pass</font></td>
+    </tr>
+    <tr> 
+      <td><font face="Arial,Helvetica" size="-1">9d</font></td>
+      <td><font face="Arial,Helvetica" size="-1">abr 2 pass</font></td>
+    </tr>
+    <tr> 
+      <td><font face="Arial,Helvetica" size="-1">10d</font></td>
+      <td></td>
+    </tr>
+    <tr> 
+      <td><font face="Arial,Helvetica" size="-1">11d</font></td>
+      <td></td>
+    </tr>
+    <tr> 
+      <td><font face="Arial,Helvetica" size="-1">12d</font></td>
+      <td></td>
+    </tr>
+    <tr> 
+      <td><font face="Arial,Helvetica" size="-1">13d</font></td>
+      <td></td>
+    </tr>
+    <tr> 
+      <td><font face="Arial,Helvetica" size="-1">14d</font></td>
+      <td></td>
+    </tr>
+    <tr> 
+      <td><font face="Arial,Helvetica" size="-1">15d</font></td>
+      <td><font face="Arial,Helvetica" size="-1">reserved</font></td>
+    </tr>
+  </tbody></table>
+</ul>
+<p>In case of Lame, the meaning is the following:<br>
+  2: abr<br>
+  3: vbr old / vbr rh<br>
+  4: vbr mtrh<br>
+  5: vbr mt</p>
+<p><u><font face="Arial,Helvetica" size="-1">examples:</font></u> </p>
+<p><b><u><font face="Arial,Helvetica" size="-1">byte $A5 = 03h</font></u></b> 
+</p><p><font face="Arial,Helvetica" size="-1">= 0001 0011b =&gt;</font> 
+</p><ul>
+  <li> <font face="Arial,Helvetica" size="-1">4 MSB = 0001b =1d : LAME Tag revision 
+    1</font></li>
+  <li> <font face="Arial,Helvetica" size="-1">4 LSB = 0011b = 3d : vbr-old / vbr-rh</font></li>
+</ul>
+<b><u><font face="Arial,Helvetica" size="-1">byte $A5 = 35h</font></u></b> 
+<p><font face="Arial,Helvetica" size="-1">= 0011 0101b =&gt;</font> 
+</p><ul>
+  <li> <font face="Arial,Helvetica" size="-1">4 MSB = 0011b = 3d : LAME Tag revision 
+    3</font></li>
+
+  <li> <font face="Arial,Helvetica" size="-1">4 LSB = 0101b = 5d : vbr-new / vbr-mt</font></li>
+</ul>
+
+<hr width="100%">
+<center><table border="">
+<tbody><tr bgcolor="#FF6666" data-darkreader-inline-bgcolor="" style="--darkreader-inline-bgcolor:#8f0000;">
+      <td><a name="lowpass"></a><font face="Arial,Helvetica" size="-1">byte $A6</font></td>
+
+      <td><font face="Arial,Helvetica" size="-1">&nbsp;Lowpass filter value&nbsp;</font></td>
+</tr>
+</tbody></table></center>
+
+<hr width="100%">
+<center>
+  <b><font face="Arial,Helvetica" size="-1">int&nbsp;&nbsp;&nbsp; lowpass = (lowpass 
+  value) / 100</font></b> 
+</center>
+
+<p><font face="Arial,Helvetica" size="-1"><u>range</u>: 01h = 01d : 100Hz -&gt; FFh 
+  = 255d : 25500Hz</font> 
+</p><p><font face="Arial,Helvetica" size="-1">value 00h =&gt; unknown</font> 
+</p><p><u><font face="Arial,Helvetica" size="-1">examples:</font></u> 
+</p><p><b><u><font face="Arial,Helvetica" size="-1">byte $A6 = C3h</font></u></b> 
+</p><p><font face="Arial,Helvetica" size="-1">C3h = 195d : 19500Hz</font> 
+</p><p><b><u><font face="Arial,Helvetica" size="-1">byte $A6 = 78h</font></u></b> 
+</p><p><font face="Arial,Helvetica" size="-1">78h = 120d : 12000Hz</font> 
+</p><p>
+</p><hr width="100%">
+<center><table border="">
+<tbody><tr bgcolor="#FFFFFF" data-darkreader-inline-bgcolor="" style="--darkreader-inline-bgcolor:#17181c;">
+      <td><a name="replaygain"></a><font face="Arial,Helvetica" size="-1">bytes 
+        $A7-$AF</font></td>
+
+      <td><font face="Arial,Helvetica" size="-1">&nbsp;Replay Gain&nbsp;</font></td>
+</tr>
+</tbody></table></center>
+
+<hr width="100%">
+<p><font face="Arial,Helvetica" size="-1">as defined here: <a href="http://www.david.robinson.org/replaylevel/" target="qsdkz">http://www.david.robinson.org/replaylevel/</a> 
+  by David Robinson</font> 
+</p><p><font face="Arial,Helvetica" size="-1">three fields:</font> 
+</p><ul>
+  <li> <font face="Arial,Helvetica" size="-1"><u>bytes $A7-$AA</u> : 32 bit floating 
+    point <b><font color="#009900" data-darkreader-inline-color="" style="--darkreader-inline-color:#70ff70;">"Peak signal amplitude"</font></b>&nbsp; 32 
+    bit floating point. 00h00h00h00h : unknown</font></li>
+  <br>
+  &nbsp; 
+  <p>&nbsp; 
+  </p><p><font face="Arial,Helvetica" size="-1">1.0 is maximal signal amplitude storeable 
+    in decoding format.</font> <br>
+    <font face="Arial,Helvetica" size="-1">0.8 is 80% of maximal signal amplitude 
+    storeable in decoding format.</font> <br>
+    <font face="Arial,Helvetica" size="-1">1.5 is 150% of maximal signal amplitude 
+    storeable in decoding format.</font> 
+  </p><p><font face="Arial,Helvetica" size="-1">info + examples: will follow</font> 
+    <br>
+  </p><hr width="100%">
+  <li> <font face="Arial,Helvetica" size="-1"><u>byte $AB-$AC</u> : 16 bit <b><font color="#009900" data-darkreader-inline-color="" style="--darkreader-inline-color:#70ff70;">"Radio 
+    Replay Gain"</font></b> field, required to make all tracks equal loudness.</font></li>
+  <br>
+  &nbsp; &nbsp; 
+  <p><font face="Arial,Helvetica" size="-1">from <a href="http://privatewww.essex.ac.uk/~djmrob/replaygain/rg_data_format.html" target="sedn">http://privatewww.essex.ac.uk/~djmrob/replaygain/rg_data_format.html</a></font> 
+  </p><p><font face="Arial,Helvetica" size="-1">bits 0h-2h: NAME of Gain adjustment:</font> 
+    <br>
+    <font face="Arial,Helvetica" size="-1">000 = not set</font> <br>
+    <font face="Arial,Helvetica" size="-1">001 = radio</font> <br>
+    <font face="Arial,Helvetica" size="-1">010 = audiophile</font> <br>
+    <font face="Arial,Helvetica" size="-1">(see - room for plenty more!)</font> 
+  </p><p><font face="Arial,Helvetica" size="-1">bits 3h-5h: ORIGINATOR of Gain adjustment:</font> 
+    <br>
+    <font face="Arial,Helvetica" size="-1">000 = not set</font> <br>
+    <font face="Arial,Helvetica" size="-1">001 = set by artist</font> <br>
+    <font face="Arial,Helvetica" size="-1">010 = set by user</font> <br>
+    <font face="Arial,Helvetica" size="-1">011 = set by my model</font> <br>
+    <font face="Arial,Helvetica" size="-1">100 = set by simple RMS average</font> 
+    <br>
+    <font face="Arial,Helvetica" size="-1">etc etc (see - room for plenty more 
+    again!)</font> 
+  </p><p><font face="Arial,Helvetica" size="-1">bit 6h: Sign bit</font> <br>
+    <font face="Arial,Helvetica" size="-1">bits 7h-Fh: ABSOLUTE GAIN ADJUSTMENT</font> 
+    <br>
+    <font face="Arial,Helvetica" size="-1">storing 10x the adjustment (to give 
+    the extra decimal place).</font> 
+  </p><p> 
+  </p><hr width="100%">
+  <li> <font face="Arial,Helvetica" size="-1"><u>byte $AD-AE</u> : 16 bit <b><font color="#009900" data-darkreader-inline-color="" style="--darkreader-inline-color:#70ff70;">"Audiophile 
+    Replay Gain"</font></b> field, required to give ideal listening loudness</font></li>
+  <br>
+  &nbsp; 
+  <p><font face="Arial,Helvetica" size="-1">from <a href="http://privatewww.essex.ac.uk/~djmrob/replaygain/rg_data_format.html" target="sedn">http://privatewww.essex.ac.uk/~djmrob/replaygain/rg_data_format.html</a></font> 
+  </p><p><font face="Arial,Helvetica" size="-1">bits 0h-2h: NAME of Gain adjustment:</font> 
+    <br>
+    <font face="Arial,Helvetica" size="-1">000 = not set</font> <br>
+    <font face="Arial,Helvetica" size="-1">001 = radio</font> <br>
+    <font face="Arial,Helvetica" size="-1">010 = audiophile</font> <br>
+    <font face="Arial,Helvetica" size="-1">(see - room for plenty more!)</font> 
+  </p><p><font face="Arial,Helvetica" size="-1">bits 3h-5h: ORIGINATOR of Gain adjustment:</font> 
+    <br>
+    <font face="Arial,Helvetica" size="-1">000 = not set</font> <br>
+    <font face="Arial,Helvetica" size="-1">001 = set by artist</font> <br>
+    <font face="Arial,Helvetica" size="-1">010 = set by user</font> <br>
+    <font face="Arial,Helvetica" size="-1">011 = set by my model</font> <br>
+    <font face="Arial,Helvetica" size="-1">100 = set by simple RMS average</font> 
+    <br>
+    <font face="Arial,Helvetica" size="-1">etc etc (see - room for plenty more 
+    again!)</font> 
+  </p><p><font face="Arial,Helvetica" size="-1">bit 6h: Sign bit</font> <br>
+    <font face="Arial,Helvetica" size="-1">bits 7h-Fh: ABSOLUTE GAIN ADJUSTMENT</font> 
+    <br>
+    <font face="Arial,Helvetica" size="-1">storing 10x the adjustment (to give 
+    the extra decimal place).</font>
+</p></ul>
+
+<hr width="100%">
+<center><table border="">
+<tbody><tr bgcolor="#FF9900" data-darkreader-inline-bgcolor="" style="--darkreader-inline-bgcolor:#cc7a00;">
+      <td><a name="athtype-flags"></a><font face="Arial,Helvetica" size="-1">byte 
+        $AF</font></td>
+
+      <td><font face="Arial,Helvetica" size="-1">&nbsp;Encoding flags + ATH Type&nbsp;</font></td>
+</tr>
+</tbody></table></center>
+
+<hr width="100%">
+<br>
+<font face="Arial,Helvetica" size="-1">two 4 bits fields:</font> 
+<ul>
+  <li> <font face="Arial,Helvetica" size="-1">4 MSB: 4 encoding flags</font></li>
+
+<table border="">
+<tbody><tr>
+      <td><font face="Arial,Helvetica" size="-1">000?</font></td>
+
+      <td><font face="Arial,Helvetica" size="-1">LAME uses "--nspsytune",&nbsp;</font> 
+        <br>
+        <font face="Arial,Helvetica" size="-1">? = 0 : false</font> <br>
+        <font face="Arial,Helvetica" size="-1">? = 1 : true&nbsp;</font></td>
+</tr>
+
+<tr>
+      <td><font face="Arial,Helvetica" size="-1">00?0</font></td>
+
+      <td><font face="Arial,Helvetica" size="-1">LAME uses "--nssafejoint"</font> 
+        <br>
+        <font face="Arial,Helvetica" size="-1">? = 0 : false</font> <br>
+        <font face="Arial,Helvetica" size="-1">? = 1 : true</font></td>
+</tr>
+
+<tr>
+      <td><font face="Arial,Helvetica" size="-1">0?00</font></td>
+
+      <td><font face="Arial,Helvetica" size="-1">This track is --nogap continued 
+        in a next track</font> <br>
+        <font face="Arial,Helvetica" size="-1">? = 0 : false</font> <br>
+        <font face="Arial,Helvetica" size="-1">? = 1 : true</font> 
+        <p><font face="Arial,Helvetica" size="-1">is true for all but the <b>last</b> 
+          track in a --nogap album</font>
+      </p></td>
+</tr>
+
+<tr>
+      <td><font face="Arial,Helvetica" size="-1">?000</font></td>
+
+      <td><font face="Arial,Helvetica" size="-1">This track is the --nogap continuation 
+        of an earlier one</font> <br>
+        <font face="Arial,Helvetica" size="-1">? = 0 : false</font> <br>
+        <font face="Arial,Helvetica" size="-1">? = 1 : true</font> 
+        <p><font face="Arial,Helvetica" size="-1">is true for all but the <b>first</b> 
+          track in a --nogap album</font>
+      </p></td>
+</tr>
+</tbody></table>
+
+  <li> <font face="Arial,Helvetica" size="-1">4 LSB: LAME ATH Type, range 0d-15d</font></li>
+</ul>
+<u><font face="Arial,Helvetica" size="-1">examples:</font></u> 
+<p><b><u><font face="Arial,Helvetica" size="-1">byte $AF = 03h</font></u></b> 
+</p><p><font face="Arial,Helvetica" size="-1">= 0000 0011b =&gt;</font> 
+</p><ul>
+  <li> <font face="Arial,Helvetica" size="-1">4 MSB = 0000b = 0d : LAME does NOT 
+    use --nspsytune, LAME does NOT use --nssafejoint</font></li>
+
+  <li> <font face="Arial,Helvetica" size="-1">4 LSB = 0011b = 3d : ATH type 3 
+    used</font></li>
+</ul>
+<b><u><font face="Arial,Helvetica" size="-1">byte $AF = 15h</font></u></b> 
+<p><font face="Arial,Helvetica" size="-1">= 0001 0101b =&gt;</font> 
+</p><ul>
+  <li> <font face="Arial,Helvetica" size="-1">4 MSB = 0001b = 3d : LAME does use 
+    --nspsytune, LAME does NOT use --nssafejoint</font></li>
+
+  <li> <font face="Arial,Helvetica" size="-1">4 LSB = 0101b = 5d : ATH type 5 
+    used</font></li>
+</ul>
+
+<hr width="100%">
+<center><table border="">
+<tbody><tr bgcolor="#99FF99" data-darkreader-inline-bgcolor="" style="--darkreader-inline-bgcolor:#007000;">
+      <td><a name="abrbitrate"></a><font face="Arial,Helvetica" size="-1">byte 
+        $B0</font></td>
+
+      <td><font face="Arial,Helvetica" size="-1">&nbsp;if ABR {specified bitrate} 
+        else {minimal bitrate}</font></td>
+</tr>
+</tbody></table></center>
+
+<hr width="100%">
+<br>
+<u><font face="Arial,Helvetica" size="-1">IF the file is an ABR file:</font></u> 
+<p><font face="Arial,Helvetica" size="-1"><u>range</u>: 01h = 01d : 1 kbit/s (--abr 
+  1)&nbsp; -&gt; FFh = 255d : 255 kbit/s <u>or larger</u> (--abr 255)</font> 
+</p><p><font face="Arial,Helvetica" size="-1">value 00h =&gt; unknown</font> 
+</p><p><u><font face="Arial,Helvetica" size="-1">examples:</font></u> 
+</p><p><b><u><font face="Arial,Helvetica" size="-1">byte $B0 = C3h</font></u></b> 
+</p><p><font face="Arial,Helvetica" size="-1">C3h = 195d : --abr 195</font> 
+</p><p><b><u><font face="Arial,Helvetica" size="-1">byte $B0 = 78h</font></u></b> 
+</p><p><font face="Arial,Helvetica" size="-1">78h = 128d : --abr 128</font> 
+</p><p><b><u><font face="Arial,Helvetica" size="-1">byte $B0 = FEh</font></u></b> 
+</p><p><font face="Arial,Helvetica" size="-1">FEh = 254d : --abr 254</font> 
+</p><p><b><u><font face="Arial,Helvetica" size="-1">byte $B0 = FFh</font></u></b> 
+</p><p><font face="Arial,Helvetica" size="-1">FEh = 255d : --abr 255 or higher, eg: 
+  --abr 280</font> 
+</p><p><u><font face="Arial,Helvetica" size="-1">IF the file is NOT an ABR file: (CBR/VBR)</font></u> 
+</p><p><font face="Arial,Helvetica" size="-1">the (CBR)/(minimal VBR (-b)) bitrate 
+  is stored here 8-255. 255 if bigger.</font> 
+</p><p><font face="Arial,Helvetica" size="-1">examples:</font> 
+</p><ul>
+  <li> <font face="Arial,Helvetica" size="-1">"LAME -V0 -b224" will store (224)d=(E0)h</font></li>
+
+  <li> <font face="Arial,Helvetica" size="-1">"LAME -b320" will store (255)d=(FF)h</font></li>
+</ul>
+
+<hr width="100%">
+<center><table border="">
+<tbody><tr bgcolor="#CC0000" data-darkreader-inline-bgcolor="" style="--darkreader-inline-bgcolor:#cc0000;">
+      <td><a name="delays"></a><font face="Arial,Helvetica" size="-1">bytes $B1-$B3</font></td>
+
+      <td><font face="Arial,Helvetica" size="-1">&nbsp;Encoder delays&nbsp;</font></td>
+</tr>
+</tbody></table></center>
+
+<hr width="100%">
+<br>
+<font face="Arial,Helvetica" size="-1">store in 3 bytes:</font> 
+<p><font face="Arial,Helvetica" size="-1">[xxxxxxxx][xxxxyyyy][yyyyyyyy]</font> 
+</p><p><font face="Arial,Helvetica" size="-1">the 12 bit values (0-4095) of how many 
+  samples were added at start (encoder delay) in X and how many 0-samples were 
+  padded at the end in Y to complete the last frame.</font> 
+</p><p><font face="Arial,Helvetica" size="-1">so ideally you could do: #frames*(#samples/frame)-(these 
+  two values) = exact number of samples in original wav.</font> 
+</p><p><font face="Arial,Helvetica" size="-1">so worst case scenario you'd have a 
+  48kHz file which would give it a range of 0.085s at the end and at the start.</font> 
+</p><p><font face="Arial,Helvetica" size="-1">example:</font> <br>
+  <font face="Arial,Helvetica" size="-1">[01101100][00010010][11010010]</font> 
+</p><p><font face="Arial,Helvetica" size="-1">X = (011011000001)b = (1729)d, so 1729 
+  samples is the encoder delay</font> <br>
+  <font face="Arial,Helvetica" size="-1">Y = (001011010010)b = (722)d, so 722 
+  samples have been padded at the end of the file</font> <br>
+</p><hr width="100%">
+<center><table border="">
+<tbody><tr bgcolor="#CC66CC" data-darkreader-inline-bgcolor="" style="--darkreader-inline-bgcolor:#6b246b;">
+      <td><a name="misc"></a><font face="Arial,Helvetica" size="-1">byte $B4</font></td>
+
+      <td><font face="Arial,Helvetica" size="-1">&nbsp;Misc&nbsp;</font></td>
+</tr>
+</tbody></table></center>
+
+<hr width="100%">
+<table border="">
+<tbody><tr>
+    <td><font face="Arial,Helvetica" size="-1">2 lsb</font></td>
+
+    <td><font face="Arial,Helvetica" size="-1">I'd like to add the different noise 
+      shapings also in a 2-bit field (0-3)</font> <br>
+      <font face="Arial,Helvetica" size="-1">(00)b: noise shaping: 0</font> <br>
+      <font face="Arial,Helvetica" size="-1">(01)b: noise shaping: 1</font> <br>
+      <font face="Arial,Helvetica" size="-1">(10)b: noise shaping: 2</font> <br>
+      <font face="Arial,Helvetica" size="-1">(11)b: noise shaping: 3</font></td>
+</tr>
+
+<tr>
+    <td><font face="Arial,Helvetica" size="-1">3 bits</font></td>
+
+    <td><font face="Arial,Helvetica" size="-1">Stereo mode</font> 
+      <p><font face="Arial,Helvetica" size="-1">msb fist:</font> 
+      </p><p><font face="Arial,Helvetica" size="-1">(000)b: (m)ono</font> <br>
+        <font face="Arial,Helvetica" size="-1">(001)b: (s)tereo</font> <br>
+        <font face="Arial,Helvetica" size="-1">(010)b: (d)ual</font> <br>
+        <font face="Arial,Helvetica" size="-1">(011)b: (j)oint</font> <br>
+        <font face="Arial,Helvetica" size="-1">(100)b: (f)orce</font> <br>
+        <font face="Arial,Helvetica" size="-1">(101)b: (a)uto</font> <br>
+        <font face="Arial,Helvetica" size="-1">(110)b: (i)ntensity</font> <br>
+        <font face="Arial,Helvetica" size="-1">(111)b: (x)undefined / different</font> 
+        <br>
+        &nbsp;</p></td>
+</tr>
+
+<tr>
+    <td><font face="Arial,Helvetica" size="-1">1 bit</font></td>
+
+    <td><font face="Arial,Helvetica" size="-1">unwise settings used</font> 
+      <p><font face="Arial,Helvetica" size="-1">(0)b: no</font> <br>
+        <font face="Arial,Helvetica" size="-1">(1)b: yes (definition encoder side(*))</font>
+    </p></td>
+</tr>
+
+<tr>
+    <td><font face="Arial,Helvetica" size="-1">2 msb</font></td>
+
+    <td><font face="Arial,Helvetica" size="-1"><b><u>Source</u></b> (not mp3) 
+      sample frequency</font> 
+      <p><font face="Arial,Helvetica" size="-1">(00)b: 32kHz or smaller</font> 
+        <br>
+        <font face="Arial,Helvetica" size="-1">(01)b: 44.1kHz</font> <br>
+        <font face="Arial,Helvetica" size="-1">(10)b: 48kHz</font> <br>
+        <font face="Arial,Helvetica" size="-1">(11)b: higher than 48kHz</font>
+    </p></td>
+</tr>
+</tbody></table>
+
+<p><font face="Arial,Helvetica" size="-1">(*)some settings were used which would 
+  likely damage quality in normal circumstances. (like disabling all use of the 
+  ATH or forcing only short blocks, -b192 ...)</font> 
+</p><p>
+</p><hr width="100%">
+<center><table border="">
+<tbody><tr bgcolor="#FFFF00" data-darkreader-inline-bgcolor="" style="--darkreader-inline-bgcolor:#cccc00;">
+      <td><a name="mp3gain"></a><font face="Arial,Helvetica" size="-1">byte $B5</font></td>
+
+      <td><font face="Arial,Helvetica" size="-1">&nbsp;MP3 Gain&nbsp;</font></td>
+</tr>
+</tbody></table></center>
+
+<hr width="100%">
+<br>
+<font face="Arial,Helvetica" size="-1">any mp3 can be amplified by a factor<font color="#000099" data-darkreader-inline-color="" style="--darkreader-inline-color:#70a4ff;"> 
+</font><b><font color="#009900" data-darkreader-inline-color="" style="--darkreader-inline-color:#70ff70;">2 ^ ( x * 0.25)</font></b> in a <u>lossless</u> 
+manner by a tool like eg. <a href="http://www.geocities.com/mp3gain" target="sds">mp3gain</a></font> 
+<p><font face="Arial,Helvetica" size="-1">byte $B5 is set to (00)h by default.</font> 
+</p><p><font face="Arial,Helvetica" size="-1">if done so, this 8-bit field can be 
+  used to log such transformation happened so that any given time it can be undone.</font> 
+  <br>
+  &nbsp;
+</p><center><table border="">
+<tbody><tr>
+<td bgcolor="#FF6666" data-darkreader-inline-bgcolor="" style="--darkreader-inline-bgcolor:#8f0000;">
+<center>
+          <b><u><font face="Arial,Helvetica" size="-1">WARNING:</font></u></b> 
+          <br>
+<hr width="100%">
+          <font face="Arial,Helvetica" size="-1">Do <b>NOT</b> alter this field 
+          if you do not fully understand its use.&nbsp; You will damage the Replaygain</font> 
+          <br>
+          <font face="Arial,Helvetica" size="-1">fields and musicCRC if you do 
+          not implement this correctly.</font> <br>
+<hr width="100%">
+<br>
+          <font face="Arial,Helvetica" size="-1">You can <b>only</b> modify this 
+          field if</font> 
+        </center>
+
+<ol>
+<center>
+            <li> <font face="Arial,Helvetica" size="-1">the <a href="http://gabriel.mp3-tech.org/mp3infotag.html#tagcrc">TagCRC</a> 
+              checks out</font></li>
+          </center>
+
+<center>
+            <li> <font face="Arial,Helvetica" size="-1">you update <b><u>all three</u></b> 
+              the <a href="http://gabriel.mp3-tech.org/mp3infotag.html#replaygain">ReplayGain</a> fields with the correct 
+              number of 1.5dB steps</font></li>
+          </center>
+
+<center>
+            <li> <font face="Arial,Helvetica" size="-1">the <a href="http://gabriel.mp3-tech.org/mp3infotag.html#tagcrc">TagCRC</a> 
+              is updated after all this</font></li>
+          </center>
+</ol>
+
+<center>
+          <font face="Arial,Helvetica" size="-1">Do NOT change/update the musicCRC.&nbsp; 
+          It will be invalid after you change this mp3gain field.</font> <br>
+          <font face="Arial,Helvetica" size="-1">If an application like mp3gain 
+          changes the main music frames of the mp3 then the musicCRC <u>should</u> 
+          be invalid.&nbsp;</font> <br>
+          <font face="Arial,Helvetica" size="-1">The Lame Tag CRC should still 
+          be valid however (it could be updated by mp3gain). 
+          <hr width="100%">
+          only tools like mp3gain should use this field, as it is made for making 
+          lossless adjustments to the mp3</font> <br>
+          <font face="Arial,Helvetica" size="-1"><u>after</u> encoding is finished.&nbsp; 
+          No need to support this in LAME or any decoder at all.</font> 
+        </center>
+</td>
+</tr>
+</tbody></table></center>
+
+<p><font face="Arial,Helvetica" size="-1">2^(a/4) , range of "a" here: -127..0..127</font> 
+  <br>
+  &nbsp;
+<table border="">
+<tbody><tr bgcolor="#FFFF00" data-darkreader-inline-bgcolor="" style="--darkreader-inline-bgcolor:#cccc00;">
+<td>
+<center>
+        <font face="Arial,Helvetica" size="-1">[byte $B5]b</font> 
+      </center>
+</td>
+
+<td>
+<center>
+        <font face="Arial,Helvetica" size="-1">a</font> 
+      </center>
+</td>
+
+<td>
+<center>
+        <font face="Arial,Helvetica" size="-1">dB change</font> 
+      </center>
+</td>
+
+<td>
+<center>
+        <font face="Arial,Helvetica" size="-1">amplification factor used was</font> 
+      </center>
+</td>
+</tr>
+
+<tr>
+<td>
+<center>
+        <font face="Arial,Helvetica" size="-1">[11111111]</font> 
+      </center>
+</td>
+
+<td>
+<center>
+        <font face="Arial,Helvetica" size="-1">-127</font> 
+      </center>
+</td>
+
+<td>
+<center>
+        <font face="Arial,Helvetica" size="-1">-190.5dB</font> 
+      </center>
+</td>
+
+<td>
+<center>
+        <font face="Arial,Helvetica" size="-1">0.000000000276883</font> 
+      </center>
+</td>
+</tr>
+
+<tr>
+<td>
+<center>
+        <font face="Arial,Helvetica" size="-1">...</font> 
+      </center>
+</td>
+
+<td>
+<center>
+        <font face="Arial,Helvetica" size="-1">...</font> 
+      </center>
+</td>
+
+<td>&nbsp;</td>
+
+<td>
+<center>
+        <font face="Arial,Helvetica" size="-1">&nbsp;</font> 
+      </center>
+</td>
+</tr>
+
+<tr>
+<td>
+<center>
+        <font face="Arial,Helvetica" size="-1">[10000011]</font> 
+      </center>
+</td>
+
+<td>
+<center>
+        <font face="Arial,Helvetica" size="-1">-3</font> 
+      </center>
+</td>
+
+<td>
+<center>
+        <font face="Arial,Helvetica" size="-1">-4.5dB</font> 
+      </center>
+</td>
+
+<td>
+<center>
+        <font face="Arial,Helvetica" size="-1">0.594603557501360533</font> 
+      </center>
+</td>
+</tr>
+
+<tr>
+<td>
+<center>
+        <font face="Arial,Helvetica" size="-1">[10000010]</font> 
+      </center>
+</td>
+
+<td>
+<center>
+        <font face="Arial,Helvetica" size="-1">-2</font> 
+      </center>
+</td>
+
+<td>
+<center>
+        <font face="Arial,Helvetica" size="-1">-3dB</font> 
+      </center>
+</td>
+
+<td>
+<center>
+        <font face="Arial,Helvetica" size="-1">0.707106781186547524</font> 
+      </center>
+</td>
+</tr>
+
+<tr>
+<td>
+<center>
+        <font face="Arial,Helvetica" size="-1">[10000001]</font> 
+      </center>
+</td>
+
+<td>
+<center>
+        <font face="Arial,Helvetica" size="-1">-1</font> 
+      </center>
+</td>
+
+<td>
+<center>
+        <font face="Arial,Helvetica" size="-1">-1.5dB</font> 
+      </center>
+</td>
+
+<td>
+<center>
+        <font face="Arial,Helvetica" size="-1">0.840896415253714543</font> 
+      </center>
+</td>
+</tr>
+
+<tr>
+<td>
+<center>
+        <font face="Arial,Helvetica" size="-1">[00000000]</font> 
+      </center>
+</td>
+
+<td>
+<center>
+        <font face="Arial,Helvetica" size="-1">0</font> 
+      </center>
+</td>
+
+<td>
+<center>
+        <font face="Arial,Helvetica" size="-1">0dB</font> 
+      </center>
+</td>
+
+<td>
+<center>
+        <font face="Arial,Helvetica" size="-1">1.0</font> 
+      </center>
+</td>
+</tr>
+
+<tr>
+<td>
+<center>
+        <font face="Arial,Helvetica" size="-1">[00000001]</font> 
+      </center>
+</td>
+
+<td>
+<center>
+        <font face="Arial,Helvetica" size="-1">1</font> 
+      </center>
+</td>
+
+<td>
+<center>
+        <font face="Arial,Helvetica" size="-1">+1.5dB</font> 
+      </center>
+</td>
+
+<td>
+<center>
+        <font face="Arial,Helvetica" size="-1">1.18920711500272107</font> 
+      </center>
+</td>
+</tr>
+
+<tr>
+<td>
+<center>
+        <font face="Arial,Helvetica" size="-1">[00000010]</font> 
+      </center>
+</td>
+
+<td>
+<center>
+        <font face="Arial,Helvetica" size="-1">2</font> 
+      </center>
+</td>
+
+<td>
+<center>
+        <font face="Arial,Helvetica" size="-1">+3dB</font> 
+      </center>
+</td>
+
+<td>
+<center>
+        <font face="Arial,Helvetica" size="-1">1.41421356237309505</font> 
+      </center>
+</td>
+</tr>
+
+<tr>
+<td>
+<center>
+        <font face="Arial,Helvetica" size="-1">[00000011]</font> 
+      </center>
+</td>
+
+<td>
+<center>
+        <font face="Arial,Helvetica" size="-1">3</font> 
+      </center>
+</td>
+
+<td>
+<center>
+        <font face="Arial,Helvetica" size="-1">+4.5dB</font> 
+      </center>
+</td>
+
+<td>
+<center>
+        <font face="Arial,Helvetica" size="-1">1.68179283050742909</font> 
+      </center>
+</td>
+</tr>
+
+<tr>
+<td>
+<center>
+        <font face="Arial,Helvetica" size="-1">[00000100]</font> 
+      </center>
+</td>
+
+<td>
+<center>
+        <font face="Arial,Helvetica" size="-1">4</font> 
+      </center>
+</td>
+
+<td>
+<center>
+        <font face="Arial,Helvetica" size="-1">+6dB</font> 
+      </center>
+</td>
+
+<td>
+<center>
+        <font face="Arial,Helvetica" size="-1">2.0</font> 
+      </center>
+</td>
+</tr>
+
+<tr>
+<td>
+<center>
+        <font face="Arial,Helvetica" size="-1">[00000101]</font> 
+      </center>
+</td>
+
+<td>
+<center>
+        <font face="Arial,Helvetica" size="-1">5</font> 
+      </center>
+</td>
+
+<td>
+<center>
+        <font face="Arial,Helvetica" size="-1">+7.5dB</font> 
+      </center>
+</td>
+
+<td>
+<center>
+        <font face="Arial,Helvetica" size="-1">2.37841423000544213</font> 
+      </center>
+</td>
+</tr>
+
+<tr>
+<td>
+<center>
+        <font face="Arial,Helvetica" size="-1">...</font> 
+      </center>
+</td>
+
+<td>
+<center>
+        <font face="Arial,Helvetica" size="-1">...</font> 
+      </center>
+</td>
+
+<td>&nbsp;</td>
+
+<td>
+<center>
+        <font face="Arial,Helvetica" size="-1">&nbsp;</font> 
+      </center>
+</td>
+</tr>
+
+<tr>
+<td>
+<center>
+        <font face="Arial,Helvetica" size="-1">[00011111]</font> 
+      </center>
+</td>
+
+<td>
+<center>
+        <font face="Arial,Helvetica" size="-1">31</font> 
+      </center>
+</td>
+
+<td>
+<center>
+        <font face="Arial,Helvetica" size="-1">+46.5dB</font> 
+      </center>
+</td>
+
+<td>
+<center>
+        <font face="Arial,Helvetica" size="-1">215.269482304950923</font> 
+      </center>
+</td>
+</tr>
+
+<tr>
+<td>
+<center>
+        <font face="Arial,Helvetica" size="-1">...</font> 
+      </center>
+</td>
+
+<td>
+<center>
+        <font face="Arial,Helvetica" size="-1">...</font> 
+      </center>
+</td>
+
+<td>&nbsp;</td>
+
+<td>
+<center>
+        <font face="Arial,Helvetica" size="-1">&nbsp;</font> 
+      </center>
+</td>
+</tr>
+
+<tr>
+<td>
+<center>
+        <font face="Arial,Helvetica" size="-1">[01111111]</font> 
+      </center>
+</td>
+
+<td>
+<center>
+        <font face="Arial,Helvetica" size="-1">127</font> 
+      </center>
+</td>
+
+<td>
+<center>
+        <font face="Arial,Helvetica" size="-1">+190.5dB</font> 
+      </center>
+</td>
+
+<td>
+<center>
+        <font face="Arial,Helvetica" size="-1">3611622602.83833951</font> 
+      </center>
+</td>
+</tr>
+</tbody></table>
+
+</p><p><font face="Arial,Helvetica" size="-1">the +-190.5dB range is too large, but 
+  there was little else to do with the extra bits, so for uniformity we took this 
+  range.</font> <br>
+</p><hr width="100%">
+<center><table border="">
+<tbody><tr bgcolor="#999999" data-darkreader-inline-bgcolor="" style="--darkreader-inline-bgcolor:#2c3544;">
+      <td><font face="Arial,Helvetica" size="-1"><a name="preset"></a>bytes $B6-$B7</font></td>
+
+      <td><font face="Arial,Helvetica" size="-1">&nbsp;Preset and surround info</font></td>
+</tr>
+</tbody></table>
+  <p align="left">2 most significant bits: unused</p>
+  <p align="left">&nbsp;</p>
+  <p align="left">3 bits: surround info</p>
+  <p align="left">0: no surround info<br>
+    1: DPL encoding<br>
+    2: DPL2 encoding<br>
+    3: Ambisonic encoding<br>
+    8: reserved</p>
+  <p align="left">&nbsp;</p>
+  <p align="left">11 least significant bits: Preset used.</p>
+  <p align="left">0: unknown/ no preset used<br>
+    This allows a range of 2047 presets. With Lame we would use the value of the 
+    internal preset enum.</p>
+</center>
+
+<hr width="100%">
+<center><table border="">
+<tbody><tr bgcolor="#66FFFF" data-darkreader-inline-bgcolor="" style="--darkreader-inline-bgcolor:#008f8f;">
+      <td><a name="musiclength"></a><font face="Arial,Helvetica" size="-1">bytes 
+        $B8-$BB</font></td>
+
+      <td><font face="Arial,Helvetica" size="-1">&nbsp;MusicLength&nbsp;</font></td>
+</tr>
+</tbody></table></center>
+
+<hr width="100%">
+<br>
+<font face="Arial,Helvetica" size="-1">32 bit integer filed containing the exact 
+length in bytes of the mp3 file originally made by LAME <u>excluded</u> ID3 tag 
+info at the end.</font> 
+<p><font face="Arial,Helvetica" size="-1">The first byte it counts is the <b>first 
+  byte of this LAME Tag</b> and the last byte it counts is the <b>last byte of 
+  the last mp3 frame containing music</b>.</font> 
+</p><p><font face="Arial,Helvetica" size="-1">Should be filelength at the time of 
+  LAME encoding, except when using ID3 tags.</font> 
+</p><p><b><font face="Arial,Helvetica" size="-1">practical example:</font></b> <br>
+  <b><font face="Arial,Helvetica" size="-1"><strike><font color="#990000" data-darkreader-inline-color="" style="--darkreader-inline-color:#ff7070;">[misc+ID3v2 
+  tag info]</font></strike><font color="#009900" data-darkreader-inline-color="" style="--darkreader-inline-color:#70ff70;">[LAME Tag frame][complete mp3 
+  music data]</font><strike><font color="#990000" data-darkreader-inline-color="" style="--darkreader-inline-color:#ff7070;">[misc+ID3v1/2 tag info]</font></strike></font></b> 
+</p><p><font face="Arial,Helvetica" color="#000000" size="-1" data-darkreader-inline-color="" style="--darkreader-inline-color:#e8e7e3;"><b>remark:</b> applying 
+  <b>any</b> (ID3v2) kind of tagging or information in <u>FRONT</u> of the LAME/Xing 
+  Tag frame is a <u>very bad</u> idea.&nbsp; You will disable the functionality 
+  of all decoders to read the tag info correctly. (for example: VBR mp3 seek info 
+  will no longer be usable)</font> 
+</p><p><font face="Arial,Helvetica" size="-1">range (1)d-(4,294,967,295)d [ or about 
+  4294967295/(650*1024*1024)/320*1411 = 27.79 hours of 44.1kHz 320kbit/s music. 
+  ]</font> 
+</p><p><font face="Arial,Helvetica" size="-1">Musiclength not set / unknown / larger 
+  than 4G:</font> 
+<table border="">
+<tbody><tr bgcolor="#66FFFF" data-darkreader-inline-bgcolor="" style="--darkreader-inline-bgcolor:#008f8f;">
+    <td><font face="Arial,Helvetica" size="-1">$B8</font></td>
+
+    <td><font face="Arial,Helvetica" size="-1">$B9</font></td>
+
+    <td><font face="Arial,Helvetica" size="-1">$BA</font></td>
+
+    <td><font face="Arial,Helvetica" size="-1">$BB</font></td>
+</tr>
+
+<tr>
+    <td><font face="Arial,Helvetica" size="-1">00h</font></td>
+
+    <td><font face="Arial,Helvetica" size="-1">00h</font></td>
+
+    <td><font face="Arial,Helvetica" size="-1">00h</font></td>
+
+    <td><font face="Arial,Helvetica" size="-1">00h</font></td>
+</tr>
+</tbody></table>
+
+</p><p><font face="Arial,Helvetica" size="-1">use of this field: together with the 
+  next field deliver</font> 
+</p><ul>
+  <li> <font face="Arial,Helvetica" size="-1">an effective verification of music's 
+    integrity</font></li>
+
+  <li> <font face="Arial,Helvetica" size="-1">and effective shield from TAGs.</font></li>
+</ul>
+
+<p><br>
+  <b><font face="Arial,Helvetica" size="-1">Examples:</font></b> <br>
+  &nbsp;
+<table border="">
+<tbody><tr bgcolor="#66FFFF" data-darkreader-inline-bgcolor="" style="--darkreader-inline-bgcolor:#008f8f;">
+    <td><font face="Arial,Helvetica" size="-1">$B8</font></td>
+
+    <td><font face="Arial,Helvetica" size="-1">$B9</font></td>
+
+    <td><font face="Arial,Helvetica" size="-1">$BA</font></td>
+
+    <td><font face="Arial,Helvetica" size="-1">$BB</font></td>
+</tr>
+
+<tr>
+    <td><font face="Arial,Helvetica" size="-1">(29)h</font></td>
+
+    <td><font face="Arial,Helvetica" size="-1">(17)h</font></td>
+
+    <td><font face="Arial,Helvetica" size="-1">(A3)h</font></td>
+
+    <td><font face="Arial,Helvetica" size="-1">(62)h</font></td>
+</tr>
+</tbody></table>
+<font face="Arial,Helvetica" size="-1">would be (2917A362)h = (689,415,010)b bytes</font> 
+<table border="">
+<tbody><tr bgcolor="#66FFFF" data-darkreader-inline-bgcolor="" style="--darkreader-inline-bgcolor:#008f8f;">
+    <td><font face="Arial,Helvetica" size="-1">$B8</font></td>
+
+    <td><font face="Arial,Helvetica" size="-1">$B9</font></td>
+
+    <td><font face="Arial,Helvetica" size="-1">$BA</font></td>
+
+    <td><font face="Arial,Helvetica" size="-1">$BB</font></td>
+</tr>
+
+<tr>
+    <td><font face="Arial,Helvetica" size="-1">(00)h</font></td>
+
+    <td><font face="Arial,Helvetica" size="-1">(3B)h</font></td>
+
+    <td><font face="Arial,Helvetica" size="-1">(82)h</font></td>
+
+    <td><font face="Arial,Helvetica" size="-1">(B5)h</font></td>
+</tr>
+</tbody></table>
+<font face="Arial,Helvetica" size="-1">would be (3B82B5)h = (3,900,085)b bytes</font> 
+<br>
+</p><hr width="100%">
+<center><table border="">
+<tbody><tr bgcolor="#33FF33" data-darkreader-inline-bgcolor="" style="--darkreader-inline-bgcolor:#00ad00;">
+      <td><a name="musiccrc"></a><font face="Arial,Helvetica" size="-1">bytes 
+        $BC-$BD</font></td>
+
+      <td><font face="Arial,Helvetica" size="-1">&nbsp;MusicCRC&nbsp;</font></td>
+</tr>
+</tbody></table></center>
+
+<hr width="100%">
+<br>
+<font face="Arial,Helvetica" size="-1">contains a CRC-16 of the <u>complete mp3 
+music data</u> as made originally by LAME.</font> 
+<ul>
+  <li> <font face="Arial,Helvetica" size="-1">with as first byte the <b>first 
+    byte of the first mp3 frame containing music</b>. (the frame right after this 
+    LAME Tag)</font></li>
+
+  <li> <font face="Arial,Helvetica" size="-1">with as last byte the <b>last byte 
+    of the last mp3 frame containing music</b>. (so that additional tags at the 
+    end are not included.)</font></li>
+</ul>
+<font face="Arial,Helvetica" size="-1">reason : will guarantee that the actual 
+mp3 music data is intact, unregardless people adding ID3 tags to the end (or the 
+start) of the file.</font> 
+<p><b><font face="Arial,Helvetica" size="-1">practical example:</font></b> <br>
+  <b><font face="Arial,Helvetica" size="-1"><strike><font color="#990000" data-darkreader-inline-color="" style="--darkreader-inline-color:#ff7070;">[misc+ID3v2 
+  tag info][LAME Tag frame]</font></strike><font color="#009900" data-darkreader-inline-color="" style="--darkreader-inline-color:#70ff70;">[complete mp3 
+  music data as made by LAME]</font><strike><font color="#990000" data-darkreader-inline-color="" style="--darkreader-inline-color:#ff7070;">[misc+ID3v1/2 
+  tag info]</font></strike></font></b> 
+</p><p><font face="Arial,Helvetica" color="#000000" size="-1" data-darkreader-inline-color="" style="--darkreader-inline-color:#e8e7e3;"><b>remark:</b> applying 
+  <b>any</b> (ID3v2) kind of tagging or information in <u>FRONT</u> of the LAME/Xing 
+  Tag frame is a <u>very bad</u> idea.&nbsp; You will disable the functionality 
+  of all decoders to read the tag info correctly. (for example: VBR mp3 seek info 
+  will no longer be usable)</font> 
+</p><p><font face="Arial,Helvetica" size="-1">Meaning of this musicCRC:</font> 
+</p><center>
+  <p><font face="Arial,Helvetica" size="-1">"if the musicCRC is correct, then 
+    this file (or the music data in it) are identical to when encoded by LAME"</font>
+</p></center>
+
+<p><font face="Arial,Helvetica" size="-1">It does <u>not</u> say:</font> 
+</p><ul>
+  <li> <font face="Arial,Helvetica" size="-1">this is a valid mp3</font></li>
+
+  <li> <font face="Arial,Helvetica" size="-1">this mp3 sounds good</font></li>
+
+  <li> <font face="Arial,Helvetica" size="-1">this mp3 has been downloaded correctly 
+    off the internet</font></li>
+
+  <li> <font face="Arial,Helvetica" size="-1">it has not been retagged (very possible)</font></li>
+</ul>
+<font face="Arial,Helvetica" size="-1">This will enable:</font> 
+<ul>
+  <li> <font face="Arial,Helvetica" size="-1">effective verification method to 
+    see if the <i>music data</i> is <u>exactly</u> what it was at time of encoding</font></li>
+
+  <li> <font face="Arial,Helvetica" size="-1">swift and accurate removal of any 
+    sort of ID3 or different tags</font></li>
+
+<ul>
+    <font face="Arial,Helvetica" size="-1">1) search for start of a LAME Tag ( 
+    pos $xy )</font> <br>
+    <font face="Arial,Helvetica" size="-1">2) if CRC($(xy+c0)..$(xy+MusicLength)) 
+    corrent then cut out $(xy+c0)..$(xy+MusicLength)</font> 
+  </ul>
+</ul>
+<font face="Arial,Helvetica" size="-1">CRC-16 should suffice since in the event 
+of total randomness every 65536th <b><u>defective</u></b> file on average will 
+be falsely identified as being not defective.&nbsp; Also, CRC-16 routines are 
+present in both mp3 encoder and decoders.</font> 
+<p><font face="Arial,Helvetica" size="-1">CRCInitValue := $0000;</font> <br>
+</p><hr width="100%">
+<center><table border="">
+<tbody><tr bgcolor="#00CC00" data-darkreader-inline-bgcolor="" style="--darkreader-inline-bgcolor:#00cc00;">
+      <td><a name="tagcrc"></a><font face="Arial,Helvetica" size="-1">bytes $BE-$BF</font></td>
+
+      <td><font face="Arial,Helvetica" size="-1">&nbsp;CRC-16 of Info Tag&nbsp;</font></td>
+</tr>
+</tbody></table></center>
+
+<hr width="100%">
+<br>
+<font face="Arial,Helvetica" size="-1">contains a CRC-16 of the first 190 bytes 
+($00-$BD) of the Info header frame. This field is calculated <u>at the end</u>, 
+once all other fields are completed.</font> 
+<p><font face="Arial,Helvetica" size="-1">reason : safeguards LAME VBR header 
+  against easy tampering.&nbsp; Improving the header functionality as quality 
+  control/verification tool for VBR files.</font> 
+</p><p><font face="Arial,Helvetica" size="-1">CRCInitValue := $0000;</font> <br>
+</p><hr width="100%">
+<p><font face="Arial,Helvetica" color="#000000" size="-1" data-darkreader-inline-color="" style="--darkreader-inline-color:#e8e7e3;">Remarks / Ideas:</font> 
+</p><ul>
+  <li> <font face="Arial,Helvetica" color="#000000" size="-1" data-darkreader-inline-color="" style="--darkreader-inline-color:#e8e7e3;">The idea behind 
+    storing all this specific (quality significant) LAME settings used to encode 
+    in the mp3 itself is to give some kind of quality assurance for (mainly) non-CBR 
+    files.&nbsp; You would download an mp3 from the web and know exactly what 
+    kind of setting was used on this file.&nbsp; Now there is no way to keep find 
+    out if your download is a "-V9 --lowpass 12" or a "-V1 --lowpass 19.5" file.&nbsp; 
+    Even though both have a significant quality difference.</font></li>
+  <li> <font face="Arial,Helvetica" color="#000000" size="-1" data-darkreader-inline-color="" style="--darkreader-inline-color:#e8e7e3;">These headers should 
+    also be placed in front of <b><u>CBR</u></b> files. Given the Bitrate is &gt;=64 
+    the frame could be housed in a CBR file using the same framesize as the mp3 
+    itself.</font></li>
+  <li> <font face="Arial,Helvetica" size="-1"><font color="#000000" data-darkreader-inline-color="" style="--darkreader-inline-color:#e8e7e3;">If limiting 
+    the LAME string to 9 bytes "</font><font color="#3333FF" data-darkreader-inline-color="" style="--darkreader-inline-color:#337dff;">LAME X.YZu</font><font color="#000000" data-darkreader-inline-color="" style="--darkreader-inline-color:#e8e7e3;">", 
+    the extension revision 0 could take <u>27 bytes</u> and it would still fit 
+    a 64 kbit 48kHz frame:</font></font></li>
+  <center>
+    <table border="">
+      <tbody><tr> 
+        <td><font face="Courier New,Courier" color="#000000" size="-1" data-darkreader-inline-color="" style="--darkreader-inline-color:#e8e7e3;">0000:</font> 
+          <br>
+          <font face="Courier New,Courier" color="#000000" size="-1" data-darkreader-inline-color="" style="--darkreader-inline-color:#e8e7e3;">0010:</font> 
+          <br>
+          <font face="Courier New,Courier" color="#000000" size="-1" data-darkreader-inline-color="" style="--darkreader-inline-color:#e8e7e3;">0020:</font> 
+          <br>
+          <font face="Courier New,Courier" color="#000000" size="-1" data-darkreader-inline-color="" style="--darkreader-inline-color:#e8e7e3;">0030:</font> 
+          <br>
+          <font face="Courier New,Courier" color="#000000" size="-1" data-darkreader-inline-color="" style="--darkreader-inline-color:#e8e7e3;">0040:</font> 
+          <br>
+          <font face="Courier New,Courier" color="#000000" size="-1" data-darkreader-inline-color="" style="--darkreader-inline-color:#e8e7e3;">0050:</font> 
+          <br>
+          <font face="Courier New,Courier" color="#000000" size="-1" data-darkreader-inline-color="" style="--darkreader-inline-color:#e8e7e3;">0060:</font> 
+          <br>
+          <font face="Courier New,Courier" color="#000000" size="-1" data-darkreader-inline-color="" style="--darkreader-inline-color:#e8e7e3;">0070:</font> 
+          <br>
+          <font face="Courier New,Courier" color="#000000" size="-1" data-darkreader-inline-color="" style="--darkreader-inline-color:#e8e7e3;">0080:</font> 
+          <br>
+          <font face="Courier New,Courier" color="#000000" size="-1" data-darkreader-inline-color="" style="--darkreader-inline-color:#e8e7e3;">0090:</font> 
+          <br>
+          <font face="Courier New,Courier" color="#000000" size="-1" data-darkreader-inline-color="" style="--darkreader-inline-color:#e8e7e3;">00A0:</font> 
+          <br>
+          <font face="Courier New,Courier" color="#000000" size="-1" data-darkreader-inline-color="" style="--darkreader-inline-color:#e8e7e3;">00B0:</font></td>
+        <td><b><font face="Courier New,Courier" color="#000000" size="-1" data-darkreader-inline-color="" style="--darkreader-inline-color:#e8e7e3;">FF FB 
+          54 04-00 00 00 00-00 00 00 00-00 00 00 00</font></b> <br>
+          <b><font face="Courier New,Courier" color="#000000" size="-1" data-darkreader-inline-color="" style="--darkreader-inline-color:#e8e7e3;">00 00 
+          00 00-00 00 00 00-00 00 00 00-00 00 00 00</font></b> <br>
+          <b><font face="Courier New,Courier" size="-1"><font color="#000000" data-darkreader-inline-color="" style="--darkreader-inline-color:#e8e7e3;">00 
+          00 00 00-</font><font color="#009900" data-darkreader-inline-color="" style="--darkreader-inline-color:#70ff70;">58 69 6E 67-00 00 00 0F-00 00 
+          00 7E</font></font></b> <br>
+          <b><font face="Courier New,Courier" color="#009900" size="-1" data-darkreader-inline-color="" style="--darkreader-inline-color:#70ff70;">00 00 
+          2F E1-00 04 04 04-04 04 04 05-09 0B 0D 0F</font></b> <br>
+          <b><font face="Courier New,Courier" color="#009900" size="-1" data-darkreader-inline-color="" style="--darkreader-inline-color:#70ff70;">13 15 
+          17 19-1D 1F 21 23-27 29 2B 2D-31 33 35 39</font></b> <br>
+          <b><font face="Courier New,Courier" color="#009900" size="-1" data-darkreader-inline-color="" style="--darkreader-inline-color:#70ff70;">3B 3D 
+          3F 43-45 47 49 4D-4F 51 53 57-59 5B 5D 61</font></b> <br>
+          <b><font face="Courier New,Courier" color="#009900" size="-1" data-darkreader-inline-color="" style="--darkreader-inline-color:#70ff70;">63 65 
+          67 6B-6D 6F 73 75-77 79 7D 7F-81 83 87 89</font></b> <br>
+          <b><font face="Courier New,Courier" color="#009900" size="-1" data-darkreader-inline-color="" style="--darkreader-inline-color:#70ff70;">8B 8D 
+          91 93-95 97 9B 9D-9F A1 A5 A7-A9 AB AF B1</font></b> <br>
+          <b><font face="Courier New,Courier" color="#009900" size="-1" data-darkreader-inline-color="" style="--darkreader-inline-color:#70ff70;">B3 B7 
+          B9 BB-BD C1 C3 C5-C7 CB CD CF-D1 D5 D7 D9</font></b> <br>
+          <b><font face="Courier New,Courier" size="-1"><font color="#009900" data-darkreader-inline-color="" style="--darkreader-inline-color:#70ff70;">DB 
+          DF E1 E3-E5 E9 EB ED-00 00 00 0B</font><font color="#000000" data-darkreader-inline-color="" style="--darkreader-inline-color:#e8e7e3;">-</font><font color="#3333FF" data-darkreader-inline-color="" style="--darkreader-inline-color:#337dff;">4C 
+          41 4D 45</font></font></b> <br>
+          <b><font face="Courier New,Courier" size="-1"><font color="#3333FF" data-darkreader-inline-color="" style="--darkreader-inline-color:#337dff;">33 
+          2E 37 30-00 </font><font color="#990000" data-darkreader-inline-color="" style="--darkreader-inline-color:#ff7070;">00 00 00-00 00 00 00-00 00 
+          00 00</font></font></b> <br>
+          <b><font face="Courier New,Courier" color="#990000" size="-1" data-darkreader-inline-color="" style="--darkreader-inline-color:#ff7070;">00 00 
+          00 00-00 00 00 00-00 00 00 00-00 00 00 00</font></b></td>
+        <td><b><font face="Courier New,Courier" color="#000000" size="-1" data-darkreader-inline-color="" style="--darkreader-inline-color:#e8e7e3;">&nbsp;?T?</font></b> 
+          <p><b><font face="Courier New,Courier" size="-1"><font color="#000000" data-darkreader-inline-color="" style="--darkreader-inline-color:#e8e7e3;">&nbsp; 
+            </font><font color="#009900" data-darkreader-inline-color="" style="--darkreader-inline-color:#70ff70;">Xing&nbsp;&nbsp; ?&nbsp;&nbsp; ~</font></font></b> 
+            <br>
+            <b><font face="Courier New,Courier" color="#009900" size="-1" data-darkreader-inline-color="" style="--darkreader-inline-color:#70ff70;">&nbsp; 
+            /ß ???????????</font></b> <br>
+            <b><font face="Courier New,Courier" color="#009900" size="-1" data-darkreader-inline-color="" style="--darkreader-inline-color:#70ff70;">?§????!#')+-1359</font></b> 
+            <br>
+            <b><font face="Courier New,Courier" color="#009900" size="-1" data-darkreader-inline-color="" style="--darkreader-inline-color:#70ff70;">;=?CEGIMOQSWY[]a</font></b> 
+            <br>
+            <b><font face="Courier New,Courier" color="#009900" size="-1" data-darkreader-inline-color="" style="--darkreader-inline-color:#70ff70;">cegkmosuwy}?üâçë</font></b> 
+            <br>
+            <b><font face="Courier New,Courier" color="#009900" size="-1" data-darkreader-inline-color="" style="--darkreader-inline-color:#70ff70;">ïìæôòù¢¥ƒíÑº?½»?</font></b> 
+            <br>
+            <b><font face="Courier New,Courier" color="#009900" size="-1" data-darkreader-inline-color="" style="--darkreader-inline-color:#70ff70;">????????????????</font></b> 
+            <br>
+            <b><font face="Courier New,Courier" size="-1"><font color="#009900" data-darkreader-inline-color="" style="--darkreader-inline-color:#70ff70;">??ß?????&nbsp;&nbsp; 
+            ?</font><font color="#3333FF" data-darkreader-inline-color="" style="--darkreader-inline-color:#337dff;">LAME</font></font></b> <br>
+            <b><font face="Courier New,Courier" color="#3333FF" size="-1" data-darkreader-inline-color="" style="--darkreader-inline-color:#337dff;">3.70</font></b> 
+            <br>
+            <font face="Arial,Helvetica" size="-1">&nbsp;</font> 
+        </p></td>
+      </tr>
+    </tbody></table>
+  </center>
+  <li> <font face="Arial,Helvetica" color="#000000" size="-1" data-darkreader-inline-color="" style="--darkreader-inline-color:#e8e7e3;">In these last two 
+    cases, instead of the now default 128kbit/s one, in case of non-CBR, LAME 
+    could add any (64 .. 320) sized tag to the mp3, being as close as possible 
+    to the <u>average bitrate</u> of the file.&nbsp; So a VBR file averaging 172 
+    kbit would get a 160kbit/s LAME Tag, an ABR file averaging 253 kbit/s a 256kbit/s 
+    LAME Tag...&nbsp; (useful for non-vbr compliant decoders guessing file length 
+    based on size first frame)</font></li>
+</ul>
+
+
+
+</body></html>

@@ -1,0 +1,8 @@
+﻿  mpeg_audio_test.cpp
+C:\Users\coolie\source\MPEGAudioParse\MPEGAudioParse\mpeg_audio_test.cpp(18): error C2039: 'find_next_frame': is not a member of 'my::mpeg'
+  C:\Users\coolie\source\MPEGAudioParse\MPEGAudioParse\my_mpeg.h(6): note: see declaration of 'my::mpeg'
+C:\Users\coolie\source\MPEGAudioParse\MPEGAudioParse\mpeg_audio_test.cpp(18): error C2065: 'next_frame': undeclared identifier
+C:\Users\coolie\source\MPEGAudioParse\MPEGAudioParse\mpeg_audio_test.cpp(18): error C3861: 'find_next_frame': identifier not found
+C:\Users\coolie\source\MPEGAudioParse\MPEGAudioParse\mpeg_audio_test.cpp(21): error C2601: 'main': local function definitions are illegal
+  C:\Users\coolie\source\MPEGAudioParse\MPEGAudioParse\mpeg_audio_test.cpp(11): note: this line contains a '{' which has not yet been matched
+C:\Users\coolie\source\MPEGAudioParse\MPEGAudioParse\mpeg_audio_test.cpp(11): fatal error C1075: '{': no matching token found
