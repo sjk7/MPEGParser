@@ -51,7 +51,7 @@ using seek_t = my::io::seek_type;
 using seek_value_type = my::io::seek_value_type;
 
 // return 0 normally, -1 if some file error
-int read_file(char* ptr, int& how_much, seek_t seek, std::fstream& f) {
+int read_file(char* ptr, int& how_much, seek_t& seek, std::fstream& f) {
     int way = CAST(int, seek.seek);
 
     if (!f && seek.seek == seek.seek_from_cur) {
@@ -96,15 +96,13 @@ int64_t test_buffer(const std::string& path) {
     // using cb_type = decltype(buffer_read_callback);
     fstream file(path.c_str(), std::ios_base::binary | std::ios_base::in);
     if (!file) {
-
         perror(strerror(errno));
-
         assert("File open error." == nullptr);
         return -1;
     }
     auto fsz = my::fs::file_size(path);
 
-    my::mpeg::buffer buf([&](char* ptr, int& how_much, seek_t seek) {
+    my::mpeg::buffer buf([&](char* ptr, int& how_much, seek_t& seek) {
         bool b = file.is_open();
         // cout << "other file ref, is_open() = " << file.is_open() << endl;
         return read_file(ptr, how_much, seek, file);
@@ -115,7 +113,7 @@ int64_t test_buffer(const std::string& path) {
     int result = 0;
     my::mpeg::seek_type seeker;
     while (how_much > 0) {
-        result = buf.get(how_much, true, seeker);
+        result = buf.get(how_much, true, std::forward<my::mpeg::seek_type&&>(seeker));
         total_read_size += how_much;
         if (result < 0) break;
     }
@@ -126,15 +124,16 @@ int64_t test_buffer(const std::string& path) {
 
 int main(int argc, char** argv) {
 
-#ifdef _MSC_VER
+#ifdef _WIN32
     _set_error_mode(_OUT_TO_MSGBOX);
 #endif
     const std::string path("./Chasing_Pirates.mp3");
 
     uint64_t grand_tot = 0;
+
     cout << endl;
 
-    for (int i = 0; i < 2000; ++i) {
+    for (int i = 0; i < 1; ++i) {
         grand_tot += test_buffer(path);
         if (i % 10 == 0) {
             cout << ".";
@@ -145,17 +144,31 @@ int main(int argc, char** argv) {
     cout << endl;
     const auto file_size = my::fs::file_size(path);
     cout << "grand tot: " << grand_tot << endl;
-    exit(0);
-    /*/
-    my::mpeg::parser p(file_size);
 
+    fstream file(path.c_str(), std::ios_base::binary | std::ios_base::in);
+    if (!file) {
+        perror(strerror(errno));
+        assert("File open error." == nullptr);
+        return -1;
+    }
+
+    int64_t my_file_size = CAST(int64_t, file_size);
+    my::mpeg::buffer buf([&](char* ptr, int& how_much, seek_t& seek) {
+        bool b = file.is_open();
+        // cout << "other file ref, is_open() = " << file.is_open() << endl;
+        return read_file(ptr, how_much, seek, file);
+    });
+
+    my::mpeg::parser p(buf);
+
+    /*/
     fstream f(path.c_str(), std::ios_base::binary | std::ios_base::in);
     if (!f) {
         assert("Cannot find file." == nullptr);
         return -7;
     }
-
-    p.parse([&](buf_t& buf, seek_t seek = seek_t{0}) {
+    using seek_t = my::io::seek_type;
+    p.parse(seek_t seek = seek_t{0}) {
         if (buf.unread != 0) {
             memmove(buf.data, buf.begin() + buf.unread, buf.unread);
         }
