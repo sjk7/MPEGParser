@@ -1,15 +1,22 @@
-﻿Build started 05/03/2019 06:56:44.
-     1>Project "C:\Users\coolie\source\MPEGAudioParse\MPEGAudioParse\MPEGAudioParse.vcxproj" on node 2 (Build target(s)).
-     1>C:\Program Files (x86)\Microsoft Visual Studio\2017\Community\Common7\IDE\VC\VCTargets\Microsoft.Cpp.WindowsSDK.targets(46,5): error MSB8036: The Windows SDK version 10.0 was not found. Install the required version of Windows SDK or change the SDK version in the project property pages or by right-clicking the solution and selecting "Retarget solution".
-     1>Done Building Project "C:\Users\coolie\source\MPEGAudioParse\MPEGAudioParse\MPEGAudioParse.vcxproj" (Build target(s)) -- FAILED.
+﻿Build started 08/03/2019 04:41:13.
+     1>Project "C:\Users\coolie\source\MPEGAudioParse\MPEGParser\MPEGAudioParse\MPEGAudioParse.vcxproj" on node 2 (Rebuild target(s)).
+     1>_PrepareForClean:
+         Deleting file "x64\Debug\MPEGAudioParse.tlog\MPEGAudioParse.lastbuildstate".
+       InitializeBuildStatus:
+         Touching "x64\Debug\MPEGAudioParse.tlog\unsuccessfulbuild".
+       ClCompile:
+         C:\Program Files (x86)\Microsoft Visual Studio\2017\Community\VC\Tools\MSVC\14.16.27023\bin\HostX86\x64\CL.exe /c /ZI /JMC /nologo /W3 /WX- /diagnostics:classic /sdl /Od /D _MBCS /Gm- /EHsc /RTC1 /MDd /GS /fp:precise /permissive- /Zc:wchar_t /Zc:forScope /Zc:inline /std:c++latest /Fo"x64\Debug\\" /Fd"x64\Debug\vc141.pdb" /Gd /TP /FC /errorReport:prompt mpeg_audio_test.cpp
+         mpeg_audio_test.cpp
+       Link:
+         C:\Program Files (x86)\Microsoft Visual Studio\2017\Community\VC\Tools\MSVC\14.16.27023\bin\HostX86\x64\link.exe /ERRORREPORT:PROMPT /OUT:"C:\Users\coolie\source\MPEGAudioParse\MPEGParser\MPEGAudioParse\x64\Debug\MPEGAudioParse.exe" /INCREMENTAL /NOLOGO kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib /MANIFEST /MANIFESTUAC:"level='asInvoker' uiAccess='false'" /manifest:embed /DEBUG:FASTLINK /PDB:"C:\Users\coolie\source\MPEGAudioParse\MPEGParser\MPEGAudioParse\x64\Debug\MPEGAudioParse.pdb" /SUBSYSTEM:CONSOLE /TLBID:1 /DYNAMICBASE /NXCOMPAT /IMPLIB:"C:\Users\coolie\source\MPEGAudioParse\MPEGParser\MPEGAudioParse\x64\Debug\MPEGAudioParse.lib" /MACHINE:X64 x64\Debug\mpeg_audio_test.obj
+         MPEGAudioParse.vcxproj -> C:\Users\coolie\source\MPEGAudioParse\MPEGParser\MPEGAudioParse\x64\Debug\MPEGAudioParse.exe
+       FinalizeBuildStatus:
+         Deleting file "x64\Debug\MPEGAudioParse.tlog\unsuccessfulbuild".
+         Touching "x64\Debug\MPEGAudioParse.tlog\MPEGAudioParse.lastbuildstate".
+     1>Done Building Project "C:\Users\coolie\source\MPEGAudioParse\MPEGParser\MPEGAudioParse\MPEGAudioParse.vcxproj" (Rebuild target(s)).
 
-Build FAILED.
-
-       "C:\Users\coolie\source\MPEGAudioParse\MPEGAudioParse\MPEGAudioParse.vcxproj" (Build target) (1) ->
-       (_CheckWindowsSDKInstalled target) -> 
-         C:\Program Files (x86)\Microsoft Visual Studio\2017\Community\Common7\IDE\VC\VCTargets\Microsoft.Cpp.WindowsSDK.targets(46,5): error MSB8036: The Windows SDK version 10.0 was not found. Install the required version of Windows SDK or change the SDK version in the project property pages or by right-clicking the solution and selecting "Retarget solution".
-
+Build succeeded.
     0 Warning(s)
-    1 Error(s)
+    0 Error(s)
 
-Time Elapsed 00:00:00.06
+Time Elapsed 00:00:01.79

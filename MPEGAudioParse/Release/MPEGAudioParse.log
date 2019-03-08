@@ -1,8 +1,25 @@
-﻿  mpeg_audio_test.cpp
-C:\Users\coolie\source\MPEGAudioParse\MPEGAudioParse\mpeg_audio_test.cpp(18): error C2039: 'find_next_frame': is not a member of 'my::mpeg'
-  C:\Users\coolie\source\MPEGAudioParse\MPEGAudioParse\my_mpeg.h(6): note: see declaration of 'my::mpeg'
-C:\Users\coolie\source\MPEGAudioParse\MPEGAudioParse\mpeg_audio_test.cpp(18): error C2065: 'next_frame': undeclared identifier
-C:\Users\coolie\source\MPEGAudioParse\MPEGAudioParse\mpeg_audio_test.cpp(18): error C3861: 'find_next_frame': identifier not found
-C:\Users\coolie\source\MPEGAudioParse\MPEGAudioParse\mpeg_audio_test.cpp(21): error C2601: 'main': local function definitions are illegal
-  C:\Users\coolie\source\MPEGAudioParse\MPEGAudioParse\mpeg_audio_test.cpp(11): note: this line contains a '{' which has not yet been matched
-C:\Users\coolie\source\MPEGAudioParse\MPEGAudioParse\mpeg_audio_test.cpp(11): fatal error C1075: '{': no matching token found
+﻿Build started 08/03/2019 06:54:27.
+     1>Project "C:\Users\coolie\source\MPEGAudioParse\MPEGParser\MPEGAudioParse\MPEGAudioParse.vcxproj" on node 2 (Build target(s)).
+     1>InitializeBuildStatus:
+         Creating "Release\MPEGAudioParse.tlog\unsuccessfulbuild" because "AlwaysCreate" was specified.
+       ClCompile:
+         C:\Program Files (x86)\Microsoft Visual Studio\2017\Community\VC\Tools\MSVC\14.16.27023\bin\HostX86\x86\CL.exe /c /Zi /nologo /W3 /WX /diagnostics:classic /sdl- /O1 /Ob1 /Oi /Oy- /GL /D NDEBUG /D _MBCS /D _MBCS /Gm- /EHsc /MD /GS /Gy /fp:precise /permissive- /Zc:wchar_t /Zc:forScope /Zc:inline /std:c++latest /Fo"Release\\" /Fd"Release\vc141.pdb" /Gd /TP /analyze- /FC /errorReport:prompt mpeg_audio_test.cpp
+         mpeg_audio_test.cpp
+       Link:
+         C:\Program Files (x86)\Microsoft Visual Studio\2017\Community\VC\Tools\MSVC\14.16.27023\bin\HostX86\x86\link.exe /ERRORREPORT:PROMPT /OUT:"C:\Users\coolie\source\MPEGAudioParse\MPEGParser\MPEGAudioParse\Release\MPEGAudioParse.exe" /NOLOGO kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib /MANIFEST /MANIFESTUAC:"level='asInvoker' uiAccess='false'" /manifest:embed /DEBUG:FULL /PDB:"C:\Users\coolie\source\MPEGAudioParse\MPEGParser\MPEGAudioParse\Release\MPEGAudioParse.pdb" /SUBSYSTEM:CONSOLE /OPT:REF /OPT:ICF /LTCG:incremental /TLBID:1 /DYNAMICBASE /NXCOMPAT /IMPLIB:"C:\Users\coolie\source\MPEGAudioParse\MPEGParser\MPEGAudioParse\Release\MPEGAudioParse.lib" /MACHINE:X86 /SAFESEH Release\mpeg_audio_test.obj
+         Generating code
+         1 of 379 functions ( 0.3%) were compiled, the rest were copied from previous compilation.
+           0 functions were new in current compilation
+           0 functions had inline decision re-evaluated but remain unchanged
+         Finished generating code
+         MPEGAudioParse.vcxproj -> C:\Users\coolie\source\MPEGAudioParse\MPEGParser\MPEGAudioParse\Release\MPEGAudioParse.exe
+       FinalizeBuildStatus:
+         Deleting file "Release\MPEGAudioParse.tlog\unsuccessfulbuild".
+         Touching "Release\MPEGAudioParse.tlog\MPEGAudioParse.lastbuildstate".
+     1>Done Building Project "C:\Users\coolie\source\MPEGAudioParse\MPEGParser\MPEGAudioParse\MPEGAudioParse.vcxproj" (Build target(s)).
+
+Build succeeded.
+    0 Warning(s)
+    0 Error(s)
+
+Time Elapsed 00:00:01.65

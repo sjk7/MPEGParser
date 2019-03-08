@@ -16,7 +16,7 @@ class files_finder {
 
     public:
     files_finder(std::string path, bool recursive = false)
-        : m_spath(std::move(path)), m_recursive(recursive), n(0){};
+        : m_spath(std::move(path)), m_recursive(recursive){};
 
     template <typename CB> int start(CB&& cb) {
 
@@ -31,7 +31,9 @@ class files_finder {
                 m_u8extn = path.extension().u8string();
                 stop_now = cb(p, m_u8path, m_u8extn);
                 ++n;
-                if (stop_now) break;
+                if (stop_now) {
+                    break;
+                }
             }
         };
         return n;

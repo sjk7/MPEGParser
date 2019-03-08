@@ -26,5 +26,8 @@
     <ClInclude Include="my_files_enum.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="my_io.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>
