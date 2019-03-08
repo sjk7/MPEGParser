@@ -144,9 +144,9 @@
     <ClCompile Include="mpeg_audio_test.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="include\my_files_enum.hxx" />
-    <ClInclude Include="include\my_io.hxx" />
-    <ClInclude Include="include\my_mpeg.hxx" />
+    <ClInclude Include="include\my_files_enum.hpp" />
+    <ClInclude Include="include\my_io.hpp" />
+    <ClInclude Include="include\my_mpeg.hpp" />
   </ItemGroup>
   <ItemGroup>
     <Text Include="code-dump.txt" />

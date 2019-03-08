@@ -19,13 +19,13 @@
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="include\my_files_enum.hxx">
+    <ClInclude Include="include\my_files_enum.hpp">
       <Filter>include</Filter>
     </ClInclude>
-    <ClInclude Include="include\my_io.hxx">
+    <ClInclude Include="include\my_io.hpp">
       <Filter>include</Filter>
     </ClInclude>
-    <ClInclude Include="include\my_mpeg.hxx">
+    <ClInclude Include="include\my_mpeg.hpp">
       <Filter>include</Filter>
     </ClInclude>
   </ItemGroup>
