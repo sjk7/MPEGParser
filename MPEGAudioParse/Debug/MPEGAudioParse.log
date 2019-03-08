@@ -1,20 +1,2 @@
-﻿Build started 08/03/2019 11:34:46.
-     1>Project "C:\Users\coolie\source\MPEGAudioParse\MPEGParser\MPEGAudioParse\MPEGAudioParse.vcxproj" on node 2 (Build target(s)).
-     1>InitializeBuildStatus:
-         Creating "Debug\MPEGAudioParse.tlog\unsuccessfulbuild" because "AlwaysCreate" was specified.
-       ClCompile:
-         C:\Program Files (x86)\Microsoft Visual Studio\2017\Community\VC\Tools\MSVC\14.16.27023\bin\HostX86\x86\CL.exe /c /ZI /JMC /nologo /W3 /WX- /diagnostics:classic /sdl- /Od /Oy- /D _MBCS /Gm- /EHsc /RTC1 /MDd /GS /fp:precise /permissive- /Zc:wchar_t /Zc:forScope /Zc:inline /std:c++latest /Fo"Debug\\" /Fd"Debug\vc141.pdb" /Gd /TP /analyze- /FC /errorReport:prompt mpeg_audio_test.cpp
-         mpeg_audio_test.cpp
-       Link:
-         C:\Program Files (x86)\Microsoft Visual Studio\2017\Community\VC\Tools\MSVC\14.16.27023\bin\HostX86\x86\link.exe /ERRORREPORT:PROMPT /OUT:"C:\Users\coolie\source\MPEGAudioParse\MPEGParser\MPEGAudioParse\Debug\MPEGAudioParse.exe" /INCREMENTAL /NOLOGO kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib /MANIFEST /MANIFESTUAC:"level='asInvoker' uiAccess='false'" /manifest:embed /DEBUG:FASTLINK /PDB:"C:\Users\coolie\source\MPEGAudioParse\MPEGParser\MPEGAudioParse\Debug\MPEGAudioParse.pdb" /SUBSYSTEM:CONSOLE /TLBID:1 /DYNAMICBASE /NXCOMPAT /IMPLIB:"C:\Users\coolie\source\MPEGAudioParse\MPEGParser\MPEGAudioParse\Debug\MPEGAudioParse.lib" /MACHINE:X86 Debug\mpeg_audio_test.obj
-         MPEGAudioParse.vcxproj -> C:\Users\coolie\source\MPEGAudioParse\MPEGParser\MPEGAudioParse\Debug\MPEGAudioParse.exe
-       FinalizeBuildStatus:
-         Deleting file "Debug\MPEGAudioParse.tlog\unsuccessfulbuild".
-         Touching "Debug\MPEGAudioParse.tlog\MPEGAudioParse.lastbuildstate".
-     1>Done Building Project "C:\Users\coolie\source\MPEGAudioParse\MPEGParser\MPEGAudioParse\MPEGAudioParse.vcxproj" (Build target(s)).
-
-Build succeeded.
-    0 Warning(s)
-    0 Error(s)
-
-Time Elapsed 00:00:01.67
+﻿  mpeg_audio_test.cpp
+  MPEGAudioParse.vcxproj -> C:\Users\coolie\source\MPEGAudioParse\MPEGParser\MPEGAudioParse\Debug\MPEGAudioParse.exe

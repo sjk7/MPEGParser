@@ -155,11 +155,10 @@ int main(int argc, char** argv) {
     int64_t my_file_size = CAST(int64_t, file_size);
     my::mpeg::buffer buf([&](char* ptr, int& how_much, seek_t& seek) {
         bool b = file.is_open();
-        // cout << "other file ref, is_open() = " << file.is_open() << endl;
         return read_file(ptr, how_much, seek, file);
     });
 
-    my::mpeg::parser p(buf);
+    my::mpeg::parser p(buf, std::forward<const std::string&&>(path));
 
     /*/
     fstream f(path.c_str(), std::ios_base::binary | std::ios_base::in);

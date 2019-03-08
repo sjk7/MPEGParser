@@ -256,7 +256,7 @@ namespace mpeg {
                         } else {
                             id3.tagsize_inc_header = usize;
                         }
-                        
+                        
                         return error::none;
                     }
                     /*/
@@ -494,13 +494,18 @@ namespace mpeg {
         int m_id3v1_size = 0;
         CB& m_cb;
 
-        parser(CB& cb, int) : m_cb(cb) {}
+        parser(CB& cb, int, std::string file_path)
+            : m_cb(cb), filepath(std::move(file_path)) {}
 
         public:
         NO_COPY_AND_ASSIGN(parser);
         NO_MOVE_AND_ASSIGN(parser);
 
-        parser(CB& read_callback) : parser(read_callback, 0) {}
+        parser(CB& read_callback, const std::string&& file_path)
+            : parser(read_callback, 0, std::forward<const std::string>(file_path)) {
+
+            std::cout << "parser constructor. Filename = " << filepath << std::endl;
+        }
 
         template <typename CB> mpeg::error parse(CB&& cb) {
             detail::frames_t frames;
@@ -514,7 +519,7 @@ namespace mpeg {
 
         /*/
         error get_id3() {
-            
+            
             int n = 0;
             m_cb(m_buf);
             error e = get_id3v2_tag(m_buf, m_id3v2Header);
@@ -529,10 +534,10 @@ namespace mpeg {
                 memcpy(&m_v1, &m_buf, 128);
                 m_id3v1_size = 128;
             }
-            
+            
             return 0;
         }
-        
+        
         byte_type* find_sync(const buffer_t& buf, const int start_position) {
 
             const auto e = const_cast<unsigned char*>(buf.data_end());
@@ -546,7 +551,7 @@ namespace mpeg {
             }
             return nullptr;
         }
-        
+        
         error single_frame(buffer_t buf, int start_where, frame& f) {
             error e;
             f.clear();
@@ -566,7 +571,7 @@ namespace mpeg {
             }
             return e;
         }
-        
+        
         error find_first_frames(CB&& cb, detail::frames_t& frames) {
                         detail::init_frames(frames);
             error e = get_id3(cb);
@@ -602,7 +607,7 @@ namespace mpeg {
                 which = which == 0 ? 1 : 0;
             }
             return e;
-          
+          
             return 0;
         }
         /*/
