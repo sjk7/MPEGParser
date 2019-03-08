@@ -1,22 +1,15 @@
-﻿Build started 08/03/2019 04:41:13.
-     1>Project "C:\Users\coolie\source\MPEGAudioParse\MPEGParser\MPEGAudioParse\MPEGAudioParse.vcxproj" on node 2 (Rebuild target(s)).
-     1>_PrepareForClean:
-         Deleting file "x64\Debug\MPEGAudioParse.tlog\MPEGAudioParse.lastbuildstate".
-       InitializeBuildStatus:
-         Touching "x64\Debug\MPEGAudioParse.tlog\unsuccessfulbuild".
-       ClCompile:
-         C:\Program Files (x86)\Microsoft Visual Studio\2017\Community\VC\Tools\MSVC\14.16.27023\bin\HostX86\x64\CL.exe /c /ZI /JMC /nologo /W3 /WX- /diagnostics:classic /sdl /Od /D _MBCS /Gm- /EHsc /RTC1 /MDd /GS /fp:precise /permissive- /Zc:wchar_t /Zc:forScope /Zc:inline /std:c++latest /Fo"x64\Debug\\" /Fd"x64\Debug\vc141.pdb" /Gd /TP /FC /errorReport:prompt mpeg_audio_test.cpp
-         mpeg_audio_test.cpp
-       Link:
-         C:\Program Files (x86)\Microsoft Visual Studio\2017\Community\VC\Tools\MSVC\14.16.27023\bin\HostX86\x64\link.exe /ERRORREPORT:PROMPT /OUT:"C:\Users\coolie\source\MPEGAudioParse\MPEGParser\MPEGAudioParse\x64\Debug\MPEGAudioParse.exe" /INCREMENTAL /NOLOGO kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib /MANIFEST /MANIFESTUAC:"level='asInvoker' uiAccess='false'" /manifest:embed /DEBUG:FASTLINK /PDB:"C:\Users\coolie\source\MPEGAudioParse\MPEGParser\MPEGAudioParse\x64\Debug\MPEGAudioParse.pdb" /SUBSYSTEM:CONSOLE /TLBID:1 /DYNAMICBASE /NXCOMPAT /IMPLIB:"C:\Users\coolie\source\MPEGAudioParse\MPEGParser\MPEGAudioParse\x64\Debug\MPEGAudioParse.lib" /MACHINE:X64 x64\Debug\mpeg_audio_test.obj
-         MPEGAudioParse.vcxproj -> C:\Users\coolie\source\MPEGAudioParse\MPEGParser\MPEGAudioParse\x64\Debug\MPEGAudioParse.exe
-       FinalizeBuildStatus:
-         Deleting file "x64\Debug\MPEGAudioParse.tlog\unsuccessfulbuild".
-         Touching "x64\Debug\MPEGAudioParse.tlog\MPEGAudioParse.lastbuildstate".
-     1>Done Building Project "C:\Users\coolie\source\MPEGAudioParse\MPEGParser\MPEGAudioParse\MPEGAudioParse.vcxproj" (Rebuild target(s)).
+﻿Build started 08/03/2019 17:15:12.
+     1>Project "C:\Users\coolie\source\MPEGAudioParse\MPEGParser\MPEGAudioParse\MPEGAudioParse.vcxproj" on node 2 (Build target(s)).
+     1>C:\Program Files (x86)\Microsoft Visual Studio\2017\Community\Common7\IDE\VC\VCTargets\Microsoft.Cpp.Platform.targets(67,5): error MSB8020: The build tools for v142 (Platform Toolset = 'v142') cannot be found. To build using the v142 build tools, please install v142 build tools.  Alternatively, you may upgrade to the current Visual Studio tools by selecting the Project menu or right-click the solution, and then selecting "Retarget solution".
+     1>Done Building Project "C:\Users\coolie\source\MPEGAudioParse\MPEGParser\MPEGAudioParse\MPEGAudioParse.vcxproj" (Build target(s)) -- FAILED.
 
-Build succeeded.
+Build FAILED.
+
+       "C:\Users\coolie\source\MPEGAudioParse\MPEGParser\MPEGAudioParse\MPEGAudioParse.vcxproj" (Build target) (1) ->
+       (PlatformPrepareForBuild target) -> 
+         C:\Program Files (x86)\Microsoft Visual Studio\2017\Community\Common7\IDE\VC\VCTargets\Microsoft.Cpp.Platform.targets(67,5): error MSB8020: The build tools for v142 (Platform Toolset = 'v142') cannot be found. To build using the v142 build tools, please install v142 build tools.  Alternatively, you may upgrade to the current Visual Studio tools by selecting the Project menu or right-click the solution, and then selecting "Retarget solution".
+
     0 Warning(s)
-    0 Error(s)
+    1 Error(s)
 
-Time Elapsed 00:00:01.79
+Time Elapsed 00:00:00

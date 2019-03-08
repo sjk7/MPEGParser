@@ -9,8 +9,8 @@
 #include <fstream>
 #include <string.h>
 #include <cerrno>
-#include "my_files_enum.h"
-#include "my_mpeg.h"
+#include "./include/my_files_enum.hxx"
+#include "./include/my_mpeg.hxx"
 
 using namespace std;
 
@@ -51,7 +51,7 @@ using seek_t = my::io::seek_type;
 using seek_value_type = my::io::seek_value_type;
 
 // return 0 normally, -1 if some file error
-int read_file(char* ptr, int& how_much, seek_t& seek, std::fstream& f) {
+int read_file(char* ptr, int& how_much, const seek_t& seek, std::fstream& f) {
     int way = CAST(int, seek.seek);
 
     if (!f && seek.seek == seek.seek_from_cur) {
@@ -87,11 +87,6 @@ int read_file(char* ptr, int& how_much, seek_t& seek, std::fstream& f) {
     return eof ? my::io::NO_MORE_DATA : 0;
 }
 
-template <typename CB> struct sorter {
-    sorter(CB&& cb) : m_cb(cb) {}
-    CB& m_cb;
-};
-
 int64_t test_buffer(const std::string& path) {
     // using cb_type = decltype(buffer_read_callback);
     fstream file(path.c_str(), std::ios_base::binary | std::ios_base::in);
@@ -105,7 +100,8 @@ int64_t test_buffer(const std::string& path) {
     my::mpeg::buffer buf([&](char* ptr, int& how_much, seek_t& seek) {
         bool b = file.is_open();
         // cout << "other file ref, is_open() = " << file.is_open() << endl;
-        return read_file(ptr, how_much, seek, file);
+        int retval = read_file(ptr, how_much, seek, file);
+        return retval;
     });
 
     int how_much = 1024;
@@ -117,6 +113,7 @@ int64_t test_buffer(const std::string& path) {
         total_read_size += how_much;
         if (result < 0) break;
     }
+    assert(result == my::io::NO_MORE_DATA);
     const int64_t diff = total_read_size - fsz;
     // assert(diff == 0 && "file size disagreement based on data read");
     return total_read_size;
@@ -127,8 +124,8 @@ int main(int argc, char** argv) {
 #ifdef _WIN32
     _set_error_mode(_OUT_TO_MSGBOX);
 #endif
-    const std::string path("./Chasing_Pirates.mp3");
-
+    const std::string path("./ztest_files/Chasing_Pirates.mp3");
+    /*/
     uint64_t grand_tot = 0;
 
     cout << endl;
@@ -142,9 +139,9 @@ int main(int argc, char** argv) {
 
     cout << endl;
     cout << endl;
+         cout << "grand tot: " << grand_tot << endl;
+    /*/
     const auto file_size = my::fs::file_size(path);
-    cout << "grand tot: " << grand_tot << endl;
-
     fstream file(path.c_str(), std::ios_base::binary | std::ios_base::in);
     if (!file) {
         perror(strerror(errno));
@@ -153,29 +150,13 @@ int main(int argc, char** argv) {
     }
 
     int64_t my_file_size = CAST(int64_t, file_size);
-    my::mpeg::buffer buf([&](char* ptr, int& how_much, seek_t& seek) {
+    my::mpeg::buffer buf([&](char* ptr, int& how_much, const seek_t& seek) {
         bool b = file.is_open();
         return read_file(ptr, how_much, seek, file);
     });
 
-    my::mpeg::parser p(buf, std::forward<const std::string&&>(path));
+    my::mpeg::parser p(buf, std::forward<std::string_view&&>(path), file_size);
+    p.parse();
 
-    /*/
-    fstream f(path.c_str(), std::ios_base::binary | std::ios_base::in);
-    if (!f) {
-        assert("Cannot find file." == nullptr);
-        return -7;
-    }
-    using seek_t = my::io::seek_type;
-    p.parse(seek_t seek = seek_t{0}) {
-        if (buf.unread != 0) {
-            memmove(buf.data, buf.begin() + buf.unread, buf.unread);
-        }
-
-        assert(buf.capacity()
-            > buf.unread); // why is buffer full? We can't read anything ffs
-        return read_file(buf, seek, f);
-    });
-    /*/
     return 0;
 }

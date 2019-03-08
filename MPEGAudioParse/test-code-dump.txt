@@ -1,0 +1,17 @@
+  /*/
+    fstream f(path.c_str(), std::ios_base::binary | std::ios_base::in);
+    if (!f) {
+        assert("Cannot find file." == nullptr);
+        return -7;
+    }
+    using seek_t = my::io::seek_type;
+    p.parse(seek_t seek = seek_t{0}) {
+        if (buf.unread != 0) {
+            memmove(buf.data, buf.begin() + buf.unread, buf.unread);
+        }
+
+        assert(buf.capacity()
+            > buf.unread); // why is buffer full? We can't read anything ffs
+        return read_file(buf, seek, f);
+    });
+    /*/

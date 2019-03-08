@@ -1,0 +1,216 @@
+       /*/
+        template <typename CB> mpeg::error parse(CB&& cb) {
+            detail::frames_t frames;
+            mpeg::error err = find_first_frames(cb, frames);
+            if (err < 0) {
+                return err;
+            }
+
+            return err;
+        }
+        //error get_id3() {
+          
+
+
+
+
+            int n = 0;
+            m_cb(m_buf);
+            error e = get_id3v2_tag(m_buf, m_id3v2Header);
+            if (e) {
+                return e;
+            }
+
+            my::io::seek_type sk(-128, buffer_t::seek_t::seek_from_end);
+            n = m_cb(m_buf, sk);
+            m_id3v1_size = 0;
+            if (memcmp(&m_buf, "TAG", 3) == 0) {
+                memcpy(&m_v1, &m_buf, 128);
+                m_id3v1_size = 128;
+            }
+            return 0;
+        }
+        
+
+
+        byte_type* find_sync(const buffer_t& buf, const int start_position) {
+
+            const auto e = const_cast<unsigned char*>(buf.data_end());
+            auto* p = const_cast<unsigned char*>(buf.begin());
+            p += start_position;
+            while (e - p >= 4) {
+                if (*p == 255 && *(p + 1) >= 224) {
+                    return static_cast<byte_type*>(p);
+                }
+                ++p;
+            }
+            return nullptr;
+        }
+
+        error single_frame(buffer_t buf, int start_where, frame& f) {
+            error e;
+            f.clear();
+
+            if (buf.unread < frame_header::MPEG_HEADER_SIZE) {
+                return my::mpeg::error::need_more_data;
+            }
+            byte_type* psync = find_sync(buf, 0);
+            if (psync == nullptr) {
+                e = error::lost_sync;
+                return e;
+            }
+            memcpy(&f.hdr.header_bytes, psync, 4);
+            e = detail::parse_frame_header(f);
+            if (e != 0) {
+                return e;
+            }
+            return e;
+        }
+
+        error find_first_frames(CB&& cb, detail::frames_t& frames) {
+            detail::init_frames(frames);
+            error e = get_id3(cb);
+            if (e) {
+                return e;
+            }
+
+            seek_t sk(m_id3v2Header.total_size());
+            m_buf.clear();
+            int read = cb(m_buf, sk);
+            m_buf.unread += read;
+            int start_where = 0;
+            e = single_frame(m_buf, start_where, frames[0]);
+
+            int which = 0;
+            bool eof_flag = false;
+
+            while (e == error::none) {
+                start_where += frames[which].size();
+                auto end = m_buf.begin() + frames[which].size();
+                if (end >= m_buf.end()) {
+                    err = m_buf.fill();
+                    if (err) {
+                        if (err == error::end_of_file) {
+                            eof_flag = true;
+                        }
+                    }
+                }
+                e = single_frame(m_buf, start_where, frames[which]);
+                if (frames[0] == frames[1]) {
+                    break;
+                }
+                which = which == 0 ? 1 : 0;
+            }
+            return e;
+
+            return 0;
+        }
+        /*/
+
+		template <typename T>
+        inline error get_id3v2_tag(buffer_t<T>& buf, id3v2Header& id3) {
+            /*/
+            if (buf.empty()) {
+                return error::need_more_data;
+            }
+            if (buf.written < 10) {
+                return error::buffer_too_small;
+            }
+
+            memcpy(&id3, buf.begin(), ID3V2_HEADER_SIZE);
+
+            const byte_type* p = buf.begin();
+            // if (found = static_cast<int>(
+            //        static_cast<int>(static_cast<int>(static_cast<int>(memcmp(p,
+            //        "ID3", 3) != 0) != 0) != 0)
+            //        != 0) != 0) {
+
+            const int found = memcmp(p, "ID3", 3);
+            if (found != 0) {
+                return error::no_id3v2_tag;
+            }
+
+            if (found == 0) {
+                /*/
+            //    ID3v2/file identifier	"ID3"				0, 1, 2		3
+            //    ID3v2 version			$04 00 / $03 00		3, 4		2
+            //   ID3v2 flags				%abcd0000			5			1
+            //   ID3v2 size			4 *	%0xxxxxxx			6,7,8,9		4
+            //    a:	Unsynchronizaation.
+            //   b:	Has extended header (is 10 bytes longer than expected).
+            //   c:	Experimental.
+            //   d:	Footer present.
+            /*/
+
+                        uint32_t usize
+                            =
+               detail::DecodeSyncSafe(reinterpret_cast<char*>((&id3)->size)); if (usize !=
+               0u) { usize += ID3V2_HEADER_SIZE;
+                        }
+                        if (usize > detail::ID3V2_MAX_SIZE) {
+                            assert("MAX ID3 SIZE EXCEEDED!" == nullptr);
+                            id3.tagsize_inc_header = 0;
+                        } else {
+                            id3.tagsize_inc_header = usize;
+                        }
+                        
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+                        return error::none;
+                    }
+                    /*/
+            return 0;
+        }
