@@ -29,7 +29,7 @@ namespace io {
 
             using utype = std::underlying_type_t<seek_value_type>;
             seek_t(int64_t pos = 0, seek_value_type sk = seek_value_type::seek_from_cur)
-                : position(pos), seek(seek_value_type::seek_from_cur) {}
+                : position(pos), seek(sk) {}
             seek_t(const seek_t& rhs) = default;
             seek_t(seek_t&& rhs) = default;
             seek_t& operator=(const seek_t& rhs) = default;
@@ -45,40 +45,38 @@ namespace io {
 
             protected:
             byte data[CAPACITY] = {0};
-            int written = 0;
-            int read = 0;
-            int unread = 0;
+            int m_size = 0;
+            int m_read = 0;
+            int m_unread = 0;
             CRTP& m_crtp;
             void clear() {
-                written = 0;
-                read = 0;
-                unread = 0;
+                m_size = 0;
+                m_read = 0;
+                m_unread = 0;
             }
 
             constexpr int capacity() const { return static_cast<int>(CAPACITY); }
-
+            constexpr int size() const { return m_size; }
             const byte* const data_begin() const {
-                return CAST(const byte*, (data + unread));
+                return CAST(const byte*, (data + m_unread));
             }
             // returns where to write the next data,
             // and the available space.
             // Returns nullptr if there is no room right now
             char* writeptr(int& available_space) {
 
-                assert(unread >= 0 && unread < CAPACITY);
-                if (unread >= 0 && unread >= CAPACITY) {
+                assert(m_unread >= 0 && m_unread < CAPACITY);
+                if (m_unread >= 0 && m_unread >= CAPACITY) {
                     return nullptr;
                 }
-                byte* target = data + unread;
-                available_space = CAPACITY - unread;
+                byte* target = data + m_unread;
+                available_space = CAPACITY - m_unread;
                 return reinterpret_cast<char*>(target);
             }
-            const byte* const data_end() const { return begin() + written; }
+            const byte* const data_end() const { return begin() + m_size; }
             const byte* begin() const { return CAST(const byte*, data); }
             const byte* end() const { return CAST(const byte*, data + CAPACITY); }
-            bool empty() const { return written == 0 || read == written; }
-            // using seek_value_type = my::io::seek_value_type;
-
+            bool empty() const { return m_size == 0 || m_read == m_size; }
             buffer_guts(CRTP& c) : m_crtp(c) {}
         };
     } // namespace detail

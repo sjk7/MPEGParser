@@ -8,28 +8,7 @@
 
             return err;
         }
-        //error get_id3() {
-          
-
-
-
-
-            int n = 0;
-            m_cb(m_buf);
-            error e = get_id3v2_tag(m_buf, m_id3v2Header);
-            if (e) {
-                return e;
-            }
-
-            my::io::seek_type sk(-128, buffer_t::seek_t::seek_from_end);
-            n = m_cb(m_buf, sk);
-            m_id3v1_size = 0;
-            if (memcmp(&m_buf, "TAG", 3) == 0) {
-                memcpy(&m_v1, &m_buf, 128);
-                m_id3v1_size = 128;
-            }
-            return 0;
-        }
+        //
         
 
 

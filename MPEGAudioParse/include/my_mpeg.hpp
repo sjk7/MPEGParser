@@ -50,21 +50,79 @@ namespace mpeg {
         }
     } // namespace detail
 
+    struct error {
+        static constexpr int none = 0;
+        static constexpr int unknown = 1;
+        static constexpr int no_more_data = 2;
+        static constexpr int buffer_too_small = 3;
+        static constexpr int no_id3v2_tag = 4;
+        static constexpr int bad_mpeg_version = 5;
+        static constexpr int bad_mpeg_layer = 6;
+        static constexpr int bad_mpeg_bitrate = 7;
+        static constexpr int bad_mpeg_samplerate = 8;
+        static constexpr int lost_sync = 9;
+        static constexpr int need_more_data = 10;
+        static constexpr int bad_mpeg_channels = 11;
+        static constexpr int bad_mpeg_emphasis = 12;
+        // static constexpr int buffer_too_small = -6;
+
+        int value = none;
+        operator int() const { return value; }
+        int to_int() const { return value; }
+        error() : value(none){};
+        error(const int rhs) : value(rhs) {}
+        bool operator==(const int rhs) { return value == rhs; }
+        bool operator==(const error rhs) { return value == rhs.value; }
+        bool is_errno() const { return value < 0; }
+
+        const std::string to_string() {
+            static const char* const values[] = {"none", "unknown", "no more data",
+                "buffer too small", "no id3v2 tag", "bad mpeg version", "bad mpeg layer",
+                "bad mpeg bitrate", "bad samplerate", "lost sync", "need_more_data",
+                "bad mpeg channels", "bad mpeg emphasis"};
+
+            if (is_errno()) {
+                return strerror(-value);
+            }
+            static constexpr int sz = sizeof(values);
+
+            if (value < 0 || value >= sz) {
+                return std::string("Unknown error");
+            }
+            return values[value];
+        }
+    };
     using seek_type = my::io::seek_type;
 
-    template <typename READER>
-    class buffer : public my::io::buffer_guts_type<buffer<READER>> {
-        using base = my::io::buffer_guts_type<buffer<READER>>;
-        READER m_cb;
-        template <typename T> buffer(T reader, int) : base(*this), m_cb(reader) {}
+    template <typename READER_CALLBACK>
+    class buffer : public my::io::buffer_guts_type<buffer<READER_CALLBACK>> {
+        using base = typename my::io::buffer_guts_type<buffer<READER_CALLBACK>>;
+
+        READER_CALLBACK m_cb;
+        std::string m_uri;
+
+        template <typename T>
+        buffer(T reader, int, std::string_view svuri)
+            : base(*this), m_cb(reader), m_uri(svuri) {}
 
         public:
-        static auto make_buffer(READER&& reader) { return buffer<READER>(reader); }
-        buffer(READER reader) : buffer(reader, 0) {}
+        static auto make_buffer(std::string_view sv, READER_CALLBACK&& reader) {
+            return buffer(std::forward<READER_CALLBACK>(reader));
+        }
+        buffer(std::string_view uri, READER_CALLBACK reader) : buffer(reader, 0, uri) {
+            using FFS = decltype(reader);
+            FFS* p = nullptr;
+        }
 
-        int get(int& how_much, bool peek, seek_type&& seeker) {
+        const std::string& uri() const { return m_uri; }
+        using base::capacity;
+        using base::size;
+
+        // return 0 on success, <0 for an errno, >0 for a custom error.
+        error get(int& how_much, bool peek, const seek_type& sk) {
 
             int avail_space = 0;
+
             char* ptr = this->writeptr(avail_space);
             if (!ptr) {
                 std::cout << "NO PTR, FFS" << std::endl;
@@ -72,9 +130,12 @@ namespace mpeg {
             how_much = (std::min)(how_much, avail_space);
             assert(how_much > 0);
 
-            int ret = m_cb(ptr, how_much, std::forward<seek_type&>(seeker));
+            error ret = m_cb(ptr, how_much, sk);
+            if (ret) {
+                return ret;
+            }
             if (!peek) {
-                base::unread += how_much;
+                base::m_unread += how_much;
             }
             return ret;
         }
@@ -84,46 +145,6 @@ namespace mpeg {
 
     template <typename CB> using buffer_t = my::io::buffer_guts_type<CB>;
     template <typename CB> using buffer_type = my::io::buffer_guts_type<CB>;
-
-    struct error {
-        static constexpr int none = 0;
-        static constexpr int unknown = -1;
-        static constexpr int no_more_data = -2;
-        static constexpr int buffer_too_small = -4;
-        static constexpr int no_id3v2_tag = -5;
-        static constexpr int bad_mpeg_version = -6;
-        static constexpr int bad_mpeg_layer = -7;
-        static constexpr int bad_mpeg_bitrate = -8;
-        static constexpr int bad_mpeg_samplerate = -9;
-        static constexpr int lost_sync = 10;
-        static constexpr int need_more_data = 11;
-        static constexpr int bad_mpeg_channels = -12;
-        static constexpr int bad_mpeg_emphasis = -13;
-        // static constexpr int buffer_too_small = -6;
-
-        int value = none;
-        operator int() const { return value; }
-        error() : value(none){};
-        error(const int rhs) : value(rhs) {}
-        bool operator==(const int rhs) { return value == rhs; }
-        bool operator==(const error rhs) { return value == rhs.value; }
-
-        const std::string to_string() {
-            static const char* const values[] = {"none", "unknown", "no more data",
-                "need more data", "buffer too small", "no id3v2 tag", "bad mpeg version",
-                "bad mpeg layer", "bad mpeg bitrate", "bad samplerate", "lost sync",
-                "need_more_data", "bad mpeg channels", "bad mpeg emphasis"};
-
-            static constexpr int sz = sizeof(values);
-            if (value < 0) {
-                value = -value;
-            }
-            if (value < 0 || value >= sz) {
-                return std::string();
-            }
-            return values[value];
-        }
-    };
 
     struct frame_header {
         static constexpr int8_t MPEG_HEADER_SIZE = 4;
@@ -422,16 +443,62 @@ namespace mpeg {
         }
 
         template <typename CB> using _buffer_type = buffer_type<CB>;
+        template <typename T>
+        inline error get_id3v2_tag(buffer_type<T>& buf, id3v2Header& id3) {
 
+            if (buf.empty()) {
+                return error::need_more_data;
+            }
+            if (buf.written < 10) {
+                return error::buffer_too_small;
+            }
+
+            memcpy(&id3, buf.begin(), ID3V2_HEADER_SIZE);
+            const byte_type* p = buf.begin();
+
+            const int found = memcmp(p, "ID3", 3);
+            if (found != 0) {
+                return error::no_id3v2_tag;
+            }
+
+            if (found == 0) {
+                /*/
+            //    ID3v2/file identifier	"ID3"				0, 1, 2		3
+            //    ID3v2 version			$04 00 / $03 00		3, 4		2
+            //   ID3v2 flags				%abcd0000			5			1
+            //   ID3v2 size			4 *	%0xxxxxxx			6,7,8,9		4
+            //    a:	Unsynchronizaation.
+            //   b:	Has extended header (is 10 bytes longer than expected).
+            //   c:	Experimental.
+            //   d:	Footer present.
+            /*/
+
+                uint32_t usize
+                    = detail::DecodeSyncSafe(reinterpret_cast<char*>((&id3)->size));
+                if (usize != 0u) {
+                    usize += ID3V2_HEADER_SIZE;
+                }
+                if (usize > detail::ID3V2_MAX_SIZE) {
+                    assert("MAX ID3 SIZE EXCEEDED!" == nullptr);
+                    id3.tagsize_inc_header = 0;
+                } else {
+                    id3.tagsize_inc_header = usize;
+                }
+
+                return error::none;
+            }
+
+            return 0;
+        }
     } // namespace detail
 
     template <typename CB> using buffer_type = detail::_buffer_type<CB>;
     using seek_t = my::io::seek_type;
 
-    template <typename CB> class parser {
+    template <typename IO> class parser {
 
         private:
-        using buffer_t = buffer_type<CB>;
+        using buffer_t = buffer_type<IO>;
         uint32_t nframes{0};
         int64_t file_size{-1};
         std::string filepath;
@@ -440,24 +507,36 @@ namespace mpeg {
         detail::id3v2Header m_id3v2Header;
         detail::ID3V1 m_v1;
         int m_id3v1_size = 0;
-        CB& m_cb;
 
-        parser(CB& cb, int, std::string_view file_path, uintmax_t file_size)
-            : m_cb(cb), file_size(CAST(int64_t, file_size)), filepath(file_path) {}
+        IO& m_buf;
+
+        parser(IO& buf, int, std::string_view file_path, uintmax_t file_size)
+            : m_buf(buf), file_size(CAST(int64_t, file_size)), filepath(file_path) {
+
+            // puts("parser private construct");
+        }
 
         public:
         NO_COPY_AND_ASSIGN(parser);
         NO_MOVE_AND_ASSIGN(parser);
 
-        parser(CB& read_callback, std::string_view file_path, uintmax_t file_size)
-            : parser(read_callback, 0, file_path, file_size) {
-
-            std::cout << "parser constructor. Filename = " << filepath << std::endl;
-        }
+        parser(IO& buf, std::string_view file_path, uintmax_t file_size)
+            : parser(buf, 0, file_path, file_size) {}
 
         mpeg::error parse() {
-            puts("Parse called.\n");
-            return 0;
+
+            int how_much = m_buf.capacity();
+            my::io::seek_type sk(-1000, my::io::seek_value_type::seek_from_begin);
+            mpeg::error e = 0;
+            e = m_buf.get(how_much, true, sk);
+            if (e) {
+                fprintf(stderr, "%s %s %s %s %i\n\n",
+                    "Error reading io device:", e.to_string().c_str(), "\n",
+                    this->m_buf.uri().c_str(), e.to_int());
+                return e;
+            }
+
+            return e;
         }
     };
 

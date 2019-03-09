@@ -14,3 +14,8 @@
 *.sdb
 *.obj
 *.vspx
+*.ilk
+*.pdb
+*.idb
+*.tlog
+*.log

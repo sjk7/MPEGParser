@@ -50,7 +50,7 @@ void test_all_mp3() {
 using seek_t = my::io::seek_type;
 using seek_value_type = my::io::seek_value_type;
 
-// return 0 normally, -1 if some file error
+// return 0 normally, -1 or -errno if some file error
 int read_file(char* ptr, int& how_much, const seek_t& seek, std::fstream& f) {
     int way = CAST(int, seek.seek);
 
@@ -63,9 +63,14 @@ int read_file(char* ptr, int& how_much, const seek_t& seek, std::fstream& f) {
         return my::io::NO_MORE_DATA;
     }
     f.clear();
+    errno = 0;
     if (way != std::ios::cur) {
-
         f.seekg(seek.position, way);
+    }
+
+    if (!f) {
+        const auto e = errno;
+        return e > 0 ? -e : -1;
     }
     assert(f);
     int retval = 0;
@@ -97,7 +102,7 @@ int64_t test_buffer(const std::string& path) {
     }
     auto fsz = my::fs::file_size(path);
 
-    my::mpeg::buffer buf([&](char* ptr, int& how_much, seek_t& seek) {
+    my::mpeg::buffer buf(path, [&](char* ptr, int& how_much, const seek_t& seek) {
         bool b = file.is_open();
         // cout << "other file ref, is_open() = " << file.is_open() << endl;
         int retval = read_file(ptr, how_much, seek, file);
@@ -107,9 +112,9 @@ int64_t test_buffer(const std::string& path) {
     int how_much = 1024;
     unsigned long total_read_size = 0;
     int result = 0;
-    my::mpeg::seek_type seeker;
+    const my::mpeg::seek_t sk(0, my::io::seek_value_type::seek_from_begin);
     while (how_much > 0) {
-        result = buf.get(how_much, true, std::forward<my::mpeg::seek_type&&>(seeker));
+        result = buf.get(how_much, true, sk);
         total_read_size += how_much;
         if (result < 0) break;
     }
@@ -150,13 +155,22 @@ int main(int argc, char** argv) {
     }
 
     int64_t my_file_size = CAST(int64_t, file_size);
-    my::mpeg::buffer buf([&](char* ptr, int& how_much, const seek_t& seek) {
-        bool b = file.is_open();
+
+    using seek_t = my::io::seek_type;
+    using seek_value_type = my::io::seek_value_type;
+
+    my::mpeg::buffer buf(path, [&](char* ptr, int& how_much, const seek_t& seek) {
         return read_file(ptr, how_much, seek, file);
     });
 
-    my::mpeg::parser p(buf, std::forward<std::string_view&&>(path), file_size);
-    p.parse();
-    // hello, world!
+    auto lam = [&](char* ptr, int& how_much, const seek_t& seek) {
+        return read_file(ptr, how_much, seek, file);
+    };
+
+    my::mpeg::parser p(buf, path, file_size);
+    auto e = p.parse();
+
+    // p.parse([&](buf_t& buf, seek_t seek = seek_t{0}) {
+
     return 0;
 }
