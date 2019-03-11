@@ -80,10 +80,11 @@
       <SDLCheck>false</SDLCheck>
       <ConformanceMode>true</ConformanceMode>
       <TreatWarningAsError>false</TreatWarningAsError>
-      <LanguageStandard>stdcpplatest</LanguageStandard>
       <EnablePREfast>false</EnablePREfast>
       <SupportJustMyCode>false</SupportJustMyCode>
       <InlineFunctionExpansion>Disabled</InlineFunctionExpansion>
+      <LanguageStandard>stdcpp17</LanguageStandard>
+      <CompileAsManaged>false</CompileAsManaged>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -147,6 +148,7 @@
     <ClInclude Include="include\my_files_enum.hpp" />
     <ClInclude Include="include\my_io.hpp" />
     <ClInclude Include="include\my_mpeg.hpp" />
+    <ClInclude Include="my_string_view.hpp" />
   </ItemGroup>
   <ItemGroup>
     <Text Include="code-dump.txt" />

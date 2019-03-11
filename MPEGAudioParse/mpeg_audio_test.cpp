@@ -68,12 +68,13 @@ int read_file(char* ptr, int& how_much, const seek_t& seek, std::fstream& f) {
         f.seekg(seek.position, way);
     }
 
+    int retval = 0;
+
     if (!f) {
         const auto e = errno;
-        return e > 0 ? -e : -1;
+        retval = e > 0 ? -e : -1;
     }
     assert(f);
-    int retval = 0;
 
     const std::streamsize can_read = how_much;
 
@@ -102,19 +103,23 @@ int64_t test_buffer(const std::string& path) {
     }
     auto fsz = my::fs::file_size(path);
 
+#if __cplusplus >= 201703L
     my::mpeg::buffer buf(path, [&](char* ptr, int& how_much, const seek_t& seek) {
-        bool b = file.is_open();
-        // cout << "other file ref, is_open() = " << file.is_open() << endl;
-        int retval = read_file(ptr, how_much, seek, file);
-        return retval;
+        return read_file(ptr, how_much, seek, file);
     });
-
+#else
+    auto lam = [&](char* ptr, int& how_much, const seek_t& seek) {
+        return read_file(ptr, how_much, seek, file);
+    };
+    using lam_t = decltype(lam);
+    auto buf = my::mpeg::buffer<lam_t>::make_buffer(path, lam);
+#endif
     int how_much = 1024;
     unsigned long total_read_size = 0;
     int result = 0;
     const my::mpeg::seek_t sk(0, my::io::seek_value_type::seek_from_begin);
     while (how_much > 0) {
-        result = buf.get(how_much, true, sk);
+        result = buf.get(how_much, sk, true);
         total_read_size += how_much;
         if (result < 0) break;
     }
@@ -130,6 +135,7 @@ int main(int argc, char** argv) {
     _set_error_mode(_OUT_TO_MSGBOX);
 #endif
     const std::string path("./ztest_files/Chasing_Pirates.mp3");
+
     /*/
     uint64_t grand_tot = 0;
 
@@ -159,16 +165,26 @@ int main(int argc, char** argv) {
     using seek_t = my::io::seek_type;
     using seek_value_type = my::io::seek_value_type;
 
+    // NOTE: MUST HAVE COMPILER SWITCH
+    // /Zc:__cplusplus
+    // To get correctly reported __cplusplus version
+    cout << "Using c++ version: " << __cplusplus << endl;
+    cout << "------------------------------------------\n";
+    cout << __cplusplus << endl;
+#if __cplusplus >= 201703L
     my::mpeg::buffer buf(path, [&](char* ptr, int& how_much, const seek_t& seek) {
         return read_file(ptr, how_much, seek, file);
     });
-
+#else
     auto lam = [&](char* ptr, int& how_much, const seek_t& seek) {
         return read_file(ptr, how_much, seek, file);
     };
+    using lam_t = decltype(lam);
+    auto buf = my::mpeg::buffer<lam_t>::make_buffer(path, lam);
+#endif
 
-    my::mpeg::parser p(buf, path, file_size);
-    auto e = p.parse();
+    my::mpeg::parser p(path, file_size);
+    auto e = p.parse(buf);
 
     // p.parse([&](buf_t& buf, seek_t seek = seek_t{0}) {
 

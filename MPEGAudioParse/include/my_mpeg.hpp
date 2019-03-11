@@ -6,6 +6,7 @@
 #include <cstring>
 #include <limits>
 #include <functional>
+#include "my_string_view.hpp"
 
 namespace my {
 namespace mpeg {
@@ -102,24 +103,23 @@ namespace mpeg {
         std::string m_uri;
 
         template <typename T>
-        buffer(T reader, int, std::string_view svuri)
+        buffer(T reader, int, string_view svuri)
             : base(*this), m_cb(reader), m_uri(svuri) {}
 
         public:
-        static auto make_buffer(std::string_view sv, READER_CALLBACK&& reader) {
-            return buffer(std::forward<READER_CALLBACK>(reader));
+        template <typename RCB>
+        static buffer<RCB> make_buffer(string_view svuri, RCB reader) {
+            return buffer<RCB>(reader, 0, svuri);
         }
-        buffer(std::string_view uri, READER_CALLBACK reader) : buffer(reader, 0, uri) {
-            using FFS = decltype(reader);
-            FFS* p = nullptr;
-        }
+
+        buffer(string_view uri, READER_CALLBACK reader) : buffer(reader, 0, uri) {}
 
         const std::string& uri() const { return m_uri; }
         using base::capacity;
         using base::size;
 
         // return 0 on success, <0 for an errno, >0 for a custom error.
-        error get(int& how_much, bool peek, const seek_type& sk) {
+        error get(int& how_much, const seek_type& sk, bool peek = false) {
 
             int avail_space = 0;
 
@@ -492,13 +492,12 @@ namespace mpeg {
         }
     } // namespace detail
 
-    template <typename CB> using buffer_type = detail::_buffer_type<CB>;
     using seek_t = my::io::seek_type;
-
-    template <typename IO> class parser {
+    struct io_base : public my::io::buffer_guts_type<io_base> {};
+    class parser {
 
         private:
-        using buffer_t = buffer_type<IO>;
+        // using buffer_t = buffer_type<IO>;
         uint32_t nframes{0};
         int64_t file_size{-1};
         std::string filepath;
@@ -508,34 +507,42 @@ namespace mpeg {
         detail::ID3V1 m_v1;
         int m_id3v1_size = 0;
 
-        IO& m_buf;
+        // IO& m_buf;
 
-        parser(IO& buf, int, std::string_view file_path, uintmax_t file_size)
-            : m_buf(buf), file_size(CAST(int64_t, file_size)), filepath(file_path) {
+        parser(int, string_view file_path, uintmax_t file_size)
+            : file_size(CAST(int64_t, file_size)), filepath(file_path) {
 
             // puts("parser private construct");
+        }
+
+        template <typename IO>
+        static error read_io(
+            IO& io, int& how_much, my::io::seek_type&& sk, bool peek = false) {
+            return io.get(how_much, std::forward<const my::io::seek_type>(sk), peek);
         }
 
         public:
         NO_COPY_AND_ASSIGN(parser);
         NO_MOVE_AND_ASSIGN(parser);
+        using seek_value_type = my::io::seek_value_type;
 
-        parser(IO& buf, std::string_view file_path, uintmax_t file_size)
-            : parser(buf, 0, file_path, file_size) {}
+        parser(string_view file_path, uintmax_t file_size)
+            : parser(0, file_path, file_size) {}
 
-        mpeg::error parse() {
-
-            int how_much = m_buf.capacity();
-            my::io::seek_type sk(-1000, my::io::seek_value_type::seek_from_begin);
+        template <typename IO> mpeg::error parse(IO& io) {
             mpeg::error e = 0;
-            e = m_buf.get(how_much, true, sk);
+
+            int how_much = io.capacity();
+            my::io::seek_type sk(0, seek_value_type::seek_from_begin);
+
+            e = read_io(io, how_much, std::forward<seek_type&&>(sk));
+
             if (e) {
                 fprintf(stderr, "%s %s %s %s %i\n\n",
                     "Error reading io device:", e.to_string().c_str(), "\n",
-                    this->m_buf.uri().c_str(), e.to_int());
+                    io.uri().c_str(), e.to_int());
                 return e;
             }
-
             return e;
         }
     };
