@@ -68,7 +68,8 @@ namespace mpeg {
         // static constexpr int buffer_too_small = -6;
 
         int value = none;
-        operator int() const { return value; }
+        explicit operator int() const { return value; }
+        operator bool() const { return value == 0 ? false : true; }
         int to_int() const { return value; }
         error() : value(none){};
         error(const int rhs) : value(rhs) {}
@@ -107,6 +108,10 @@ namespace mpeg {
             : base(*this), m_cb(reader), m_uri(svuri) {}
 
         public:
+        using base::begin;
+        using base::clear;
+        using base::end;
+
         template <typename RCB>
         static buffer<RCB> make_buffer(string_view svuri, RCB reader) {
             return buffer<RCB>(reader, 0, svuri);
@@ -490,6 +495,18 @@ namespace mpeg {
 
             return 0;
         }
+
+        template <typename IO>
+        static error read_io(
+            IO& io, int& how_much, my::io::seek_type&& sk, bool peek = false) {
+            error e = io.get(how_much, std::forward<const my::io::seek_type>(sk), peek);
+            if (e) {
+                fprintf(stderr, "%s %s %s %s %i\n\n",
+                    "Error reading io device:", e.to_string().c_str(),
+                    "\n For:", io.uri().c_str(), e.to_int());
+                return e;
+            }
+        }
     } // namespace detail
 
     using seek_t = my::io::seek_type;
@@ -497,6 +514,75 @@ namespace mpeg {
     class parser {
 
         private:
+        detail::frames_t m_frames = {{0}};
+        template <typename IO> error single_frame(IO& buf, int start_where, frame& f) {
+            error e;
+            f.clear();
+            assert(0); // more to do here
+            /*/
+            if (buf.unread < frame_header::MPEG_HEADER_SIZE) {
+                return my::mpeg::error::need_more_data;
+            }
+            byte_type* psync = find_sync(buf, 0);
+            if (psync == nullptr) {
+                e = error::lost_sync;
+                return e;
+            }
+            memcpy(&f.hdr.header_bytes, psync, 4);
+            e = detail::parse_frame_header(f);
+            if (e != 0) {
+                return e;
+            }
+            /*/
+            return e;
+        }
+        template <typename IO> error find_first_frames(IO& io, detail::frames_t& frames) {
+            detail::init_frames(frames);
+
+            assert(0);
+            error e;
+            // e = get_id3(cb);
+            if (e) {
+                return e;
+            }
+
+            seek_t sk(m_id3v2Header.total_size());
+
+            io.clear();
+            int how_much = io.capacity();
+            e = detail::read_io(io, how_much, std::forward<seek_t&&>(sk));
+            if (e) return e;
+            int read = detail::read_io(
+                io, how_much, std::forward<seek_t&&>(sk)); // cb(m_buf, sk);
+            assert("is all this handled automagically??" == 0);
+            // m_buf.unread += read;
+            int start_where = 0;
+            e = single_frame(io, start_where, frames[0]);
+
+            int which = 0;
+            bool eof_flag = false;
+
+            while (e == error::none) {
+                start_where += frames[which].size();
+                auto end = io.begin() + frames[which].size();
+                if (end >= io.end()) {
+                    auto how_much = io.capacity();
+                    err = detail::read_io(io, how_much,
+                        std::forward<my::io::seek_type&&>(my::io::seek_type()));
+                    if (err) {
+                        if (err == error::no_more_data) {
+                            eof_flag = true;
+                        }
+                    }
+                }
+                e = single_frame(io, start_where, frames[which]);
+                if (frames[0] == frames[1]) {
+                    break;
+                }
+                which = which == 0 ? 1 : 0;
+            }
+            return e;
+        }
         // using buffer_t = buffer_type<IO>;
         uint32_t nframes{0};
         int64_t file_size{-1};
@@ -509,16 +595,10 @@ namespace mpeg {
 
         // IO& m_buf;
 
-        parser(int, string_view file_path, uintmax_t file_size)
+        parser(int dum, string_view file_path, uintmax_t file_size)
             : file_size(CAST(int64_t, file_size)), filepath(file_path) {
-
+            (void)dum;
             // puts("parser private construct");
-        }
-
-        template <typename IO>
-        static error read_io(
-            IO& io, int& how_much, my::io::seek_type&& sk, bool peek = false) {
-            return io.get(how_much, std::forward<const my::io::seek_type>(sk), peek);
         }
 
         public:
@@ -529,20 +609,16 @@ namespace mpeg {
         parser(string_view file_path, uintmax_t file_size)
             : parser(0, file_path, file_size) {}
 
-        template <typename IO> mpeg::error parse(IO& io) {
+        template <typename IO> mpeg::error parse(IO& myio) {
             mpeg::error e = 0;
 
-            int how_much = io.capacity();
+            int how_much = myio.capacity();
             my::io::seek_type sk(0, seek_value_type::seek_from_begin);
+            e = detail::read_io(myio, how_much, std::forward<seek_type&&>(sk));
+            if (e) return e;
 
-            e = read_io(io, how_much, std::forward<seek_type&&>(sk));
+            e = find_first_frames(myio, m_frames);
 
-            if (e) {
-                fprintf(stderr, "%s %s %s %s %i\n\n",
-                    "Error reading io device:", e.to_string().c_str(), "\n",
-                    io.uri().c_str(), e.to_int());
-                return e;
-            }
             return e;
         }
     };

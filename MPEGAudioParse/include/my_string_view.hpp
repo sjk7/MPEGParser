@@ -631,7 +631,7 @@ inline string_view ClippedSubstr(
 // This function should be used where an `absl::string_view` can be created from
 // a possibly-null pointer.
 inline string_view NullSafeStringView(const char* p) {
-    return p ? string_view(p) : string_view();
+    return p != nullptr ? string_view(p) : string_view();
 }
 
 } // namespace absl

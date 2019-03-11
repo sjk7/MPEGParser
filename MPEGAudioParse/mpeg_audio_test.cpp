@@ -167,6 +167,7 @@ int main(int argc, char** argv) {
 
     // NOTE: MUST HAVE COMPILER SWITCH
     // /Zc:__cplusplus
+    assert(__cplusplus >= 201101L);
     // To get correctly reported __cplusplus version
     cout << "Using c++ version: " << __cplusplus << endl;
     cout << "------------------------------------------\n";

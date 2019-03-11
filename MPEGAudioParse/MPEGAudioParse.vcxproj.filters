@@ -28,7 +28,7 @@
     <ClInclude Include="include\my_mpeg.hpp">
       <Filter>include</Filter>
     </ClInclude>
-    <ClInclude Include="my_string_view.hpp">
+    <ClInclude Include="include\my_string_view.hpp">
       <Filter>include</Filter>
     </ClInclude>
   </ItemGroup>
