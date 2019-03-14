@@ -7,7 +7,7 @@
 #include <cstdio>
 #include <cassert>
 #include <fstream>
-#include <string.h>
+#include <cstring>
 #include <cerrno>
 #include "./include/my_files_enum.hpp"
 #include "./include/my_mpeg.hpp"
@@ -51,31 +51,38 @@ using seek_t = my::io::seek_type;
 using seek_value_type = my::io::seek_value_type;
 
 // return 0 normally, -1 or -errno if some file error
-int read_file(char* ptr, int& how_much, const seek_t& seek, std::fstream& f) {
-    int way = CAST(int, seek.seek);
+int read_file(
+    char* const ptr, int& how_much, const seek_t& seek, std::fstream& f) {
+    std::ios::seekdir way = CAST(std::ios::seekdir, seek.seek);
 
-    if (!f && seek.seek == seek.seek_from_cur) {
+    if (!f && seek.seek == seek_t::value_type::seek_from_cur
+        && seek.position >= 0) {
         return -1; // already bad, probably eos last time.
     }
 
-    if (seek.seek == seek.seek_from_cur && f.eof()) {
+    if (seek.seek == seek_t::value_type::seek_from_cur && f.eof()) {
         how_much = 0;
         return my::io::NO_MORE_DATA;
     }
     f.clear();
     errno = 0;
+
+    int64_t pos = seek.position;
     if (way != std::ios::cur) {
-        f.seekg(seek.position, way);
+        if (way == std::ios_base::_Seekend) {
+            if (pos > 0) pos = -pos;
+        }
     }
 
+    f.seekg(pos, way);
     int retval = 0;
 
     if (!f) {
         const auto e = errno;
         retval = e > 0 ? -e : -1;
+        return retval;
     }
     assert(f);
-
     const std::streamsize can_read = how_much;
 
     f.read(ptr, can_read);
@@ -104,9 +111,10 @@ int64_t test_buffer(const std::string& path) {
     auto fsz = my::fs::file_size(path);
 
 #if __cplusplus >= 201703L
-    my::mpeg::buffer buf(path, [&](char* ptr, int& how_much, const seek_t& seek) {
-        return read_file(ptr, how_much, seek, file);
-    });
+    my::mpeg::buffer buf(
+        path, [&](char* ptr, int& how_much, const seek_t& seek) {
+            return read_file(ptr, how_much, seek, file);
+        });
 #else
     auto lam = [&](char* ptr, int& how_much, const seek_t& seek) {
         return read_file(ptr, how_much, seek, file);
@@ -119,9 +127,11 @@ int64_t test_buffer(const std::string& path) {
     int result = 0;
     const my::mpeg::seek_t sk(0, my::io::seek_value_type::seek_from_begin);
     while (how_much > 0) {
-        result = buf.get(how_much, sk, true);
+        result = static_cast<int>(buf.get(how_much, sk, nullptr, true));
         total_read_size += how_much;
-        if (result < 0) break;
+        if (result < 0) {
+            break;
+        }
     }
     assert(result == my::io::NO_MORE_DATA);
     const int64_t diff = total_read_size - fsz;
@@ -160,7 +170,7 @@ int main(int argc, char** argv) {
         return -1;
     }
 
-    int64_t my_file_size = CAST(int64_t, file_size);
+    auto my_file_size = CAST(int64_t, file_size);
 
     using seek_t = my::io::seek_type;
     using seek_value_type = my::io::seek_value_type;
@@ -173,11 +183,12 @@ int main(int argc, char** argv) {
     cout << "------------------------------------------\n";
     cout << __cplusplus << endl;
 #if __cplusplus >= 201703L
-    my::mpeg::buffer buf(path, [&](char* ptr, int& how_much, const seek_t& seek) {
-        return read_file(ptr, how_much, seek, file);
-    });
+    my::mpeg::buffer buf(
+        path, [&](char* const ptr, int& how_much, const seek_t& seek) {
+            return read_file(ptr, how_much, seek, file);
+        });
 #else
-    auto lam = [&](char* ptr, int& how_much, const seek_t& seek) {
+    auto lam = [&](char* const ptr, int& how_much, const seek_t& seek) {
         return read_file(ptr, how_much, seek, file);
     };
     using lam_t = decltype(lam);

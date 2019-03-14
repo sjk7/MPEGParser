@@ -1,3 +1,2 @@
 ﻿  mpeg_audio_test.cpp
-C:\Users\coolie\source\MPEGAudioParse\MPEGParser\MPEGAudioParse\include\my_mpeg.hpp(509): warning C4715: 'my::mpeg::detail::read_io<my::mpeg::buffer<<lambda_211f0ef421f589e9de82a0f1edcefb2f> > >': not all control paths return a value
-  MPEGAudioParse.vcxproj -> C:\Users\coolie\source\MPEGAudioParse\MPEGParser\MPEGAudioParse\Debug\MPEGAudioParse.exe
+  MPEGAudioParse.vcxproj -> V:\v3final\DPS++\MPEGParser\MPEGParser\MPEGAudioParse\Debug\MPEGAudioParse.exe
