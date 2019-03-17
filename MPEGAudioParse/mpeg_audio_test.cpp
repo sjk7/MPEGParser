@@ -17,7 +17,7 @@ using namespace std;
 void test_all_mp3() {
     const std::string my_extn = ".mp3";
 
-    auto files_found_callback = [&](const auto& item) {
+    [[maybe_unused]] auto files_found_callback = [&](const auto& item) {
         if (my::fs::is_regular_file(item)) {
             const auto& path = item.path();
             const auto u8 = path.u8string();
@@ -51,12 +51,11 @@ using seek_t = my::io::seek_type;
 using seek_value_type = my::io::seek_value_type;
 
 // return 0 normally, -1 or -errno if some file error
-int read_file(
-    char* const ptr, int& how_much, const seek_t& seek, std::fstream& f) {
-    std::ios::seekdir way = CAST(std::ios::seekdir, seek.seek);
+int read_file(char* const ptr, int& how_much, const seek_t& seek, std::fstream& f) {
 
-    if (!f && seek.seek == seek_t::value_type::seek_from_cur
-        && seek.position >= 0) {
+    const auto way = CAST(std::ios::seekdir, seek.seek);
+
+    if (!f && seek.seek == seek_t::value_type::seek_from_cur && seek.position >= 0) {
         return -1; // already bad, probably eos last time.
     }
 
@@ -69,8 +68,10 @@ int read_file(
 
     int64_t pos = seek.position;
     if (way != std::ios::cur) {
-        if (way == std::ios_base::_Seekend) {
-            if (pos > 0) pos = -pos;
+        if ((way == std::ios_base::_Seekend)) {
+            if (pos > 0) {
+                pos = -pos;
+            }
         }
     }
 
@@ -111,10 +112,9 @@ int64_t test_buffer(const std::string& path) {
     auto fsz = my::fs::file_size(path);
 
 #if __cplusplus >= 201703L
-    my::mpeg::buffer buf(
-        path, [&](char* ptr, int& how_much, const seek_t& seek) {
-            return read_file(ptr, how_much, seek, file);
-        });
+    my::mpeg::buffer buf(path, [&](char* ptr, int& how_much, const seek_t& seek) {
+        return read_file(ptr, how_much, seek, file);
+    });
 #else
     auto lam = [&](char* ptr, int& how_much, const seek_t& seek) {
         return read_file(ptr, how_much, seek, file);
@@ -135,7 +135,7 @@ int64_t test_buffer(const std::string& path) {
     }
     assert(result == my::io::NO_MORE_DATA);
     const int64_t diff = total_read_size - fsz;
-    // assert(diff == 0 && "file size disagreement based on data read");
+    assert(diff == 0 && "file size disagreement based on data read");
     return total_read_size;
 }
 
@@ -170,10 +170,10 @@ int main(int argc, char** argv) {
         return -1;
     }
 
-    auto my_file_size = CAST(int64_t, file_size);
+    // auto my_file_size = CAST(int64_t, file_size);
 
     using seek_t = my::io::seek_type;
-    using seek_value_type = my::io::seek_value_type;
+    // using seek_value_type = my::io::seek_value_type;
 
     // NOTE: MUST HAVE COMPILER SWITCH
     // /Zc:__cplusplus
@@ -183,10 +183,9 @@ int main(int argc, char** argv) {
     cout << "------------------------------------------\n";
     cout << __cplusplus << endl;
 #if __cplusplus >= 201703L
-    my::mpeg::buffer buf(
-        path, [&](char* const ptr, int& how_much, const seek_t& seek) {
-            return read_file(ptr, how_much, seek, file);
-        });
+    my::mpeg::buffer buf(path, [&](char* const ptr, int& how_much, const seek_t& seek) {
+        return read_file(ptr, how_much, seek, file);
+    });
 #else
     auto lam = [&](char* const ptr, int& how_much, const seek_t& seek) {
         return read_file(ptr, how_much, seek, file);
@@ -197,7 +196,7 @@ int main(int argc, char** argv) {
 
     my::mpeg::parser p(path, file_size);
     auto e = p.parse(buf);
-
+    (void)e;
     // p.parse([&](buf_t& buf, seek_t seek = seek_t{0}) {
 
     return 0;
