@@ -75,7 +75,10 @@ int read_file(char* const ptr, int& how_much, const seek_t& seek, std::fstream& 
         }
     }
 
-    f.seekg(pos, way);
+    if (seek.seek != seek_value_type::seek_invalid) {
+        f.seekg(pos, way);
+    }
+
     int retval = 0;
 
     if (!f) {
@@ -87,17 +90,23 @@ int read_file(char* const ptr, int& how_much, const seek_t& seek, std::fstream& 
     const std::streamsize can_read = how_much;
 
     f.read(ptr, can_read);
+    int errn = 0;
 
     bool eof = false;
     if (!f) {
         assert(f.eof());
         eof = true;
+        const auto err = errno;
+        if (err != 0) {
+            errn = errno;
+        }
         // don't return: we could well have read data before we hit eof
-    } else {
-        assert(f);
     }
     const auto this_read = static_cast<int>(f.gcount());
     how_much = this_read;
+    if (errn != 0) {
+        return -errn;
+    }
     return eof ? my::io::NO_MORE_DATA : 0;
 }
 
@@ -122,31 +131,28 @@ int64_t test_buffer(const std::string& path) {
     using lam_t = decltype(lam);
     auto buf = my::mpeg::buffer<lam_t>::make_buffer(path, lam);
 #endif
-    int how_much = 1024;
+
     unsigned long total_read_size = 0;
-    int result = 0;
-    const my::mpeg::seek_t sk(0, my::io::seek_value_type::seek_from_begin);
+    my::mpeg::error result;
+    const my::mpeg::seek_t sk = my::mpeg::seek_t();
+    char mybuf[4096];
+    int how_much = 4096;
+
     while (how_much > 0) {
-        result = static_cast<int>(buf.get(how_much, sk, nullptr, true));
+        result = buf.get(how_much, sk, mybuf, true);
         total_read_size += how_much;
-        if (result < 0) {
+        if (result) {
             break;
         }
     }
-    assert(result == my::io::NO_MORE_DATA);
+    assert(result == my::mpeg::error::error_code::no_more_data);
     const int64_t diff = total_read_size - fsz;
     assert(diff == 0 && "file size disagreement based on data read");
     return total_read_size;
 }
 
-int main(int argc, char** argv) {
+void test_file_read(const std::string& path) {
 
-#ifdef _WIN32
-    _set_error_mode(_OUT_TO_MSGBOX);
-#endif
-    const std::string path("./ztest_files/Chasing_Pirates.mp3");
-
-    /*/
     uint64_t grand_tot = 0;
 
     cout << endl;
@@ -160,8 +166,16 @@ int main(int argc, char** argv) {
 
     cout << endl;
     cout << endl;
-         cout << "grand tot: " << grand_tot << endl;
-    /*/
+    cout << "grand tot: " << grand_tot << endl;
+}
+int main(int argc, char** argv) {
+
+#ifdef _WIN32
+    _set_error_mode(_OUT_TO_MSGBOX);
+#endif
+    const std::string path("./ztest_files/Chasing_Pirates.mp3");
+    // const std::string path("./ztest_files/128.mp3");
+
     const auto file_size = my::fs::file_size(path);
     fstream file(path.c_str(), std::ios_base::binary | std::ios_base::in);
     if (!file) {
@@ -197,7 +211,6 @@ int main(int argc, char** argv) {
     my::mpeg::parser p(path, file_size);
     auto e = p.parse(buf);
     (void)e;
-    // p.parse([&](buf_t& buf, seek_t seek = seek_t{0}) {
-
+    test_file_read(path);
     return 0;
 }

@@ -31,6 +31,9 @@
     <ClInclude Include="include\my_string_view.hpp">
       <Filter>include</Filter>
     </ClInclude>
+    <ClInclude Include="include\my_sbo_buffer.hpp">
+      <Filter>include</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Text Include="code-dump.txt" />

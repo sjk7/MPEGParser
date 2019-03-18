@@ -43,57 +43,63 @@ namespace mpeg {
         static inline const char* Emphasis_String(EmphasisEnum ce) {
             switch (ce) {
                 case EMPHASIS_NONE: return "No Emphasis";
-                case EMPHASIS_FIFTY_FIFTEEN_MS:
-                    return "15 Millisecond Emphasis";
+                case EMPHASIS_FIFTY_FIFTEEN_MS: return "15 Millisecond Emphasis";
                 case EMPHASIS_RESERVED: return "Reserved (BAD) Emphasis";
                 case EMPHASIS_CCIT_J17: return "CCIT_J17 Emphasis";
                 default: return "unknown emphasis";
             };
         }
+        static constexpr int MIN_MPEG_PAYLOAD = 512;
     } // namespace detail
 
     struct error {
-        static constexpr int none = 0;
-        static constexpr int unknown = 1;
-        static constexpr int no_more_data = 2;
-        static constexpr int buffer_full = 3;
-        static constexpr int no_id3v2_tag = 4;
-        static constexpr int bad_mpeg_version = 5;
-        static constexpr int bad_mpeg_layer = 6;
-        static constexpr int bad_mpeg_bitrate = 7;
-        static constexpr int bad_mpeg_samplerate = 8;
-        static constexpr int lost_sync = 9;
-        static constexpr int need_more_data = 10;
-        static constexpr int bad_mpeg_channels = 11;
-        static constexpr int bad_mpeg_emphasis = 12;
+        enum class error_code : int {
+            none = 0,
+            unknown = 1,
+            no_more_data = 2,
+            buffer_full = 3,
+            no_id3v2_tag = 4,
+            bad_mpeg_version = 5,
+            bad_mpeg_layer = 6,
+            bad_mpeg_bitrate = 7,
+            bad_mpeg_samplerate = 8,
+            lost_sync = 9,
+            need_more_data = 10,
+            bad_mpeg_channels = 11,
+            bad_mpeg_emphasis = 12,
+            tiny_file = 13
+        };
+
         // static constexpr int buffer_too_small = -6;
 
-        int value = none;
-        explicit operator int() const { return value; }
-        operator bool() const { return value == 0 ? false : true; }
-        int to_int() const { return value; }
-        error() : value(none){};
-        error(const int rhs) : value(rhs) {}
-        bool operator==(const int rhs) { return value == rhs; }
+        error_code value = error_code::none;
+        // use to_int() here instead. otherwise operator bool() gets called ffs
+        // explicit operator int() const { return CAST(int, value); }
+        operator int() const = delete;
+        operator bool() const { return value == error_code::none ? false : true; }
+        int to_int() const { return CAST(int, value); }
+        error() = default;
+        error(const error_code rhs) : value(rhs) {}
+        bool operator==(const error_code rhs) { return value == rhs; }
         bool operator==(const error rhs) { return value == rhs.value; }
-        bool is_errno() const { return value < 0; }
+        bool is_errno() const { return to_int() < 0; }
 
         const std::string to_string() {
-            static const char* const values[]
-                = {"none", "unknown", "no more data", "buffer full",
-                    "no id3v2 tag", "bad mpeg version", "bad mpeg layer",
-                    "bad mpeg bitrate", "bad samplerate", "lost sync",
-                    "need_more_data", "bad mpeg channels", "bad mpeg emphasis"};
+            static const char* const values[] = {"none", "unknown", "no more data",
+                "buffer full", "no id3v2 tag", "bad mpeg version", "bad mpeg layer",
+                "bad mpeg bitrate", "bad samplerate", "lost sync", "need_more_data",
+                "bad mpeg channels", "bad mpeg emphasis",
+                "file payload too small to contain any meaningful audio"};
 
             if (is_errno()) {
-                return strerror(-value);
+                return strerror(-to_int());
             }
             static constexpr int sz = sizeof(values);
-
-            if (value < 0 || value >= sz) {
+            int val = to_int();
+            if (val < 0 || val >= sz) {
                 return std::string("Unknown error");
             }
-            return values[value];
+            return values[val];
         }
     };
     using seek_type = my::io::seek_type;
@@ -117,53 +123,55 @@ namespace mpeg {
         using base::data_begin;
         using base::data_end;
         using base::end;
-        using base::read_set;
-        using base::unread;
+        // using base::read_set;
+        // using base::unread;
 
         template <typename RCB>
         static buffer<RCB> make_buffer(string_view svuri, RCB reader) {
             return buffer<RCB>(reader, 0, svuri);
         }
 
-        buffer(string_view uri, READER_CALLBACK reader)
-            : buffer(reader, 0, uri) {}
+        buffer(string_view uri, READER_CALLBACK reader) : buffer(reader, 0, uri) {}
 
         const std::string& uri() const { return m_uri; }
         using base::capacity;
         using base::size;
 
         // return 0 on success, <0 for an errno, >0 for a custom error.
-        error get(int& how_much, const seek_type& sk, char* const buf_into,
-            bool peek = false) {
+        error get(
+            int& how_much, const seek_type& sk, char* const buf_into, bool peek = false) {
 
             char* bi = buf_into;
-
+            assert(bi);
             int avail_space = how_much;
             char* ptr = nullptr;
-            if (!buf_into) {
+            if (buf_into == nullptr) {
 
-                ptr = buf_into != nullptr ? buf_into
-                                          : this->writeptr(avail_space);
+                // ptr = buf_into != nullptr ? buf_into : this->writeptr(avail_space);
             } else {
                 ptr = buf_into;
             }
 
             if (ptr == nullptr) {
                 std::cout << "NOWHERE TO WRITE PTR, FFS" << std::endl;
-                return error::buffer_full;
+                how_much = 0;
+                return error::error_code::buffer_full;
             }
 
             how_much = (std::min)(how_much, avail_space);
 
             assert(how_much > 0);
-
-            error ret = m_cb(ptr, how_much, sk);
-            if (static_cast<int>(ret) != 0) {
+            error ret;
+            int rv = m_cb(ptr, how_much, sk);
+            if (rv == my::io::NO_MORE_DATA) {
+                ret = error::error_code::no_more_data;
                 return ret;
             }
 
-            base::unread(base::unread() + how_much);
-
+            if (rv < 0) {
+                how_much = 0;
+                return error(static_cast<error::error_code>(rv));
+            }
             return ret;
         }
     };
@@ -213,7 +221,7 @@ namespace mpeg {
         uint8_t channelmode{0};
     };
     struct frame_base {
-        my::io::sbo_buffer<MAX_STATIC_MPEG_PAYLOAD_SIZE> m_sbo;
+        my::io::sbo_buf<byte_type, MAX_STATIC_MPEG_PAYLOAD_SIZE> m_sbo;
         mutable bool valid = {false};
         int64_t file_position = {-1};
         // The amount of data after the header and before the end of the frame
@@ -221,38 +229,49 @@ namespace mpeg {
         frame_header hdr;
         mpeg_properties props = mpeg_properties{0};
 
+        // represents any valid data we hold in the buffer after this frame:
+        struct extra_data_type {
+            byte_type* ptr;
+            int cb;
+        };
+        extra_data_type extra_data = {nullptr};
+
         const mpeg_properties& props_const() const { return props; }
 
         // This is the TOTAL length, in bytes, of the frame, INCLUDING the 4
         // header bytes.
         int length_in_bytes() const {
             const auto len = frame_get_length();
-            if (len > 0)
+            if (len > 0) {
                 valid = true;
-            else
+            } else {
                 valid = false;
+            }
             return len;
         }
-        void set_header_bytes(my::io::byte_type* p, size_t cb, int bufpos = 0,
-            int64_t file_pos = -1) {
+        void set_header_bytes(
+            my::io::byte_type* p, size_t cb, int bufpos = 0, int64_t file_pos = -1) {
             valid = false;
             file_position = file_pos;
             assert(cb == MPEG_HEADER_SIZE);
-            hdr.header_bytes = (byte_type*)m_sbo.begin() + bufpos;
+            hdr.header_bytes = static_cast<byte_type*>(m_sbo.begin()) + bufpos;
         }
-        void clear() { valid = false; }
+        void clear(bool keep_extra_data = false) {
+            valid = false;
+            if (!keep_extra_data) {
+                extra_data = extra_data_type();
+            }
+        }
 
         private:
         int frame_get_length() const {
             int sz = 0;
             if (props.layer == 1) {
-                sz = ((12 * (props.bitrate) / props.samplerate + props.padding)
-                    * 4);
+                sz = ((12 * (props.bitrate) / props.samplerate + props.padding) * 4);
             } else {
                 if (props.layer == 2) {
                     // they are all the same:
-                    sz = (144 * props.bitrate / props.samplerate)
-                        + props.padding;
+                    sz = (144 * props.bitrate / props.samplerate) + props.padding;
                     // dFrameLength = ();
                 } else {
                     //'MPEG2 and 2.5 are different, but only in layer3:
@@ -261,11 +280,9 @@ namespace mpeg {
                         // Version2,
                         // layer 3 files. 'and most readers do get this wrong!
                         // (including v3Mpeg.dll!)
-                        sz = ((72 * (props.bitrate) / props.samplerate
-                            + props.padding));
+                        sz = ((72 * (props.bitrate) / props.samplerate + props.padding));
                     } else {
-                        sz = ((144 * (props.bitrate) / props.samplerate
-                            + props.padding));
+                        sz = ((144 * (props.bitrate) / props.samplerate + props.padding));
                     }
                 }
             }
@@ -305,8 +322,7 @@ namespace mpeg {
 #pragma pack(pop)
 
         inline bool id3_is_valid(const id3v2Header& h) {
-            return h.tagsize_inc_header > 10
-                && (h.tagsize_inc_header < ID3V2_MAX_SIZE);
+            return h.tagsize_inc_header > 10 && (h.tagsize_inc_header < ID3V2_MAX_SIZE);
         }
 
         uint32_t DecodeSyncSafe(const char* pb) {
@@ -325,15 +341,13 @@ namespace mpeg {
         }
 
         template <typename T>
-        int find_next_frame(
-            const frame& prev, frame& next, const buffer_type<T>& buf) {
+        int find_next_frame(const frame& prev, frame& next, const buffer_type<T>& buf) {
             next.clear();
             return 0;
         }
 
         using frames_t = frame[2];
-        template <typename F, size_t N>
-        inline void init_frames(F (&frames)[N]) {
+        template <typename F, size_t N> inline void init_frames(F (&frames)[N]) {
             for (int i = 0; i < N; ++i) {
                 frames[i].clear();
             }
@@ -342,17 +356,16 @@ namespace mpeg {
         inline error frame_version(frame& frame) {
             error e;
             const auto& data = frame.hdr.header_bytes;
-            frame.props.crc = static_cast<uint8_t>(
-                static_cast<unsigned char>(data[1] & 0x01) == 0);
+            frame.props.crc
+                = static_cast<uint8_t>(static_cast<unsigned char>(data[1] & 0x01) == 0);
             static constexpr int MAX_MPEG_VERSIONS = 3;
             unsigned char version_index
                 = (static_cast<unsigned char>(data[1]) >> 3) & 0x03;
-            static constexpr unsigned char MPEGVersions[MAX_MPEG_VERSIONS]
-                = {3, 2, 1};
+            static constexpr unsigned char MPEGVersions[MAX_MPEG_VERSIONS] = {3, 2, 1};
 
             const int ver_out_of_box = version_index;
             if (ver_out_of_box == 1) {
-                e = error::bad_mpeg_version;
+                e = error::error_code::bad_mpeg_version;
                 return e;
             }
             if (version_index == 2) {
@@ -362,7 +375,7 @@ namespace mpeg {
                 version_index = 2;
             }
             if (version_index >= MAX_MPEG_VERSIONS) {
-                e = error::bad_mpeg_version;
+                e = error::error_code::bad_mpeg_version;
                 return e;
             }
             frame.props.version = MPEGVersions[version_index];
@@ -373,10 +386,9 @@ namespace mpeg {
             static constexpr int MAX_MPEG_LAYERS = 4;
             static constexpr int MPEGLayers[MAX_MPEG_LAYERS] = {-1, 3, 2, 1};
             const unsigned char layer_index
-                = (static_cast<unsigned char>(frame.hdr.header_bytes[1]) >> 1)
-                & 0x03;
+                = (static_cast<unsigned char>(frame.hdr.header_bytes[1]) >> 1) & 0x03;
             if (layer_index >= MAX_MPEG_LAYERS || layer_index == 0) {
-                e = error::bad_mpeg_layer;
+                e = error::error_code::bad_mpeg_layer;
                 return e;
             }
             frame.props.layer = MPEGLayers[layer_index];
@@ -387,27 +399,26 @@ namespace mpeg {
 
             error e;
             static constexpr int MAX_MPEG_BITRATES = 16;
-            static int V1L1BitRates[MAX_MPEG_BITRATES] = {0, 32, 64, 96, 128,
-                160, 192, 224, 256, 288, 320, 352, 384, 416, 448, -1};
-            static constexpr int V1L2BitRates[MAX_MPEG_BITRATES] = {0, 32, 48,
-                56, 64, 80, 96, 112, 128, 160, 192, 224, 256, 320, 384, -1};
-            static constexpr int V1L3BitRates[MAX_MPEG_BITRATES] = {0, 32, 40,
-                48, 56, 64, 80, 96, 112, 128, 160, 192, 224, 256, 320, -1};
-            static constexpr int V2L1BitRates[MAX_MPEG_BITRATES] = {0, 32, 48,
-                56, 64, 80, 96, 112, 128, 144, 160, 176, 192, 224, 256, -1};
-            static constexpr int V2L2L3BitRates[MAX_MPEG_BITRATES] = {0, 8, 16,
-                24, 32, 40, 48, 56, 64, 80, 96, 112, 128, 144, 160, -1};
+            static int V1L1BitRates[MAX_MPEG_BITRATES] = {
+                0, 32, 64, 96, 128, 160, 192, 224, 256, 288, 320, 352, 384, 416, 448, -1};
+            static constexpr int V1L2BitRates[MAX_MPEG_BITRATES]
+                = {0, 32, 48, 56, 64, 80, 96, 112, 128, 160, 192, 224, 256, 320, 384, -1};
+            static constexpr int V1L3BitRates[MAX_MPEG_BITRATES]
+                = {0, 32, 40, 48, 56, 64, 80, 96, 112, 128, 160, 192, 224, 256, 320, -1};
+            static constexpr int V2L1BitRates[MAX_MPEG_BITRATES]
+                = {0, 32, 48, 56, 64, 80, 96, 112, 128, 144, 160, 176, 192, 224, 256, -1};
+            static constexpr int V2L2L3BitRates[MAX_MPEG_BITRATES]
+                = {0, 8, 16, 24, 32, 40, 48, 56, 64, 80, 96, 112, 128, 144, 160, -1};
 
             const unsigned int bitrate_index
-                = (static_cast<unsigned int>(frame.hdr.header_bytes[2]) >> 4)
-                & 0x0F;
+                = (static_cast<unsigned int>(frame.hdr.header_bytes[2]) >> 4) & 0x0F;
 
             static constexpr unsigned char BAD_BITRATE_INDEX = 0;
-            if (bitrate_index >= MAX_MPEG_BITRATES
-                        - 1 // -1 coz all values @ 16 -1 are OK for
-                            // us, 16 itself is -1, which is not.
+            if (bitrate_index
+                    >= MAX_MPEG_BITRATES - 1 // -1 coz all values @ 16 -1 are OK for
+                                             // us, 16 itself is -1, which is not.
                 || bitrate_index == BAD_BITRATE_INDEX) {
-                e = error::bad_mpeg_bitrate;
+                e = error::error_code::bad_mpeg_bitrate;
             }
 
             assert(frame.props.version);
@@ -415,44 +426,37 @@ namespace mpeg {
             if (frame.props.version == 1) {
                 switch (frame.props.layer) {
                     case 3: {
-                        frame.props.bitrate
-                            = V1L3BitRates[bitrate_index] * 1000;
+                        frame.props.bitrate = V1L3BitRates[bitrate_index] * 1000;
                         break;
                     }
                     case 2: {
-                        frame.props.bitrate
-                            = V1L2BitRates[bitrate_index] * 1000;
+                        frame.props.bitrate = V1L2BitRates[bitrate_index] * 1000;
                         break;
                     }
                     case 1: {
-                        frame.props.bitrate
-                            = V1L1BitRates[bitrate_index] * 1000;
+                        frame.props.bitrate = V1L1BitRates[bitrate_index] * 1000;
                         break;
                     }
-                    default: return error::bad_mpeg_bitrate;
+                    default: return error::error_code::bad_mpeg_bitrate;
                 };
 
             } else {
                 switch (frame.props.layer) {
                     case 3: {
-                        frame.props.bitrate
-                            = V2L2L3BitRates[bitrate_index] * 1000;
+                        frame.props.bitrate = V2L2L3BitRates[bitrate_index] * 1000;
                         break;
                     }
                     case 2: {
-                        frame.props.bitrate
-                            = V2L2L3BitRates[bitrate_index] * 1000;
+                        frame.props.bitrate = V2L2L3BitRates[bitrate_index] * 1000;
                         break;
                     }
                     case 1: {
-                        frame.props.bitrate
-                            = V2L1BitRates[bitrate_index] * 1000;
+                        frame.props.bitrate = V2L1BitRates[bitrate_index] * 1000;
                         break;
                     }
                     default:
                         // same fo v2 abd v2.5 here:
-                        frame.props.bitrate
-                            = V2L2L3BitRates[bitrate_index] * 1000;
+                        frame.props.bitrate = V2L2L3BitRates[bitrate_index] * 1000;
                 };
             }
             assert(frame.props.bitrate > 0 && "bitrate <= 0");
@@ -471,12 +475,10 @@ namespace mpeg {
                 = {11025, 12000, 8000, -1};
 
             const unsigned int samplerate_index
-                = (static_cast<unsigned char>(frame.hdr.header_bytes[2]) >> 2)
-                & 0x03;
+                = (static_cast<unsigned char>(frame.hdr.header_bytes[2]) >> 2) & 0x03;
 
-            if (samplerate_index >= MAX_MPEG_SAMPLERATES
-                || samplerate_index == 3) {
-                e = error::bad_mpeg_samplerate;
+            if (samplerate_index >= MAX_MPEG_SAMPLERATES || samplerate_index == 3) {
+                e = error::error_code::bad_mpeg_samplerate;
                 return e;
             }
 
@@ -485,8 +487,7 @@ namespace mpeg {
             } else if (static_cast<int>(frame.props.version) == 2) {
                 frame.props.samplerate = MPEG2SampleRates[samplerate_index];
             } else if (frame.props.version > 2) {
-                frame.props.samplerate
-                    = MPEG2Point5SampleRates[samplerate_index];
+                frame.props.samplerate = MPEG2Point5SampleRates[samplerate_index];
             }
 
             assert(frame.props.samplerate && "no samplerate");
@@ -497,15 +498,13 @@ namespace mpeg {
             error e;
             static constexpr int MAX_MPEG_CHANNEL_MODE = 4;
             const unsigned int cmodeindex
-                = ((static_cast<unsigned char>(frame.hdr.header_bytes[3]) >> 6)
-                    & 0x03);
+                = ((static_cast<unsigned char>(frame.hdr.header_bytes[3]) >> 6) & 0x03);
 
-            static constexpr int ChannelMode[MAX_MPEG_CHANNEL_MODE]
-                = {CHANNELS_STEREO, CHANNELS_JOINT_STEREO,
-                    CHANNELS_DUAL_CHANNEL, CHANNELS_SINGLE_CHANNEL};
+            static constexpr int ChannelMode[MAX_MPEG_CHANNEL_MODE] = {CHANNELS_STEREO,
+                CHANNELS_JOINT_STEREO, CHANNELS_DUAL_CHANNEL, CHANNELS_SINGLE_CHANNEL};
 
             if (cmodeindex >= MAX_MPEG_CHANNEL_MODE) {
-                e = error::bad_mpeg_channels;
+                e = error::error_code::bad_mpeg_channels;
                 return e;
             }
 
@@ -514,37 +513,33 @@ namespace mpeg {
             auto data = frame.hdr.header_bytes;
             // phead->origin = ((static_cast<unsigned char>(data[3]) & 0x04) !=
             // 0);
-            frame.props.copyright = static_cast<uint8_t>(
-                (static_cast<unsigned char>(data[3]) & 0x08) != 0);
-            frame.props.padding = static_cast<uint8_t>(
-                (static_cast<unsigned char>(data[2]) & 0x02) != 0);
+            frame.props.copyright
+                = static_cast<uint8_t>((static_cast<unsigned char>(data[3]) & 0x08) != 0);
+            frame.props.padding
+                = static_cast<uint8_t>((static_cast<unsigned char>(data[2]) & 0x02) != 0);
 
             static constexpr int MAX_EMPH = 4;
-            unsigned int emphasis
-                = ((static_cast<unsigned int>(data[3]) & 0x03));
+            unsigned int emphasis = ((static_cast<unsigned int>(data[3]) & 0x03));
             if (emphasis >= MAX_EMPH) {
-                e = error::bad_mpeg_emphasis;
+                e = error::error_code::bad_mpeg_emphasis;
                 return e;
             }
 
             static constexpr EmphasisEnum emph_lookup[MAX_EMPH]
-                = {EmphasisEnum::EMPHASIS_NONE,
-                    EmphasisEnum::EMPHASIS_FIFTY_FIFTEEN_MS,
-                    EmphasisEnum::EMPHASIS_RESERVED,
-                    EmphasisEnum::EMPHASIS_CCIT_J17};
+                = {EmphasisEnum::EMPHASIS_NONE, EmphasisEnum::EMPHASIS_FIFTY_FIFTEEN_MS,
+                    EmphasisEnum::EMPHASIS_RESERVED, EmphasisEnum::EMPHASIS_CCIT_J17};
             frame.props.emphasis = emph_lookup[emphasis];
             frame.valid = true;
             return e;
         }
 
-        template <typename IO>
-        byte_type* find_sync(IO& buf, const int start_position) {
-            const auto e = const_cast<unsigned char*>(buf.data_end());
-            auto* p = const_cast<unsigned char*>(buf.begin());
+        template <typename IO> byte_type* find_sync(IO& buf, const int start_position) {
+            const auto e = reinterpret_cast<unsigned char*>(buf.data_end());
+            auto* p = reinterpret_cast<unsigned char*>(buf.begin());
             p += start_position;
             while (e - p >= 4) {
                 if (*p == 255 && *(p + 1) >= 224) {
-                    return static_cast<byte_type*>(p);
+                    return reinterpret_cast<byte_type*>(p);
                 }
                 ++p;
             }
@@ -552,19 +547,19 @@ namespace mpeg {
         }
         inline error parse_frame_header(frame& frame) {
             error e = frame_version(frame);
-            if (static_cast<int>(e) != 0) {
+            if (e) {
                 return e;
             }
             e = frame_layer(frame);
-            if (static_cast<int>(e) != 0) {
+            if (e) {
                 return e;
             }
             e = frame_bitrate(frame);
-            if (static_cast<int>(e) != 0) {
+            if (e) {
                 return e;
             }
             e = frame_samplerate(frame);
-            if (static_cast<int>(e) != 0) {
+            if (e) {
                 return e;
             }
             e = frame_emph_copyright_etc(frame);
@@ -572,8 +567,7 @@ namespace mpeg {
         }
 
         template <typename CB> using _buffer_type = buffer_type<CB>;
-        template <typename IO>
-        inline error get_id3v2_tag(IO&& io, id3v2Header& id3) {
+        template <typename IO> inline error get_id3v2_tag(IO&& io, id3v2Header& id3) {
 
             seek_type sk(0, seek_value_type::seek_from_begin);
             int how_much = detail::ID3V2_HEADER_SIZE;
@@ -586,7 +580,7 @@ namespace mpeg {
             }
             const int found = memcmp(p, "ID3", 3);
             if (found != 0) {
-                return error::no_id3v2_tag;
+                return error::error_code::no_id3v2_tag;
             }
 
             if (found == 0) {
@@ -601,8 +595,8 @@ namespace mpeg {
             //   d:	Footer present.
             /*/
 
-                uint32_t usize = detail::DecodeSyncSafe(
-                    reinterpret_cast<char*>((&id3)->size));
+                uint32_t usize
+                    = detail::DecodeSyncSafe(reinterpret_cast<char*>((&id3)->size));
                 if (usize != 0u) {
                     usize += ID3V2_HEADER_SIZE;
                 }
@@ -613,23 +607,26 @@ namespace mpeg {
                     id3.tagsize_inc_header = usize;
                 }
 
-                return error::none;
+                return error::error_code::none;
             }
             return e;
         }
 
         template <typename IO>
         static error read_io(IO&& io, int& how_much,
-            my::io::seek_type sk = my::io::seek_type(),
-            char* const your_buf = nullptr, bool peek = false) {
+            my::io::seek_type sk = my::io::seek_type(), char* const your_buf = nullptr,
+            bool peek = false) {
+
+            assert(your_buf);
 
             auto& myio = std::forward<IO&>(io);
-            error e = myio.get(how_much,
-                std::forward<const my::io::seek_type&>(sk), your_buf, peek);
+            error e = myio.get(
+                how_much, std::forward<const my::io::seek_type&>(sk), your_buf, peek);
             if (e) {
                 fprintf(stderr, "%s %s %s %s %i\n\n",
                     "Error reading io device:", e.to_string().c_str(),
                     "\n For:", io.uri().c_str(), e.to_int());
+                assert("Error reading iodevice" == nullptr);
             }
             return e;
         }
@@ -643,14 +640,13 @@ namespace mpeg {
         detail::frames_t m_frames;
 
         template <typename IO>
-        error single_frame(
-            IO&& buf, int buf_pos, frame& f, const int64_t filepos) {
+        error single_frame(IO&& buf, int buf_pos, frame& f, const int64_t filepos) {
 
             error e;
             f.file_position = filepos;
             const auto unread = f.m_sbo.size();
             if (unread < detail::MPEG_HEADER_SIZE) {
-                return my::mpeg::error::need_more_data;
+                return my::mpeg::error::error_code::need_more_data;
             }
 
             byte_type* psync = nullptr;
@@ -660,7 +656,7 @@ namespace mpeg {
 
                 psync = detail::find_sync(f.m_sbo, 0);
                 if (psync == nullptr) {
-                    e = error::lost_sync;
+                    e = error::error_code::lost_sync;
                     pbuf++;
                     if (pbuf >= f.m_sbo.end() - 2) {
                         return e;
@@ -669,29 +665,39 @@ namespace mpeg {
 
                 f.set_header_bytes(psync, 4, psync - f.m_sbo.begin(), filepos);
                 e = detail::parse_frame_header(f);
-                if (e) return e;
-                if (e == error::none) break;
-                if (e != 0) {
-                    assert("Could not parse frame header" == 0);
+                if (e) {
+                    return e;
+                }
+                if (e == error::error_code::none) {
+                    break;
+                }
+                if (e) {
+                    assert("Could not parse frame header" == nullptr);
                     return e;
                 }
             }; // while (!psync)
 
             const size_t fsz_total = f.length_in_bytes();
             auto* ptr = psync + fsz_total;
+            // finish reading all the data for the frame:
             if (ptr >= f.m_sbo.end()) {
 
                 int how_much = ptr - f.m_sbo.end();
-                how_much += 40;
+
                 const auto old_size = f.m_sbo.size();
                 f.m_sbo.resize(how_much + old_size);
                 e = detail::read_io(buf, how_much, my::io::seek_type(),
-                    (char*)(f.m_sbo.data() + old_size));
-                if (e) return e;
+                    static_cast<char*>(f.m_sbo.data() + old_size));
+                if (e) {
+                    return e;
+                }
+                f.extra_data.cb = 0;
+                f.extra_data.ptr = nullptr;
 
-                ptr = f.m_sbo.data() + fsz_total;
-                auto next_sync = detail::find_sync(f.m_sbo, fsz_total);
-                assert(next_sync == ptr);
+            } else {
+                const auto cbremain = f.m_sbo.end() - ptr;
+                f.extra_data.cb = cbremain;
+                f.extra_data.ptr = ptr;
             }
             return e;
         }
@@ -707,23 +713,21 @@ namespace mpeg {
             e = detail::read_io(io, how_much, seek_t::seek_from_end);
             if (e) return e;
 
-            if (e == 0 && how_much >= 128) {
+            if (!e && how_much >= 128) {
                 auto const v = memcmp(io.begin(), "TAG", 3);
             }
             return e;
         }
         template <typename IO>
-        error get_id3(
-            IO&& io, detail::id3v2Header& v2Header, detail::ID3V1& v1Tag) {
+        error get_id3(IO&& io, detail::id3v2Header& v2Header, detail::ID3V1& v1Tag) {
 
-            error e = error::need_more_data;
+            error e = error::error_code::need_more_data;
             memset(&v1Tag, 0, 3);
             int how_much = 128;
             seek_t sk(128, seek_value_type::seek_from_end);
 
             io.clear();
-            e = detail::read_io(
-                io, how_much, sk, reinterpret_cast<char*>(&v1Tag));
+            e = detail::read_io(io, how_much, sk, reinterpret_cast<char*>(&v1Tag));
             if (e) {
                 return e;
             }
@@ -740,32 +744,46 @@ namespace mpeg {
             error e;
             e = get_id3(io, m_id3v2Header, m_id3v1Tag);
 
-            if (e == error::no_id3v2_tag) {
+            if (e == error::error_code::no_id3v2_tag) {
 
             } else {
-                if (e.value != error::none) return e;
+                if (e) {
+                    return e;
+                }
             }
 
-            e = 0;
+            e = error::error_code::none;
             auto headers_size = id3v1_valid(m_id3v1Tag) ? 128 : 0;
             headers_size += m_id3v2Header.tagsize_inc_header;
-            this->m_payload_size = this->file_size - m_payload_size;
+            this->m_payload_size = this->file_size - headers_size;
+            if (m_payload_size <= mpeg::detail::MIN_MPEG_PAYLOAD) {
+                e = error::error_code::tiny_file;
+                return e;
+            }
 
             io.clear();
-            int64_t start_where = m_id3v2Header.tagsize_inc_header
-                ? m_id3v2Header.tagsize_inc_header
-                : 0;
-            const auto sk = my::io::seek_type(
-                start_where, seek_value_type::seek_from_begin);
+            int64_t start_where
+                = m_id3v2Header.tagsize_inc_header ? m_id3v2Header.tagsize_inc_header : 0;
+            const auto sk
+                = my::io::seek_type(start_where, seek_value_type::seek_from_begin);
             auto& frame = m_frames[0];
             int cap = frame.m_sbo.capacity();
 
-            e = detail::read_io(io, cap, sk, (char*)frame.m_sbo.begin());
-            if (e) return e;
+            e = detail::read_io(io, cap, sk, static_cast<char*>(frame.m_sbo.begin()));
+            if (e) {
+                return e;
+            }
             frame.m_sbo.size_set(cap);
             // find first frame:
 
             e = single_frame(io, 0, m_frames[0], start_where);
+            if (e) {
+                if (e == error::error_code::need_more_data) {
+                    assert(0);
+                } else {
+                    assert(0);
+                }
+            }
             /*/
             int which = 0;
             bool eof_flag = false;
@@ -820,13 +838,13 @@ namespace mpeg {
 
         template <typename IO> mpeg::error parse(IO&& myio) {
 
-            mpeg::error e = 0;
+            mpeg::error e;
             e = find_first_frames(myio);
             if (e) {
                 assert(0);
             }
 
-            assert(e == 0);
+            assert(e == error::error_code::none);
             return e;
         }
     };

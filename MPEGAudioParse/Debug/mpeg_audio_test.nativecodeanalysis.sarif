@@ -12,32 +12,37 @@
       },
       "invocations": [
         {
-          "commandLine": "\"C:\\Program Files (x86)\\Microsoft Visual Studio\\2019\\Preview\\VC\\Tools\\MSVC\\14.20.27404\\bin\\HostX86\\x86\\c1xx.dll\" -ACf{1F7B090C-16DB-4822-966A-A93D26ED4681} -ACpmspft140.dll -Alint -D_PREFAST_ -D_AST_FE_ -Analyze -zm0x01102090 -il C:\\Users\\coolie\\AppData\\Local\\Temp\\_CL_1a9bc379ast -typedil -f mpeg_audio_test.cpp -Ze -D_MSC_EXTENSIONS -Zp8 -ZB64 -D_INTEGRAL_MAX_BITS=64 -Gs -pc \\:/ -D_MSC_VER=1920 -D_MSC_FULL_VER=192027404 -D_MSC_BUILD=0 -D_WIN32 -D_M_IX86=600 -D_M_IX86_FP=2 -GR -D_CPPRTTI -nologo -W 3 -diagnostics:column- -diagnostics:caret- -Ot -DCODE_ANALYSIS -D_MBCS -EHs -D_CPPUNWIND -EHc -D__MSVC_RUNTIME_CHECKS -RTCs -RTCu -D_DEBUG -D_MT -D_DLL -GS -D_M_FP_PRECISE -permissive- -Zc:wchar_t -Zc:forScope -std:c++17 -FoDebug\\mpeg_audio_test.obj -FdDebug\\vc142.pdb -Gd -analyze:quiet -analyze:plugin C:\\Program Files (x86)\\Microsoft Visual Studio\\2019\\Preview\\VC\\Tools\\MSVC\\14.20.27404\\bin\\HostX86\\x86\\EspXEngine.dll -FC -errorreport:prompt -Zc:__cplusplus -analyze:ruleset C:\\Program Files (x86)\\Microsoft Visual Studio\\2019\\Preview\\Team Tools\\Static Analysis Tools\\Rule Sets\\NativeRecommendedRules.ruleset -analyze:projectdirectory V:\\v3final\\DPS++\\MPEGParser\\MPEGParser\\MPEGAudioParse -analyze:rulesetdirectory ;C:\\Program Files (x86)\\Microsoft Visual Studio\\2019\\Preview\\Team Tools\\Static Analysis Tools\\\\Rule Sets -I C:\\Program Files (x86)\\Microsoft Visual Studio\\2019\\Preview\\VC\\Tools\\MSVC\\14.20.27404\\include -I C:\\Program Files (x86)\\Microsoft Visual Studio\\2019\\Preview\\VC\\Tools\\MSVC\\14.20.27404\\atlmfc\\include -I C:\\Program Files (x86)\\Microsoft Visual Studio\\2019\\Preview\\VC\\Auxiliary\\VS\\include -I C:\\Program Files (x86)\\Windows Kits\\10\\Include\\10.0.17763.0\\ucrt -I C:\\Program Files (x86)\\Windows Kits\\10\\Include\\10.0.17763.0\\um -I C:\\Program Files (x86)\\Windows Kits\\10\\Include\\10.0.17763.0\\shared -I C:\\Program Files (x86)\\Windows Kits\\10\\Include\\10.0.17763.0\\winrt -I C:\\Program Files (x86)\\Windows Kits\\10\\Include\\10.0.17763.0\\cppwinrt -I V:\\v3final\\DPS++\\MPEGParser\\MPEGParser\\MPEGAudioParse\\Include\\um"
+          "commandLine": "\"C:\\Program Files (x86)\\Microsoft Visual Studio\\2019\\Preview\\VC\\Tools\\MSVC\\14.20.27404\\bin\\HostX86\\x86\\c1xx.dll\" -ACf{1F7B090C-16DB-4822-966A-A93D26ED4681} -ACpmspft140.dll -Alint -D_PREFAST_ -D_AST_FE_ -Analyze -zm0x01352090 -il C:\\Users\\coolie\\AppData\\Local\\Temp\\_CL_ccad0987ast -typedil -f mpeg_audio_test.cpp -Ze -D_MSC_EXTENSIONS -Zp8 -ZB64 -D_INTEGRAL_MAX_BITS=64 -Gs -pc \\:/ -D_MSC_VER=1920 -D_MSC_FULL_VER=192027404 -D_MSC_BUILD=0 -D_WIN32 -D_M_IX86=600 -D_M_IX86_FP=2 -GR -D_CPPRTTI -nologo -W 3 -diagnostics:column- -diagnostics:caret- -Ot -DCODE_ANALYSIS -D_MBCS -EHs -D_CPPUNWIND -EHc -D__MSVC_RUNTIME_CHECKS -RTCs -RTCu -D_DEBUG -D_MT -D_DLL -GS -D_M_FP_PRECISE -permissive- -Zc:wchar_t -Zc:forScope -std:c++17 -FoDebug\\mpeg_audio_test.obj -FdDebug\\vc142.pdb -Gd -analyze:quiet -analyze:plugin C:\\Program Files (x86)\\Microsoft Visual Studio\\2019\\Preview\\VC\\Tools\\MSVC\\14.20.27404\\bin\\HostX86\\x86\\EspXEngine.dll -FC -errorreport:prompt -Zc:__cplusplus -analyze:ruleset C:\\Program Files (x86)\\Microsoft Visual Studio\\2019\\Preview\\Team Tools\\Static Analysis Tools\\Rule Sets\\NativeRecommendedRules.ruleset -analyze:projectdirectory C:\\Users\\coolie\\source\\MPEGAudioParse\\MPEGParser\\MPEGAudioParse -analyze:rulesetdirectory ;C:\\Program Files (x86)\\Microsoft Visual Studio\\2019\\Preview\\Team Tools\\Static Analysis Tools\\\\Rule Sets -I C:\\Program Files (x86)\\Microsoft Visual Studio\\2019\\Preview\\VC\\Tools\\MSVC\\14.20.27404\\include -I C:\\Program Files (x86)\\Microsoft Visual Studio\\2019\\Preview\\VC\\Tools\\MSVC\\14.20.27404\\atlmfc\\include -I C:\\Program Files (x86)\\Microsoft Visual Studio\\2019\\Preview\\VC\\Auxiliary\\VS\\include -I C:\\Program Files (x86)\\Windows Kits\\10\\Include\\10.0.17763.0\\ucrt -I C:\\Program Files (x86)\\Windows Kits\\10\\Include\\10.0.17763.0\\um -I C:\\Program Files (x86)\\Windows Kits\\10\\Include\\10.0.17763.0\\shared -I C:\\Program Files (x86)\\Windows Kits\\10\\Include\\10.0.17763.0\\winrt -I C:\\Program Files (x86)\\Windows Kits\\10\\Include\\10.0.17763.0\\cppwinrt -I C:\\Users\\coolie\\source\\MPEGAudioParse\\MPEGParser\\MPEGAudioParse\\Include\\um"
         }
       ],
       "files": {
-        "file:///v:/v3final/dps++/mpegparser/mpegparser/mpegaudioparse/mpeg_audio_test.cpp": {
+        "file:///c:/users/coolie/source/mpegaudioparse/mpegparser/mpegaudioparse/mpeg_audio_test.cpp": {
           "roles": [
             "analysisTarget",
             "resultFile"
           ]
         },
-        "file:///v:/v3final/dps++/mpegparser/mpegparser/mpegaudioparse/include/my_files_enum.hpp": {
+        "file:///c:/users/coolie/source/mpegaudioparse/mpegparser/mpegaudioparse/include/my_files_enum.hpp": {
           "roles": [
             "resultFile"
           ]
         },
-        "file:///v:/v3final/dps++/mpegparser/mpegparser/mpegaudioparse/include/my_mpeg.hpp": {
+        "file:///c:/users/coolie/source/mpegaudioparse/mpegparser/mpegaudioparse/include/my_sbo_buffer.hpp": {
           "roles": [
             "resultFile"
           ]
         },
-        "file:///v:/v3final/dps++/mpegparser/mpegparser/mpegaudioparse/include/my_string_view.hpp": {
+        "file:///c:/users/coolie/source/mpegaudioparse/mpegparser/mpegaudioparse/include/my_mpeg.hpp": {
           "roles": [
             "resultFile"
           ]
         },
-        "file:///v:/v3final/dps++/mpegparser/mpegparser/mpegaudioparse/include/my_io.hpp": {
+        "file:///c:/users/coolie/source/mpegaudioparse/mpegparser/mpegaudioparse/include/my_string_view.hpp": {
+          "roles": [
+            "resultFile"
+          ]
+        },
+        "file:///c:/users/coolie/source/mpegaudioparse/mpegparser/mpegaudioparse/include/my_io.hpp": {
           "roles": [
             "resultFile"
           ]

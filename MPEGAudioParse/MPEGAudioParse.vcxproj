@@ -152,6 +152,7 @@
     <ClInclude Include="include\my_files_enum.hpp" />
     <ClInclude Include="include\my_io.hpp" />
     <ClInclude Include="include\my_mpeg.hpp" />
+    <ClInclude Include="include\my_sbo_buffer.hpp" />
     <ClInclude Include="include\my_string_view.hpp" />
   </ItemGroup>
   <ItemGroup>
