@@ -1,3 +1,8 @@
+// This is an independent project of an individual developer. Dear PVS-Studio, please
+// check it.
+
+// PVS-Studio Static Code Analyzer for C, C++, C#, and Java: http://www.viva64.com
+
 // mpeg_audio_test.cpp
 
 #ifdef _MSC_VER
@@ -159,11 +164,13 @@ void test_file_read(const std::string& path) {
 
     for (int i = 0; i < 1; ++i) {
         grand_tot += test_buffer(path);
-        if (i % 10 == 0) {
-            cout << ".";
-        }
+        //       if (i % 10 == 0) {
+        //        cout << ".";
+        //     }
     }
 
+    my::mpeg::error e(my::mpeg::error::error_code::bad_mpeg_bitrate);
+    cout << e.to_string();
     cout << endl;
     cout << endl;
     cout << "grand tot: " << grand_tot << endl;

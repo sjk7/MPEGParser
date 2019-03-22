@@ -5,22 +5,8 @@
 #include <cstring>
 #include <type_traits>
 #include "my_sbo_buffer.hpp"
+#include "my_macros.hpp"
 
-// I know, they are evil ... :-(
-#ifndef CAST
-#define CAST(type, expr) static_cast<type>(expr)
-#endif
-
-#ifndef NO_COPY_AND_ASSIGN
-#define NO_COPY_AND_ASSIGN(TypeName)                                                     \
-    TypeName(const TypeName&) = delete;                                                  \
-    void operator=(const TypeName&) = delete;
-#endif
-#ifndef NO_MOVE_AND_ASSIGN
-#define NO_MOVE_AND_ASSIGN(TypeName)                                                     \
-    TypeName(TypeName&&) = delete;                                                       \
-    void operator=(TypeName&&) = delete;
-#endif
 namespace my {
 namespace io {
     static constexpr int NO_MORE_DATA = -7654;
@@ -60,7 +46,7 @@ namespace io {
 
             protected:
             CRTP& m_crtp;
-            buffer_guts(CRTP& c) : m_crtp(c) {}
+            buffer_guts(CRTP& c) : m_crtp(c) {} // c = c; }
         };
     } // namespace detail
 

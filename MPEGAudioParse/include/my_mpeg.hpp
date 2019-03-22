@@ -1,3 +1,8 @@
+// This is an independent project of an individual developer. Dear PVS-Studio, please
+// check it.
+
+// PVS-Studio Static Code Analyzer for C, C++, C#, and Java: http://www.viva64.com
+
 #pragma once
 // my_mpeg.h
 #include "my_io.hpp"
@@ -94,7 +99,10 @@ namespace mpeg {
             if (is_errno()) {
                 return strerror(-to_int());
             }
-            static constexpr int sz = sizeof(values);
+            // See:
+            // https://stackoverflow.com/questions/9522760/find-the-number-of-strings-in-an-array-of-strings-in-c
+            static constexpr int sz = sizeof(values) / sizeof(values[0]);
+
             int val = to_int();
             if (val < 0 || val >= sz) {
                 return std::string("Unknown error");
@@ -280,9 +288,9 @@ namespace mpeg {
                         // Version2,
                         // layer 3 files. 'and most readers do get this wrong!
                         // (including v3Mpeg.dll!)
-                        sz = ((72 * (props.bitrate) / props.samplerate + props.padding));
+                        sz = (72 * (props.bitrate) / props.samplerate + props.padding);
                     } else {
-                        sz = ((144 * (props.bitrate) / props.samplerate + props.padding));
+                        sz = (144 * (props.bitrate) / props.samplerate + props.padding);
                     }
                 }
             }
@@ -374,10 +382,6 @@ namespace mpeg {
             if (version_index == 3) {
                 version_index = 2;
             }
-            if (version_index >= MAX_MPEG_VERSIONS) {
-                e = error::error_code::bad_mpeg_version;
-                return e;
-            }
             frame.props.version = MPEGVersions[version_index];
             return e;
         }
@@ -387,7 +391,7 @@ namespace mpeg {
             static constexpr int MPEGLayers[MAX_MPEG_LAYERS] = {-1, 3, 2, 1};
             const unsigned char layer_index
                 = (static_cast<unsigned char>(frame.hdr.header_bytes[1]) >> 1) & 0x03;
-            if (layer_index >= MAX_MPEG_LAYERS || layer_index == 0) {
+            if (layer_index == 0) {
                 e = error::error_code::bad_mpeg_layer;
                 return e;
             }
@@ -477,7 +481,7 @@ namespace mpeg {
             const unsigned int samplerate_index
                 = (static_cast<unsigned char>(frame.hdr.header_bytes[2]) >> 2) & 0x03;
 
-            if (samplerate_index >= MAX_MPEG_SAMPLERATES || samplerate_index == 3) {
+            if (samplerate_index == 3) {
                 e = error::error_code::bad_mpeg_samplerate;
                 return e;
             }
@@ -503,11 +507,6 @@ namespace mpeg {
             static constexpr int ChannelMode[MAX_MPEG_CHANNEL_MODE] = {CHANNELS_STEREO,
                 CHANNELS_JOINT_STEREO, CHANNELS_DUAL_CHANNEL, CHANNELS_SINGLE_CHANNEL};
 
-            if (cmodeindex >= MAX_MPEG_CHANNEL_MODE) {
-                e = error::error_code::bad_mpeg_channels;
-                return e;
-            }
-
             frame.props.channelmode = ChannelMode[cmodeindex];
 
             auto data = frame.hdr.header_bytes;
@@ -520,10 +519,6 @@ namespace mpeg {
 
             static constexpr int MAX_EMPH = 4;
             unsigned int emphasis = ((static_cast<unsigned int>(data[3]) & 0x03));
-            if (emphasis >= MAX_EMPH) {
-                e = error::error_code::bad_mpeg_emphasis;
-                return e;
-            }
 
             static constexpr EmphasisEnum emph_lookup[MAX_EMPH]
                 = {EmphasisEnum::EMPHASIS_NONE, EmphasisEnum::EMPHASIS_FIFTY_FIFTEEN_MS,
@@ -658,16 +653,14 @@ namespace mpeg {
                 if (psync == nullptr) {
                     e = error::error_code::lost_sync;
                     pbuf++;
-                    if (pbuf >= f.m_sbo.end() - 2) {
-                        return e;
-                    }
+                    // if (pbuf >= f.m_sbo.end() - 2) {
+                    return e; // return unconditionally since psync is NULL.
+                    // }
                 }
 
-                f.set_header_bytes(psync, 4, psync - f.m_sbo.begin(), filepos);
+                f.set_header_bytes(
+                    psync, 4, static_cast<int>(psync - f.m_sbo.begin()), filepos);
                 e = detail::parse_frame_header(f);
-                if (e) {
-                    return e;
-                }
                 if (e == error::error_code::none) {
                     break;
                 }
@@ -682,7 +675,7 @@ namespace mpeg {
             // finish reading all the data for the frame:
             if (ptr >= f.m_sbo.end()) {
 
-                int how_much = ptr - f.m_sbo.end();
+                int how_much = static_cast<int>(ptr - f.m_sbo.end());
 
                 const auto old_size = f.m_sbo.size();
                 f.m_sbo.resize(how_much + old_size);
@@ -696,7 +689,7 @@ namespace mpeg {
 
             } else {
                 const auto cbremain = f.m_sbo.end() - ptr;
-                f.extra_data.cb = cbremain;
+                f.extra_data.cb = static_cast<int>(cbremain);
                 f.extra_data.ptr = ptr;
             }
             return e;
@@ -767,7 +760,7 @@ namespace mpeg {
             const auto sk
                 = my::io::seek_type(start_where, seek_value_type::seek_from_begin);
             auto& frame = m_frames[0];
-            int cap = frame.m_sbo.capacity();
+            int cap = static_cast<int>(frame.m_sbo.capacity());
 
             e = detail::read_io(io, cap, sk, static_cast<char*>(frame.m_sbo.begin()));
             if (e) {
@@ -829,8 +822,8 @@ namespace mpeg {
         }
 
         public:
-        NO_COPY_AND_ASSIGN(parser);
-        NO_MOVE_AND_ASSIGN(parser);
+        parser(const parser&) = delete;
+        parser& operator=(const parser&) = delete;
         using seek_value_type = my::io::seek_value_type;
 
         parser(string_view file_path, uintmax_t file_size)
