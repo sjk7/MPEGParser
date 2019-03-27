@@ -18,8 +18,7 @@
 #include "./include/my_mpeg.hpp"
 
 using namespace std;
-
-void test_all_mp3() {
+[[maybe_unused]] void test_all_mp3() {
     const std::string my_extn = ".mp3";
 
     [[maybe_unused]] auto files_found_callback = [&](const auto& item) {
@@ -39,7 +38,8 @@ void test_all_mp3() {
 
     my::files_finder finder(searchdir, recursive);
     int my_count = 0;
-    finder.start([&](const auto& item, const auto& u8path, const auto& extn) {
+
+    finder.start([&](const auto& /*item*/, const auto& /* u8path*/, const auto& extn) {
         if (extn == ".mp3") {
             ++my_count;
             // read_mp3(u8path);
@@ -73,7 +73,7 @@ int read_file(char* const ptr, int& how_much, const seek_t& seek, std::fstream& 
 
     int64_t pos = seek.position;
     if (way != std::ios::cur) {
-        if ((way == std::ios_base::_Seekend)) {
+        if ((way == std::ios::seekdir::_S_end)) {
             if (pos > 0) {
                 pos = -pos;
             }
@@ -145,20 +145,20 @@ int64_t test_buffer(const std::string& path) {
 
     while (how_much > 0) {
         result = buf.get(how_much, sk, mybuf, true);
-        total_read_size += how_much;
+        total_read_size += CAST(size_t, how_much);
         if (result) {
             break;
         }
     }
     assert(result == my::mpeg::error::error_code::no_more_data);
-    const int64_t diff = total_read_size - fsz;
+    const auto diff = CAST(int64_t, total_read_size - fsz);
     assert(diff == 0 && "file size disagreement based on data read");
-    return total_read_size;
+    return CAST(int64_t, total_read_size);
 }
 
 void test_file_read(const std::string& path) {
 
-    uint64_t grand_tot = 0;
+    int64_t grand_tot = 0;
 
     cout << endl;
 
@@ -169,18 +169,18 @@ void test_file_read(const std::string& path) {
         //     }
     }
 
-    my::mpeg::error e(my::mpeg::error::error_code::bad_mpeg_bitrate);
-    cout << e.to_string();
-    cout << endl;
     cout << endl;
     cout << "grand tot: " << grand_tot << endl;
 }
-int main(int argc, char** argv) {
+int main(int, char** a) {
 
 #ifdef _WIN32
     _set_error_mode(_OUT_TO_MSGBOX);
 #endif
+    puts("Current directory:");
+    puts(a[0]);
     const std::string path("./ztest_files/Chasing_Pirates.mp3");
+    assert(my::fs::exists(path) && "test file does not exist");
     // const std::string path("./ztest_files/128.mp3");
 
     const auto file_size = my::fs::file_size(path);
@@ -198,7 +198,7 @@ int main(int argc, char** argv) {
 
     // NOTE: MUST HAVE COMPILER SWITCH
     // /Zc:__cplusplus
-    assert(__cplusplus >= 201101L);
+    static_assert(__cplusplus >= 201101L, "expected you to use c++11 or later");
     // To get correctly reported __cplusplus version
     cout << "Using c++ version: " << __cplusplus << endl;
     cout << "------------------------------------------\n";
