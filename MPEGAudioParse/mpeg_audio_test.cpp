@@ -73,7 +73,7 @@ int read_file(char* const ptr, int& how_much, const seek_t& seek, std::fstream& 
 
     int64_t pos = seek.position;
     if (way != std::ios::cur) {
-        if ((way == std::ios::seekdir::_S_end)) {
+        if ((way == std::ios::end)) {
             if (pos > 0) {
                 pos = -pos;
             }
@@ -159,20 +159,23 @@ int64_t test_buffer(const std::string& path) {
 void test_file_read(const std::string& path) {
 
     int64_t grand_tot = 0;
-
+    int64_t expected = 0;
     cout << endl;
 
     for (int i = 0; i < 1; ++i) {
         grand_tot += test_buffer(path);
-        //       if (i % 10 == 0) {
-        //        cout << ".";
-        //     }
     }
 
+    if (path == "./ztest_files/Chasing_Pirates.mp3") {
+        expected = 6441880;
+    } else {
+        assert("Give me some size to expect" == nullptr);
+    }
+    assert(expected == grand_tot);
     cout << endl;
-    cout << "grand tot: " << grand_tot << endl;
+    cout << "test_file_read: grand tot: " << grand_tot << endl;
 }
-int main(int, char** a) {
+int main(int /*unused*/, char** a) {
 
 #ifdef _WIN32
     _set_error_mode(_OUT_TO_MSGBOX);

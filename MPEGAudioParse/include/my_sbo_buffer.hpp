@@ -1,5 +1,6 @@
 #pragma once
 // my_sbo_buffer.hpp
+#include <cstring> // memset, memcpy, memmove, size_t
 
 namespace my {
 namespace io {
@@ -10,7 +11,7 @@ namespace io {
 
         template <typename T, size_t SBO_SIZE = 1024> class sbo_buffer {
             static constexpr size_t SBO_SZ_I = SBO_SIZE + BUFFER_GUARD;
-            byte_type m_sbo_buf[SBO_SIZE + BUFFER_GUARD] = {0};
+            byte_type m_sbo_buf[SBO_SIZE + BUFFER_GUARD]; //            = {0};
             byte_type* m_dyn_buf = {nullptr};
 
             size_t m_capacity = SBO_SZ_I;
@@ -42,14 +43,21 @@ namespace io {
                     assert(pdata);
                 }
 
-                append(pdata, cb);
+                append_data(pdata, cb);
             }
-            ~sbo_buffer() noexcept { free(m_dyn_buf); }
+
+            ~sbo_buffer() noexcept {
+                if (m_dyn_buf){
+                    free(m_dyn_buf);
+                }
+                int x = 0;
+                (void)x;
+            }
 
             // just like vector, clear() does not free any memory
             void clear() { m_size = 0; }
-            size_t size() const noexcept { return m_size; }
-            size_t capacity() const noexcept { return m_capacity; }
+            constexpr size_t size() const noexcept { return m_size; }
+            constexpr size_t capacity() const noexcept { return m_capacity; }
             const byte_type* cdata() const noexcept {
                 if (m_dyn_buf)
                     return m_dyn_buf;
@@ -64,10 +72,35 @@ namespace io {
             byte_type* end() noexcept { return data() + m_size; }
             const byte_type* cbegin() const noexcept { return cdata(); }
             const byte_type* cend() const noexcept { return cdata() + m_size; }
-            byte_type operator[](size_t where) noexcept { return *(begin() + where); }
-            byte_type operator[](size_t where) const noexcept {
+            byte_type& operator[](size_t where) noexcept { return *(begin() + where); }
+            const byte_type& operator[](size_t where) const noexcept {
                 return *(cdata() + where);
             }
+
+            void swap(sbo_buffer& l, sbo_buffer& r) {
+                using std::swap;
+                swap(l.m_sbo_buf, r.m_sbo_buf);
+                swap(l.m_size, r.m_size);
+                swap(l.m_capacity, r.m_capacity);
+                swap(l.m_dyn_buf, r.m_dyn_buf);
+            }
+            void mv(sbo_buffer& other) {
+                
+                if (m_dyn_buf){
+                    free (m_dyn_buf);
+                    m_dyn_buf = nullptr;
+                }
+                if (!other.m_dyn_buf) {
+                    memcpy(m_sbo_buf, other.m_sbo_buf, SBO_SIZE);
+                    m_dyn_buf = nullptr;
+				} else {
+                    m_dyn_buf = other.m_dyn_buf;
+				}
+                m_size = other.m_size;
+                m_capacity = other.m_capacity;
+                other.m_size = 0;
+				
+			}
 
             void reserve(size_t sz) {
                 // make the buffer if you need to,
@@ -88,9 +121,10 @@ namespace io {
             }
 
             void resize(size_t newsz) {
-                size_t old_size = size();
-                size_t new_size = newsz;
-                const auto cap = capacity();
+                const size_t old_size = m_size;
+                const size_t new_size = newsz;
+                const auto cap = m_capacity;
+
                 if (new_size > cap || m_dyn_buf) {
                     if (m_dyn_buf == nullptr) {
                         m_dyn_buf
@@ -103,8 +137,9 @@ namespace io {
                                 static_cast<unsigned long>(new_size), __FILE__, __LINE__);
                             exit(-7);
                         }
-                        if (old_size) memcpy(m_dyn_buf, m_sbo_buf, old_size);
-                        memset(m_sbo_buf, 0, SBO_SZ_I);
+                        if (old_size != 0u) { memcpy(m_dyn_buf, m_sbo_buf, old_size);
+}
+                        // memset(m_sbo_buf, 0, SBO_SZ_I);
                     } else {
                         if (new_size > capacity()) {
                             auto* pnew = reinterpret_cast<byte_type*>(
@@ -127,15 +162,21 @@ namespace io {
                     }
 
                     // this is allowed, because we over-allocate by BUFFER_GUARD
+#ifndef NDEBUG
                     memcpy(end_internal() - 8, "BADF00D", 8);
+#endif
                 } else {
+
+#ifndef NDEBUG
                     const char* ps = end_internal() - 8;
-                    if (old_size) assert(memcmp(ps, "BADF00D", 8) == 0);
+                    if (old_size != 0u) { assert(memcmp(ps, "BADF00D", 8) == 0);
+}
+#endif
                 }
 
                 m_size = new_size;
             }
-            void append(const byte_type* const data, size_t cb = 0) noexcept {
+            void append_data(const byte_type* const data, size_t cb = 0) noexcept {
 
                 if (data && cb == 0) {
                     fprintf(stderr,
@@ -168,8 +209,9 @@ namespace io {
                         assert(ptr < end());
                     }
 
-                    memcpy(ptr, data, cb);
+                   memcpy(ptr, data, cb);
                 }
+
                 assert(m_size == old_size + cb);
                 assert(m_capacity >= m_size);
             }

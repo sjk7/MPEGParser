@@ -263,7 +263,7 @@ namespace mpeg {
             return len;
         }
         void set_header_bytes(
-            my::io::byte_type*, size_t cb, int bufpos = 0, int64_t file_pos = -1) {
+            my::io::byte_type* /*unused*/, size_t cb, int bufpos = 0, int64_t file_pos = -1) {
             valid = false;
             file_position = file_pos;
             assert(cb == MPEG_HEADER_SIZE);
@@ -403,7 +403,8 @@ namespace mpeg {
             }
             frame.props.layer = CAST(uint8_t, MPEGLayers[layer_index]);
             assert(frame.props.layer);
-            if (!frame.props.layer) e = error::error_code::bad_mpeg_layer;
+            if (frame.props.layer == 0u) { e = error::error_code::bad_mpeg_layer;
+}
 
             return e;
         }
