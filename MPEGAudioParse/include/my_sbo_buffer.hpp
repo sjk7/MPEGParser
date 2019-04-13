@@ -47,7 +47,7 @@ namespace io {
             }
 
             ~sbo_buffer() noexcept {
-                if (m_dyn_buf){
+                if (m_dyn_buf) {
                     free(m_dyn_buf);
                 }
                 int x = 0;
@@ -57,7 +57,10 @@ namespace io {
             // just like vector, clear() does not free any memory
             void clear() { m_size = 0; }
             constexpr size_t size() const noexcept { return m_size; }
-            constexpr size_t capacity() const noexcept { return m_capacity; }
+            constexpr size_t capacity() const noexcept {
+                return m_capacity - BUFFER_GUARD > 0 ? m_capacity - BUFFER_GUARD
+                                                     : 0;
+            }
             const byte_type* cdata() const noexcept {
                 if (m_dyn_buf)
                     return m_dyn_buf;
@@ -65,14 +68,18 @@ namespace io {
                     return m_sbo_buf;
             }
 
-            byte_type* data() noexcept { return m_dyn_buf ? m_dyn_buf : m_sbo_buf; }
+            byte_type* data() noexcept {
+                return m_dyn_buf ? m_dyn_buf : m_sbo_buf;
+            }
             byte_type* data_begin() noexcept { return data(); }
             byte_type* data_end() noexcept { return data() + m_size; }
             byte_type* begin() noexcept { return data(); }
             byte_type* end() noexcept { return data() + m_size; }
             const byte_type* cbegin() const noexcept { return cdata(); }
             const byte_type* cend() const noexcept { return cdata() + m_size; }
-            byte_type& operator[](size_t where) noexcept { return *(begin() + where); }
+            byte_type& operator[](size_t where) noexcept {
+                return *(begin() + where);
+            }
             const byte_type& operator[](size_t where) const noexcept {
                 return *(cdata() + where);
             }
@@ -85,22 +92,21 @@ namespace io {
                 swap(l.m_dyn_buf, r.m_dyn_buf);
             }
             void mv(sbo_buffer& other) {
-                
-                if (m_dyn_buf){
-                    free (m_dyn_buf);
+
+                if (m_dyn_buf) {
+                    free(m_dyn_buf);
                     m_dyn_buf = nullptr;
                 }
                 if (!other.m_dyn_buf) {
                     memcpy(m_sbo_buf, other.m_sbo_buf, SBO_SIZE);
                     m_dyn_buf = nullptr;
-				} else {
+                } else {
                     m_dyn_buf = other.m_dyn_buf;
-				}
+                }
                 m_size = other.m_size;
                 m_capacity = other.m_capacity;
                 other.m_size = 0;
-				
-			}
+            }
 
             void reserve(size_t sz) {
                 // make the buffer if you need to,
@@ -127,18 +133,21 @@ namespace io {
 
                 if (new_size > cap || m_dyn_buf) {
                     if (m_dyn_buf == nullptr) {
-                        m_dyn_buf
-                            = static_cast<byte_type*>(malloc(new_size + BUFFER_GUARD));
+                        m_dyn_buf = static_cast<byte_type*>(
+                            malloc(new_size + BUFFER_GUARD));
 
                         if (m_dyn_buf == nullptr) {
                             fprintf(stderr,
-                                "malloc failed [ %lu ]\n -- not enough memory @ "
+                                "malloc failed [ %lu ]\n -- not enough memory "
+                                "@ "
                                 "%s:%ul",
-                                static_cast<unsigned long>(new_size), __FILE__, __LINE__);
+                                static_cast<unsigned long>(new_size), __FILE__,
+                                __LINE__);
                             exit(-7);
                         }
-                        if (old_size != 0u) { memcpy(m_dyn_buf, m_sbo_buf, old_size);
-}
+                        if (old_size != 0u) {
+                            memcpy(m_dyn_buf, m_sbo_buf, old_size);
+                        }
                         // memset(m_sbo_buf, 0, SBO_SZ_I);
                     } else {
                         if (new_size > capacity()) {
@@ -146,10 +155,11 @@ namespace io {
                                 realloc(m_dyn_buf, new_size + BUFFER_GUARD));
                             if (pnew == nullptr) {
                                 fprintf(stderr,
-                                    "realloc failed [ %lu ]\n -- not enough memory @ "
+                                    "realloc failed [ %lu ]\n -- not enough "
+                                    "memory @ "
                                     "%s:%ul",
-                                    static_cast<unsigned long>(new_size), __FILE__,
-                                    __LINE__);
+                                    static_cast<unsigned long>(new_size),
+                                    __FILE__, __LINE__);
                             }
                             m_dyn_buf = pnew;
                         }
@@ -169,18 +179,21 @@ namespace io {
 
 #ifndef NDEBUG
                     const char* ps = end_internal() - 8;
-                    if (old_size != 0u) { assert(memcmp(ps, "BADF00D", 8) == 0);
-}
+                    if (old_size != 0u) {
+                        assert(memcmp(ps, "BADF00D", 8) == 0);
+                    }
 #endif
                 }
 
                 m_size = new_size;
             }
-            void append_data(const byte_type* const data, size_t cb = 0) noexcept {
+            void append_data(
+                const byte_type* const data, size_t cb = 0) noexcept {
 
                 if (data && cb == 0) {
                     fprintf(stderr,
-                        "sbo_buffer::append(), inefficent use for value:\n%s\n -- can't "
+                        "sbo_buffer::append(), inefficent use for value:\n%s\n "
+                        "-- can't "
                         "you send the "
                         "length?\n",
                         (const char*)data);
@@ -209,7 +222,7 @@ namespace io {
                         assert(ptr < end());
                     }
 
-                   memcpy(ptr, data, cb);
+                    memcpy(ptr, data, cb);
                 }
 
                 assert(m_size == old_size + cb);
