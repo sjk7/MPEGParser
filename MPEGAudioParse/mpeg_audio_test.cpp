@@ -96,6 +96,8 @@ int read_file(char* const ptr, int& how_much, const seek_t& seek, std::fstream& 
 
     f.read(ptr, can_read);
     int errn = 0;
+    unsigned char byte  = (unsigned char)*ptr;
+    (void)byte;
 
     bool eof = false;
     if (!f) {
@@ -182,7 +184,7 @@ int main(int /*unused*/, char** a) {
 #endif
     puts("Current directory:");
     puts(a[0]);
-    const std::string path("./ztest_files/Chasing_Pirates.mp3");
+    const std::string path("./../ztest_files/Chasing_Pirates.mp3");
     assert(my::fs::exists(path) && "test file does not exist");
     // const std::string path("./ztest_files/128.mp3");
 
