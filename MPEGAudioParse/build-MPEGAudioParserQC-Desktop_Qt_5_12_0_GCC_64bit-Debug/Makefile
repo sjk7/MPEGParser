@@ -14,7 +14,7 @@ CC            = gcc
 CXX           = g++
 DEFINES       = -DQT_QML_DEBUG
 CFLAGS        = -pipe -g -Wall -W -fPIC $(DEFINES)
-CXXFLAGS      = -pipe -g -std=gnu++1z -Wall -W -fPIC $(DEFINES)
+CXXFLAGS      = -pipe -std=c++17 -g -std=gnu++1z -Wall -W -fPIC $(DEFINES)
 INCPATH       = -I../../MPEGAudioParse -I. -I/home/hp/Qt/5.12.0/gcc_64/mkspecs/linux-g++
 QMAKE         = /home/hp/Qt/5.12.0/gcc_64/bin/qmake
 DEL_FILE      = rm -f
@@ -203,6 +203,7 @@ DIST          = /home/hp/Qt/5.12.0/gcc_64/mkspecs/features/spec_pre.prf \
 		/home/hp/Qt/5.12.0/gcc_64/mkspecs/features/qt_config.prf \
 		/home/hp/Qt/5.12.0/gcc_64/mkspecs/linux-g++/qmake.conf \
 		/home/hp/Qt/5.12.0/gcc_64/mkspecs/features/spec_post.prf \
+		../.qmake.stash \
 		/home/hp/Qt/5.12.0/gcc_64/mkspecs/features/exclusive_builds.prf \
 		/home/hp/Qt/5.12.0/gcc_64/mkspecs/features/toolchain.prf \
 		/home/hp/Qt/5.12.0/gcc_64/mkspecs/features/default_pre.prf \
@@ -385,6 +386,7 @@ Makefile: ../MPEGAudioParserQC.pro /home/hp/Qt/5.12.0/gcc_64/mkspecs/linux-g++/q
 		/home/hp/Qt/5.12.0/gcc_64/mkspecs/features/qt_config.prf \
 		/home/hp/Qt/5.12.0/gcc_64/mkspecs/linux-g++/qmake.conf \
 		/home/hp/Qt/5.12.0/gcc_64/mkspecs/features/spec_post.prf \
+		.qmake.stash \
 		/home/hp/Qt/5.12.0/gcc_64/mkspecs/features/exclusive_builds.prf \
 		/home/hp/Qt/5.12.0/gcc_64/mkspecs/features/toolchain.prf \
 		/home/hp/Qt/5.12.0/gcc_64/mkspecs/features/default_pre.prf \
@@ -551,6 +553,7 @@ Makefile: ../MPEGAudioParserQC.pro /home/hp/Qt/5.12.0/gcc_64/mkspecs/linux-g++/q
 /home/hp/Qt/5.12.0/gcc_64/mkspecs/features/qt_config.prf:
 /home/hp/Qt/5.12.0/gcc_64/mkspecs/linux-g++/qmake.conf:
 /home/hp/Qt/5.12.0/gcc_64/mkspecs/features/spec_post.prf:
+.qmake.stash:
 /home/hp/Qt/5.12.0/gcc_64/mkspecs/features/exclusive_builds.prf:
 /home/hp/Qt/5.12.0/gcc_64/mkspecs/features/toolchain.prf:
 /home/hp/Qt/5.12.0/gcc_64/mkspecs/features/default_pre.prf:

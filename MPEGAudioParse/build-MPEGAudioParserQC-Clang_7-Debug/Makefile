@@ -14,7 +14,7 @@ CC            = clang
 CXX           = clang++
 DEFINES       = -DQT_QML_DEBUG
 CFLAGS        = -pipe -g -Wall -W -fPIC $(DEFINES)
-CXXFLAGS      = -pipe -g -std=gnu++1z -Wall -W -fPIC $(DEFINES)
+CXXFLAGS      = -pipe -std=c++17 -g -std=gnu++1z -Wall -W -fPIC $(DEFINES)
 INCPATH       = -I../../MPEGAudioParse -I. -I/home/hp/Qt/5.12.0/gcc_64/mkspecs/linux-clang
 QMAKE         = /home/hp/Qt/5.12.0/gcc_64/bin/qmake
 DEL_FILE      = rm -f

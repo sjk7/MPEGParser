@@ -37,7 +37,7 @@ namespace io {
         };
 
         template <typename CRTP,
-            size_t CAPACITY = BUFFER_CAPACITY - my::io::detail::BUFFER_GUARD>
+            size_t CAPACITY = BUFFER_CAPACITY>
         class buffer_guts : public my::io::detail::sbo_buffer<byte_type, CAPACITY> {
 
             public:

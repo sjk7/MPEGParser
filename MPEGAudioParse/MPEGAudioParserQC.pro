@@ -1,8 +1,10 @@
 TEMPLATE = app
-CONFIG += console c++1z
+CONFIG += console c++17
 CONFIG -= app_bundle
 CONFIG -= qt
 
+
+QMAKE_CXXFLAGS += -std=c++17
 SOURCES += \
     mpeg_audio_test.cpp
 
