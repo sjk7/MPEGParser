@@ -23,7 +23,8 @@ namespace io {
             };
             using value_type = seek_value_type;
             using utype = std::underlying_type_t<seek_value_type>;
-            seek_t(int64_t pos = -1, seek_value_type sk = seek_value_type::seek_invalid)
+            seek_t(int64_t pos = -1,
+                seek_value_type sk = seek_value_type::seek_invalid) noexcept
                 : position(pos), seek(sk) {}
             seek_t(const seek_t& rhs) = default;
             seek_t(seek_t&& rhs) = default;
@@ -33,12 +34,12 @@ namespace io {
             // seek_t seek = seek_t::seek_from_cur;
             seek_value_type seek = seek_value_type::seek_from_cur;
             // seek_value_type::seek_from_cur;
-            explicit operator seek_value_type() const { return seek; }
+            explicit operator seek_value_type() const noexcept { return seek; }
         };
 
-        template <typename CRTP,
-            size_t CAPACITY = BUFFER_CAPACITY>
-        class buffer_guts : public my::io::detail::sbo_buffer<byte_type, CAPACITY> {
+        template <typename CRTP, size_t CAPACITY = BUFFER_CAPACITY>
+        class buffer_guts
+            : public my::io::detail::sbo_buffer<byte_type, CAPACITY> {
 
             public:
             buffer_guts(const buffer_guts&) = delete;
@@ -46,7 +47,7 @@ namespace io {
 
             protected:
             CRTP& m_crtp;
-            buffer_guts(CRTP& c) : m_crtp(c) {} // c = c; }
+            buffer_guts(CRTP& c) noexcept : m_crtp(c) {}
         };
     } // namespace detail
 
@@ -55,7 +56,8 @@ namespace io {
     template <typename CRTP> using buffer_guts_type = detail::buffer_guts<CRTP>;
     using byte_type = my::io::detail::byte_type;
 
-    template <typename T, size_t SZ> using sbo_buf = my::io::detail::sbo_buffer<T, SZ>;
+    template <typename T, size_t SZ>
+    using sbo_buf = my::io::detail::sbo_buffer<T, SZ>;
 
 } // namespace io
 } // namespace my

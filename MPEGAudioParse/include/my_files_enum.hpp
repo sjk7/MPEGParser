@@ -15,7 +15,7 @@ class files_finder {
     std::string m_u8extn;
 
     public:
-    files_finder(std::string path, bool recursive = false)
+    files_finder(std::string path, bool recursive = false) noexcept
         : m_spath(std::move(path)), m_recursive(recursive){};
 
     template <typename CB> int start(CB&& cb) {
@@ -39,8 +39,8 @@ class files_finder {
         return n;
     }
 
-    const std::string& path() const { return m_spath; }
-    bool is_recursive() const { return m_recursive; }
-    unsigned long count() const { return n; }
+    const std::string& path() const noexcept { return m_spath; }
+    bool is_recursive() const noexcept { return m_recursive; }
+    unsigned long count() const noexcept { return n; }
 };
 } // namespace my

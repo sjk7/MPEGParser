@@ -1,7 +1,8 @@
-// This is an independent project of an individual developer. Dear PVS-Studio, please
-// check it.
+// This is an independent project of an individual developer. Dear PVS-Studio,
+// please check it.
 
-// PVS-Studio Static Code Analyzer for C, C++, C#, and Java: http://www.viva64.com
+// PVS-Studio Static Code Analyzer for C, C++, C#, and Java:
+// http://www.viva64.com
 
 // mpeg_audio_test.cpp
 
@@ -21,7 +22,7 @@ using namespace std;
 [[maybe_unused]] void test_all_mp3() {
     const std::string my_extn = ".mp3";
 
-    [[maybe_unused]] auto files_found_callback = [&](const auto& item) {
+    [[maybe_unused]] const auto files_found_callback = [&](const auto& item) {
         if (my::fs::is_regular_file(item)) {
             const auto& path = item.path();
             const auto u8 = path.u8string();
@@ -39,13 +40,14 @@ using namespace std;
     my::files_finder finder(searchdir, recursive);
     int my_count = 0;
 
-    finder.start([&](const auto& /*item*/, const auto& /* u8path*/, const auto& extn) {
-        if (extn == ".mp3") {
-            ++my_count;
-            // read_mp3(u8path);
-        }
-        return 0;
-    });
+    finder.start(
+        [&](const auto& /*item*/, const auto& /* u8path*/, const auto& extn) {
+            if (extn == ".mp3") {
+                ++my_count;
+                // read_mp3(u8path);
+            }
+            return 0;
+        });
 
     cout << "Total real files: " << finder.count() << endl;
     cout << "Total mp3 files:  " << my_count << endl;
@@ -56,11 +58,16 @@ using seek_t = my::io::seek_type;
 using seek_value_type = my::io::seek_value_type;
 
 // return 0 normally, -1 or -errno if some file error
-int read_file(char* const ptr, int& how_much, const seek_t& seek, std::fstream& f) {
+int read_file(
+    char* const pdata, int& how_much, const seek_t& seek, std::fstream& f) {
 
+    if (!pdata) {
+        return -EINVAL;
+    }
     const auto way = CAST(std::ios::seekdir, seek.seek);
 
-    if (!f && seek.seek == seek_t::value_type::seek_from_cur && seek.position >= 0) {
+    if (!f && seek.seek == seek_t::value_type::seek_from_cur
+        && seek.position >= 0) {
         return -1; // already bad, probably eos last time.
     }
 
@@ -94,10 +101,10 @@ int read_file(char* const ptr, int& how_much, const seek_t& seek, std::fstream& 
     assert(f);
     const std::streamsize can_read = how_much;
 
-    f.read(ptr, can_read);
+    f.read(pdata, can_read);
     int errn = 0;
-    unsigned char byte  = (unsigned char)*ptr;
-    (void)byte;
+    const auto byte = *pdata;
+    CAST(void, byte);
 
     bool eof = false;
     if (!f) {
@@ -109,8 +116,8 @@ int read_file(char* const ptr, int& how_much, const seek_t& seek, std::fstream& 
         }
         // don't return: we could well have read data before we hit eof
     }
-    const auto this_read = static_cast<int>(f.gcount());
-    how_much = this_read;
+    const auto this_read = f.gcount();
+    how_much = CAST(int, this_read);
     if (errn != 0) {
         return -errn;
     }
@@ -128,9 +135,10 @@ int64_t test_buffer(const std::string& path) {
     auto fsz = my::fs::file_size(path);
 
 #if __cplusplus >= 201703L
-    my::mpeg::buffer buf(path, [&](char* ptr, int& how_much, const seek_t& seek) {
-        return read_file(ptr, how_much, seek, file);
-    });
+    my::mpeg::buffer buf(
+        path, [&](char* ptr, int& how_much, const seek_t& seek) {
+            return read_file(ptr, how_much, seek, file);
+        });
 #else
     auto lam = [&](char* ptr, int& how_much, const seek_t& seek) {
         return read_file(ptr, how_much, seek, file);
@@ -142,11 +150,11 @@ int64_t test_buffer(const std::string& path) {
     unsigned long total_read_size = 0;
     my::mpeg::error result;
     const my::mpeg::seek_t sk = my::mpeg::seek_t();
-    char mybuf[4096];
+    char mybuf[4096] = {};
     int how_much = 4096;
 
     while (how_much > 0) {
-        result = buf.get(how_much, sk, mybuf, true);
+        result = buf.get(how_much, sk, &mybuf[0], true);
         total_read_size += CAST(size_t, how_much);
         if (result) {
             break;
@@ -177,14 +185,20 @@ void test_file_read(const std::string& path) {
     cout << endl;
     cout << "test_file_read: grand tot: " << grand_tot << endl;
 }
-int main(int /*unused*/, char** a) {
 
+#ifdef _MSC_VER
+#pragma warning(disable : 26485) // no decaying arrays
+#endif
+
+int main(int /*unused*/, const char* const argv[]) {
+
+    assert(argv);
 #ifdef _WIN32
     _set_error_mode(_OUT_TO_MSGBOX);
 #endif
     puts("Current directory:");
-    puts(a[0]);
-    const std::string path("./../ztest_files/Chasing_Pirates.mp3");
+    puts(argv[0]);
+    const std::string path("./ztest_files/Chasing_Pirates.mp3");
     assert(my::fs::exists(path) && "test file does not exist");
     // const std::string path("./ztest_files/128.mp3");
 
@@ -209,9 +223,10 @@ int main(int /*unused*/, char** a) {
     cout << "------------------------------------------\n";
     cout << __cplusplus << endl;
 #if __cplusplus >= 201703L
-    my::mpeg::buffer buf(path, [&](char* const ptr, int& how_much, const seek_t& seek) {
-        return read_file(ptr, how_much, seek, file);
-    });
+    my::mpeg::buffer buf(
+        path, [&](char* const ptr, int& how_much, const seek_t& seek) {
+            return read_file(ptr, how_much, seek, file);
+        });
 #else
     auto lam = [&](char* const ptr, int& how_much, const seek_t& seek) {
         return read_file(ptr, how_much, seek, file);
@@ -221,7 +236,7 @@ int main(int /*unused*/, char** a) {
 #endif
 
     my::mpeg::parser p(path, file_size);
-    auto e = p.parse(buf);
+    const auto e = p.parse(buf);
     (void)e;
     test_file_read(path);
     return 0;
