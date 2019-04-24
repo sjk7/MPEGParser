@@ -12,8 +12,9 @@ namespace my {
 namespace io {
 
     namespace detail {
+        static inline int sbo_count = 0;
         using byte_type = char;
-        static inline constexpr int BUFFER_GUARD = 8;
+        static inline constexpr size_t BUFFER_GUARD = 8;
 
         template <typename T, size_t SBO_SIZE = 1024> class sbo_buffer {
             static constexpr size_t SBO_SZ_INTERNAL = SBO_SIZE + BUFFER_GUARD;
@@ -44,8 +45,11 @@ namespace io {
 #else
 #error "fixme: implement special members for a copyable sbo_buffer"
 #endif
-
-            sbo_buffer() noexcept : m_dyn_buf(nullptr) { resize(0); }
+            int m_sbo_index = -1;
+            sbo_buffer() noexcept : m_dyn_buf(nullptr) {
+                resize(0);
+                m_sbo_index = sbo_count++;
+            }
             sbo_buffer(const byte_type* const pdata, size_t cb) noexcept {
                 if (!pdata) {
                     assert(cb == 0);
@@ -65,17 +69,15 @@ namespace io {
             ~sbo_buffer() noexcept {
                 if (m_dyn_buf) {
                     free(m_dyn_buf);
+                    m_dyn_buf = nullptr;
                 }
-                const int x = 0;
-                CAST(void, x);
             }
 
             // just like vector, clear() does not free any memory
             void clear() noexcept { m_size = 0; }
             constexpr size_t size() const noexcept { return m_size; }
             constexpr size_t capacity() const noexcept {
-                return m_capacity - BUFFER_GUARD > 0 ? m_capacity - BUFFER_GUARD
-                                                     : 0;
+                return m_capacity - BUFFER_GUARD > 0 ? m_capacity - BUFFER_GUARD : 0;
             }
             const byte_type* cdata() const noexcept {
                 if (m_dyn_buf) {
@@ -84,18 +86,14 @@ namespace io {
                 { return &m_sbo_buf[0]; }
             }
 
-            byte_type* data() noexcept {
-                return &m_dyn_buf[0] ? &m_dyn_buf[0] : &m_sbo_buf[0];
-            }
+            byte_type* data() noexcept { return m_dyn_buf ? m_dyn_buf : &m_sbo_buf[0]; }
             byte_type* data_begin() noexcept { return data(); }
             byte_type* data_end() noexcept { return data() + m_size; }
             byte_type* begin() noexcept { return data(); }
             byte_type* end() noexcept { return data() + m_size; }
             const byte_type* cbegin() const noexcept { return cdata(); }
             const byte_type* cend() const noexcept { return cdata() + m_size; }
-            byte_type& operator[](size_t where) noexcept {
-                return *(begin() + where);
-            }
+            byte_type& operator[](size_t where) noexcept { return *(begin() + where); }
             const byte_type& operator[](size_t where) const noexcept {
                 return *(cdata() + where);
             }
@@ -142,8 +140,8 @@ namespace io {
                 swap(first.m_dyn_buf, second.m_dyn_buf);
             }
 #ifdef _MSC_VER
-#pragma warning(disable : 26408)
-#pragma warning(disable : 6386)
+//#pragma warning(disable : 26408)
+//#pragma warning(disable : 6386)
 #endif
             void resize(size_t newsz) noexcept {
                 const size_t old_size = m_size;
@@ -155,31 +153,26 @@ namespace io {
 
                 if (new_size > cap || m_dyn_buf) {
                     if (m_dyn_buf == nullptr) {
-                        m_dyn_buf = static_cast<byte_type*>(
-                            malloc(new_size + BUFFER_GUARD));
 
-                        if (m_dyn_buf == nullptr) {
-                            fprintf(stderr,
-                                "malloc failed [ %lu ]\n -- not enough memory "
-                                "@ "
-                                "%s:%ul",
-                                static_cast<unsigned long>(new_size), __FILE__,
-                                __LINE__);
-                            exit(-7);
-                        }
-
-                        memset(m_dyn_buf, 0, new_size + BUFFER_GUARD);
-                        if (old_size != 0u && !m_dyn_size) {
+                        if (m_dyn_size == 0) {
+                            assert(new_size >= old_size);
+                            m_dyn_buf = static_cast<byte_type*>(
+                                malloc(new_size + BUFFER_GUARD));
+                            if (!m_dyn_buf) {
+                                errno = ENOMEM;
+                                perror("Out of memory line 179");
+                                exit(-1);
+                            }
+                            memset(m_dyn_buf, 0, new_size + BUFFER_GUARD);
                             memcpy(m_dyn_buf, &m_sbo_buf[0], old_size);
                         }
                         m_dyn_size = new_size + BUFFER_GUARD;
                     } else {
                         auto* pnew = begin();
-                        if (new_size > m_dyn_size) {
+                        const auto new_actual = new_size + BUFFER_GUARD;
 
-                            const size_t mysize = new_size + BUFFER_GUARD;
-                            // pnew = reinterpret_cast<byte_type*>(
-                            //    realloc(m_dyn_buf, mysize );
+                        if (new_actual > m_dyn_size) {
+                            const size_t mysize = new_actual;
                             auto ptr = realloc(m_dyn_buf, mysize);
                             pnew = CAST(byte_type*, ptr);
                             if (pnew == nullptr) {
@@ -187,13 +180,13 @@ namespace io {
                                     "realloc failed [ %lu ]\n -- not enough "
                                     "memory @ "
                                     "%s:%ul",
-                                    static_cast<unsigned long>(new_size),
-                                    __FILE__, __LINE__);
+                                    static_cast<unsigned long>(new_size), __FILE__,
+                                    __LINE__);
                             }
                             m_dyn_buf = pnew;
 
-                            if (old_size != 0u && !m_dyn_size && m_dyn_buf) {
-                                memcpy(&m_dyn_buf[0], &m_sbo_buf[0], old_size);
+                            if (m_dyn_size == 0 && m_dyn_buf) {
+                                memcpy(m_dyn_buf, &m_sbo_buf[0], old_size);
                             }
                             m_dyn_size = new_size + BUFFER_GUARD;
                         } else {
@@ -209,9 +202,8 @@ namespace io {
 
                     // this is allowed, because we over-allocate by BUFFER_GUARD
 #ifndef NDEBUG
-                    puts("wrote buf guard\n");
-                    memcpy(
-                        end_internal() - BUFFER_GUARD, "BADF00D", BUFFER_GUARD);
+                    // puts("wrote buf guard\n");
+                    memcpy(end_internal() - BUFFER_GUARD, "BADF00D", BUFFER_GUARD);
 #endif
                 }
 
@@ -229,8 +221,7 @@ namespace io {
 #ifdef _MSC_VER
 #pragma warning(default : 6386)
 #endif
-            void append_data(
-                const byte_type* const data, size_t cb = 0) noexcept {
+            void append_data(const byte_type* const data, size_t cb = 0) noexcept {
 
                 if (data && cb == 0) {
                     fprintf(stderr,

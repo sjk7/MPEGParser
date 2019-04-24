@@ -40,14 +40,13 @@ using namespace std;
     my::files_finder finder(searchdir, recursive);
     int my_count = 0;
 
-    finder.start(
-        [&](const auto& /*item*/, const auto& /* u8path*/, const auto& extn) {
-            if (extn == ".mp3") {
-                ++my_count;
-                // read_mp3(u8path);
-            }
-            return 0;
-        });
+    finder.start([&](const auto& /*item*/, const auto& /* u8path*/, const auto& extn) {
+        if (extn == ".mp3") {
+            ++my_count;
+            // read_mp3(u8path);
+        }
+        return 0;
+    });
 
     cout << "Total real files: " << finder.count() << endl;
     cout << "Total mp3 files:  " << my_count << endl;
@@ -58,16 +57,14 @@ using seek_t = my::io::seek_type;
 using seek_value_type = my::io::seek_value_type;
 
 // return 0 normally, -1 or -errno if some file error
-int read_file(
-    char* const pdata, int& how_much, const seek_t& seek, std::fstream& f) {
+int read_file(char* const pdata, int& how_much, const seek_t& seek, std::fstream& f) {
 
-    if (!pdata) {
+    if (pdata == nullptr) {
         return -EINVAL;
     }
     const auto way = CAST(std::ios::seekdir, seek.seek);
 
-    if (!f && seek.seek == seek_t::value_type::seek_from_cur
-        && seek.position >= 0) {
+    if (!f && seek.seek == seek_t::value_type::seek_from_cur && seek.position >= 0) {
         return -1; // already bad, probably eos last time.
     }
 
@@ -135,10 +132,9 @@ int64_t test_buffer(const std::string& path) {
     auto fsz = my::fs::file_size(path);
 
 #if __cplusplus >= 201703L
-    my::mpeg::buffer buf(
-        path, [&](char* ptr, int& how_much, const seek_t& seek) {
-            return read_file(ptr, how_much, seek, file);
-        });
+    my::mpeg::buffer buf(path, [&](char* ptr, int& how_much, const seek_t& seek) {
+        return read_file(ptr, how_much, seek, file);
+    });
 #else
     auto lam = [&](char* ptr, int& how_much, const seek_t& seek) {
         return read_file(ptr, how_much, seek, file);
@@ -223,10 +219,9 @@ int main(int /*unused*/, const char* const argv[]) {
     cout << "------------------------------------------\n";
     cout << __cplusplus << endl;
 #if __cplusplus >= 201703L
-    my::mpeg::buffer buf(
-        path, [&](char* const ptr, int& how_much, const seek_t& seek) {
-            return read_file(ptr, how_much, seek, file);
-        });
+    my::mpeg::buffer buf(path, [&](char* const ptr, int& how_much, const seek_t& seek) {
+        return read_file(ptr, how_much, seek, file);
+    });
 #else
     auto lam = [&](char* const ptr, int& how_much, const seek_t& seek) {
         return read_file(ptr, how_much, seek, file);
