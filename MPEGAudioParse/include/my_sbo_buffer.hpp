@@ -76,7 +76,10 @@ namespace io {
             // just like vector, clear() does not free any memory
             void clear() noexcept { m_size = 0; }
             constexpr size_t size() const noexcept { return m_size; }
-            constexpr int size_i() const noexcept { return static_cast<int>(m_size); }
+            constexpr int size_i() const noexcept {
+                const int i = {CAST(const int, m_size)};
+                return i;
+            }
             constexpr size_t capacity() const noexcept {
                 return m_capacity - BUFFER_GUARD > 0 ? m_capacity - BUFFER_GUARD : 0;
             }
@@ -134,7 +137,11 @@ namespace io {
                 m_size = 0;
             }
 
-            void size_set(size_t sz) noexcept { m_size = sz; }
+            void size_set(size_t sz) noexcept {
+                m_size = sz;
+                const auto cap = capacity();
+                assert(m_size <= cap && "size cannot be bigger than capacity");
+            }
 
             friend void swap(sbo_buffer& first, sbo_buffer& second) noexcept {
                 using std::swap;

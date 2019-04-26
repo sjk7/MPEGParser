@@ -13,6 +13,7 @@
 #include <limits>
 #include <functional>
 #include <array>
+#include <io.h> // access
 #include "my_string_view.hpp"
 
 namespace my {
@@ -30,7 +31,7 @@ namespace mpeg {
             everything,
 
         };
-        static constexpr loglevel_t loglevel = loglevel_t::critical_only;
+        static constexpr loglevel_t loglevel = loglevel_t::all;
 
         static constexpr int ID3V2_HEADER_SIZE = 10;
         static constexpr uint32_t ID3V2_MAX_SIZE = 1024U * 1024U; // 1 meg
@@ -41,6 +42,20 @@ namespace mpeg {
             CHANNELS_DUAL_CHANNEL = 2,
             CHANNELS_SINGLE_CHANNEL = 3
         };
+
+        static inline int nchannels(const ChannelEnum ce) noexcept {
+            switch (ce) {
+                case CHANNELS_STEREO:
+                case CHANNELS_JOINT_STEREO:
+                case CHANNELS_DUAL_CHANNEL: return 2;
+
+                case CHANNELS_SINGLE_CHANNEL: return 1;
+                default: {
+                    assert("Bad Channel Enumeration value" == nullptr);
+                    return 0;
+                }
+            }
+        }
 
         [[maybe_unused]] static inline const char* Channel_String(
             ChannelEnum ce) noexcept {
@@ -77,7 +92,7 @@ namespace mpeg {
 
     struct error {
         enum class error_code : int {
-            none = 0,
+            noerror = 0,
             unknown = 1,
             no_more_data = 2,
             buffer_full = 3,
@@ -90,17 +105,18 @@ namespace mpeg {
             need_more_data = 10,
             bad_mpeg_channels = 11,
             bad_mpeg_emphasis = 12,
-            tiny_file = 13
+            tiny_file = 13,
+            prev_frame_bad = 14
         };
 
         // static constexpr int buffer_too_small = -6;
 
-        error_code value = error_code::none;
+        error_code value = error_code::noerror;
         // use to_int() here instead. otherwise operator bool() gets called ffs
         // explicit operator int() const { return CAST(int, value); }
         operator int() const = delete;
         operator bool() const noexcept {
-            return value == error_code::none ? false : true;
+            return value == error_code::noerror ? false : true;
         }
         int to_int() const noexcept { return CAST(int, value); }
         error() = default;
@@ -114,11 +130,12 @@ namespace mpeg {
 #pragma warning(disable : 26446)
 #endif
         const std::string to_string() {
-            static const char* const values[] = {"none", "unknown", "no more data",
+            static const char* const values[] = {"noerror", "unknown", "no more data",
                 "buffer full", "no id3v2 tag", "bad mpeg version", "bad mpeg layer",
                 "bad mpeg bitrate", "bad samplerate", "lost sync", "need_more_data",
                 "bad mpeg channels", "bad mpeg emphasis",
-                "file payload too small to contain any meaningful audio"};
+                "file payload too small to contain any meaningful audio",
+                "previous frame bad"};
 
             if (is_errno()) {
                 return strerror(-to_int());
@@ -293,9 +310,13 @@ namespace mpeg {
         // This is the TOTAL length, in bytes, of the frame, INCLUDING the 4
         // header bytes.
         int length_in_bytes() const noexcept {
+            if (this->m_frame_len) {
+                return m_frame_len;
+            }
             const auto len = frame_get_length();
             if (len > 0) {
                 valid = true;
+                m_frame_len = len;
             } else {
                 valid = false;
             }
@@ -306,11 +327,13 @@ namespace mpeg {
             valid = false;
             m_vbr = false;
             props = mpeg_properties{0};
+            m_frame_len = 0;
         }
         bool vbr() const noexcept { return m_vbr; }
 
         protected:
         bool m_vbr = {false};
+        mutable int m_frame_len = 0;
         void set_file_position(int64_t file_pos = -1) noexcept {
             valid = false;
             file_position = file_pos;
@@ -417,7 +440,7 @@ namespace mpeg {
 
         error parse_header(int64_t file_position) {
             assert(file_position >= 0);
-            if (my::mpeg::detail::loglevel >= my::mpeg::detail::loglevel_t::everything) {
+            if (my::mpeg::detail::loglevel >= my::mpeg::detail::loglevel_t::all) {
                 printf("Parsing MPEG header @ file position %lu ...\n",
                     static_cast<unsigned long>(file_position));
             }
@@ -789,15 +812,114 @@ namespace mpeg {
                     id3.tagsize_inc_header = usize;
                 }
 
-                return error::error_code::none;
+                return error::error_code::noerror;
             }
             return e;
         }
 
     } // namespace detail
 
+    class myio {
+        public:
+        myio(std::string path, int& err, size_t read_chunk_size = 8192)
+            : m_file(nullptr), m_spath(std::move(path)), m_err(0) {
+            m_file = ::fopen(m_spath.c_str(), "r+b");
+            if (!m_file) {
+                err = errno;
+                m_serr = strerror(errno);
+                return;
+            }
+            m_buffer.resize(read_chunk_size);
+        }
+
+        std::vector<char>& buffer() noexcept { return m_buffer; }
+
+        myio(const myio&) = delete;
+        myio& operator=(const myio& rhs) = delete;
+        myio(myio&& rhs) noexcept : m_file(nullptr), m_err(0) {
+            do_move(std::forward<myio&&>(rhs));
+        }
+        myio& operator=(myio&& rhs) noexcept {
+            return do_move(std::forward<myio&&>(rhs));
+        }
+        ~myio() { close(); }
+
+        char* begin() noexcept { return m_buffer.data(); }
+        char* end() noexcept { return m_buffer.data() + m_buffer.size(); }
+        void close() noexcept {
+            if (m_file) {
+                const int i = fclose(m_file);
+                if (i == 0) {
+                    m_file = nullptr;
+                    m_spath.clear();
+                } else {
+                    assert("Unexpected error closing file." == nullptr);
+                }
+            }
+        }
+
+        static bool exists(const std::string&& path) noexcept {
+#ifdef _MSC_VER
+#ifdef access
+#undef access
+#endif
+#define access _access
+#endif
+
+            if (::access(path.c_str(), 0) != -1) {
+                return true;
+            }
+            return false;
+        }
+
+        private:
+        FILE* m_file = nullptr;
+        std::string m_serr;
+        std::string m_spath;
+        int m_err;
+        std::vector<char> m_buffer;
+
+        myio& do_move(myio&& rhs) noexcept {
+            using std::swap;
+            swap(m_spath, rhs.m_spath);
+            swap(m_file, rhs.m_file);
+            swap(m_serr, rhs.m_serr);
+            swap(m_err, rhs.m_err);
+            swap(m_buffer, rhs.m_buffer);
+        }
+
+    }; // namespace mpeg
+
+    template <typename io> struct mpeg_iterator {
+
+        struct end_of_data_exception {};
+        struct end_of_data_iterator {};
+        frame m_tmp_frame;
+
+        mpeg_iterator& operator++() {
+            if (io.empty()) {
+                int read = 8192;
+                int actual = io.read(m_ptr, read);
+                if (actual == -1) {
+                    throw end_of_data_exception();
+                }
+                auto e = 0; //
+                // parse_single_frame(m_ptr, m_tmp_frame);
+                if (e == error::error_code::noerror) {
+                    m_ptr += m_tmp_frame.length();
+                }
+            }
+        }
+
+        char* m_ptr = nullptr;
+
+        char* begin() { return m_ptr; }
+        char* end() { return end_of_data_iterator{}; }
+    };
+
     using seek_t = my::io::seek_type;
     struct io_base : public my::io::buffer_guts_type<io_base> {};
+
     class parser {
 
         private:
@@ -808,26 +930,34 @@ namespace mpeg {
             bool avoid_io = false, my::io::seek_type sk = my::io::seek_type()) {
 
             f.clear();
-            CAST(void, io_pos);
+            const auto orig_io_pos = io_pos;
             auto& frame = f;
-            int cap = (frame.m_sbo.capacity());
+            int how_much = (frame.m_sbo.capacity()) - io_pos;
             auto p = (frame.m_sbo.begin());
             error e;
+
             if (!avoid_io) {
-                e = detail::read_io(io, cap, p, sk);
-                if (!e) {
-                    frame.m_sbo.size_set(CAST(size_t, cap));
-                }
+                e = detail::read_io(io, how_much, p + io_pos, sk);
+                if (e == error::error_code::no_more_data) return e;
+                assert(e.to_int() == 0);
+                const auto sbo_sz = io_pos + how_much;
+                frame.m_sbo.size_set(CAST(size_t, sbo_sz));
             }
+
+            const auto io_pos_stash = io_pos;
             if (e) {
                 return e;
+            } else {
+                io_pos = 0; // we set things up so the data continues from io_pos 0. See
+                            // (memcpy) in find_next_frame.
             }
 
             const byte_type* psync = nullptr;
 
             while (!psync) {
 
-                psync = reinterpret_cast<const byte_type*>(detail::find_sync(f.m_sbo, 0));
+                psync = reinterpret_cast<const byte_type*>(
+                    detail::find_sync(f.m_sbo, io_pos));
                 if (psync == nullptr) {
                     assert("lost sync" == nullptr);
                     e = error::error_code::lost_sync;
@@ -837,9 +967,14 @@ namespace mpeg {
                 CAST(void, skipped);
                 assert(skipped == 0); // record this error?
                 e = f.parse_header(filepos);
-
-                if (e == error::error_code::none) {
-                    io_pos += f.length_in_bytes();
+                const auto fl = f.length_in_bytes();
+                if (e == error::error_code::noerror) {
+                    const auto sbo_sz = f.m_sbo.size_i();
+                    const auto data_size = sbo_sz; //                 -io_pos_stash;
+                    if (data_size < fl) {
+                        return error::error_code::need_more_data;
+                    }
+                    io_pos += fl;
                     break;
                 }
                 if (e) {
@@ -911,40 +1046,32 @@ namespace mpeg {
         error find_next_frame(
             IO&& buf, int& buf_pos, const frame& prev_frame, frame& next_frame) {
 
-            const auto next_frame_pos
-                = prev_frame.file_position + prev_frame.length_in_bytes();
-
             error e;
-            assert(prev_frame.valid);
-            auto unread_in_prev = prev_frame.m_sbo.size_i() - buf_pos;
-            next_frame.clear();
-            if (unread_in_prev > 0) {
-                // some or all of the next frame is in the previous frame's buffer ...
-                next_frame.m_sbo.resize(unread_in_prev);
-                memcpy(
-                    next_frame.m_sbo.begin(), &prev_frame.m_sbo[buf_pos], unread_in_prev);
-                buf_pos = 0;
-                e = single_frame(buf, buf_pos, next_frame, next_frame_pos, true);
-                assert(next_frame.valid);
-                if (!next_frame.valid) {
-                    return error::error_code::need_more_data;
-                }
-                return error::error_code::none;
-            } else {
-                buf_pos = 0;
+            const auto prev_fl = prev_frame.length_in_bytes();
+            if (!prev_frame.valid) return error::error_code::prev_frame_bad;
+            const auto next_frame_pos = prev_frame.file_position + prev_fl;
+
+            int io_pos = 0;
+            const auto sz = prev_frame.m_sbo.size();
+            const auto to_copy
+                = sz - prev_fl; // we can only copy the remains of the previous buffer
+            if (to_copy > 0) {
+                io_pos = to_copy;
+                memcpy(next_frame.m_sbo.begin(), &prev_frame.m_sbo[prev_fl], to_copy);
             }
 
-            e = single_frame(buf, buf_pos, next_frame, next_frame_pos, false);
-
-            if (e && e != error::error_code::no_more_data) {
-                assert(e == error::error_code::none);
-                fprintf(stderr, "Unexpected single_frame() return error: %s\n",
-                    e.to_string().c_str());
+            bool avoid_io = false;
+            // add 1 to account for unknown padding in the next frame:
+            const int to_copy_i = CAST(int, to_copy);
+            if (to_copy_i < prev_fl + 1) {
+                avoid_io = false;
             } else {
-                if (e) {
-                    puts("no more data");
-                }
+                avoid_io = true;
             }
+
+            e = single_frame(
+                buf, io_pos, next_frame, prev_frame.file_position + prev_fl, avoid_io);
+
             return e;
         }
 
@@ -962,7 +1089,7 @@ namespace mpeg {
             }
         }
 
-        const frame& any_valid_frame() const {
+        const frame& any_valid_frame() const noexcept {
             for (const auto& f : m_frames) {
                 if (f.valid) return f;
             }
@@ -984,7 +1111,7 @@ namespace mpeg {
                 }
             }
 
-            e = error::error_code::none;
+            e = error::error_code::noerror;
             auto headers_size = id3v1_valid(m_id3v1Tag) ? 128 : 0;
             headers_size += m_id3v2Header.tagsize_inc_header;
             this->m_payload_size = this->file_size - headers_size;
@@ -1006,6 +1133,7 @@ namespace mpeg {
             nframes = 0;
             using namespace std;
             int io_pos = 0;
+            int prev_frame_index = -1;
 
             while (true) {
 
@@ -1023,7 +1151,7 @@ namespace mpeg {
                     n_confirmed_frames++;
                     nframes++;
 
-                    if (nframes == 1) {
+                    if (nframes == 1 || 1) {
                         const auto& fm = cur_frame;
                         const auto& props = fm.props_const();
                         cout << "reckon first frame is @ " << fm.file_position << endl
@@ -1035,10 +1163,11 @@ namespace mpeg {
                              << "total size: " << fm.size_in_bytes() << endl
                              << "[next frame expected @ file position: "
                              << fm.file_position + fm.size_in_bytes() << "]" << endl;
+                        cout << "file size is: " << this->file_size << endl;
                     }
 
                     buf_pos += cur_frame.length_in_bytes();
-                    auto remain_in_buffer
+                    const auto remain_in_buffer
                         = cur_frame.m_sbo.capacity_i() - cur_frame.length_in_bytes();
                     if (remain_in_buffer <= 0) {
                         assert(0);
@@ -1053,60 +1182,78 @@ namespace mpeg {
                         io, buf_pos, *pcur_frame, m_frames[next_frame_idx]);
 
                     if (e == error::error_code::need_more_data) {
-                        assert(0);
-                    } else {
-                        if (e == error::error_code::none) {
-
-                            if (1) {
-                                const auto baddun = compare_frames(
-                                    m_frames[cur_frame_idx], m_frames[next_frame_idx]);
-                                if (baddun != frame_mismatch::none) {
-                                    if (baddun == frame_mismatch::bitrate) {
-                                        m_frames[cur_frame_idx].vbr_set(true);
-                                        m_frames[0].vbr_set(true);
-                                    }
-
-                                    perror(frame_mismatch_string(baddun).c_str());
-                                }
-                            }
-                            const auto prev_start_where = file_pos;
-                            const auto& this_frame = m_frames[next_frame_idx];
-                            file_pos = this_frame.file_position;
-                            const auto fl = this_frame.length_in_bytes();
-                            file_pos += fl;
-                            if (this_frame.m_sbo.size() > fl) {
-                                io_pos = fl;
-                            } else {
-                                io_pos = 0;
-                            }
-
-                            if (detail::loglevel >= detail::loglevel_t::everything) {
-                                printf("MPEG header @ file position %lu has "
-                                       "size of: %lu\n",
-                                    static_cast<unsigned long>(this_frame.file_position),
-                                    static_cast<unsigned long>(
-                                        this_frame.length_in_bytes()));
-                            }
-                            assert(file_pos > prev_start_where);
-                            cur_frame_idx++;
-                            if (cur_frame_idx >= detail::NUM_MPEG_HEADERS) {
-                                cur_frame_idx = 0;
-                            }
-                            next_frame_idx = cur_frame_idx + 1;
-                            if (next_frame_idx >= detail::NUM_MPEG_HEADERS) {
-                                next_frame_idx = 0;
-                            }
-                            assert(next_frame_idx != cur_frame_idx);
-                            n_confirmed_frames++;
-                            nframes++;
-                            buf_pos = this_frame.size_in_bytes();
-                            goto the_next_frame;
+                        const auto stray_size
+                            = m_frames[next_frame_idx].m_sbo.size() - buf_pos;
+                        const auto fp = m_frames[next_frame_idx].file_position;
+                        assert(stray_size);
+                        int my_io_pos = buf_pos; //
+                        //
+                        if (prev_frame_index >= 0) {
+                            e = find_next_frame(io, my_io_pos, m_frames[prev_frame_index],
+                                m_frames[next_frame_idx]);
                         } else {
-                            if (e != error::error_code::no_more_data)
-                                assert("frame parser error that is NOT no_more_data!"
-                                    == nullptr);
-                            return e;
+                            e = single_frame(io, my_io_pos, *pcur_frame, fp);
                         }
+
+                        if (e != error::error_code::no_more_data) assert(e.to_int() == 0);
+                    }
+                    if (e != error::error_code::no_more_data) assert(e.to_int() == 0);
+                    if (e == error::error_code::noerror) {
+
+                        if (1) {
+                            const auto baddun = compare_frames(
+                                m_frames[cur_frame_idx], m_frames[next_frame_idx]);
+                            if (baddun != frame_mismatch::none) {
+                                if (baddun == frame_mismatch::bitrate) {
+                                    m_frames[cur_frame_idx].vbr_set(true);
+                                    m_frames[0].vbr_set(true);
+                                }
+
+                                fprintf(stderr, "%s/n",
+                                    frame_mismatch_string(baddun).c_str());
+                            }
+                        }
+                        const auto prev_start_where = file_pos;
+                        const auto& this_frame = m_frames[next_frame_idx];
+                        file_pos = this_frame.file_position;
+                        const auto fl = this_frame.length_in_bytes();
+                        file_pos += fl;
+                        if (this_frame.m_sbo.size_i() > fl) {
+                            io_pos = fl;
+                        } else {
+                            io_pos = 0;
+                        }
+
+                        if (detail::loglevel >= detail::loglevel_t::all) {
+                            printf("MPEG header %lu @ file position %lu has "
+                                   "size of: %lu\n",
+                                static_cast<unsigned long>(nframes),
+                                static_cast<unsigned long>(this_frame.file_position),
+                                static_cast<unsigned long>(this_frame.length_in_bytes()));
+                        }
+                        assert(file_pos > prev_start_where);
+
+                        cur_frame_idx++;
+
+                        if (cur_frame_idx >= detail::NUM_MPEG_HEADERS) {
+                            cur_frame_idx = 0;
+                        }
+                        prev_frame_index = cur_frame_idx;
+
+                        next_frame_idx = cur_frame_idx + 1;
+                        if (next_frame_idx >= detail::NUM_MPEG_HEADERS) {
+                            next_frame_idx = 0;
+                        }
+                        assert(next_frame_idx != cur_frame_idx);
+                        n_confirmed_frames++;
+                        nframes++;
+                        buf_pos = this_frame.size_in_bytes();
+                        goto the_next_frame;
+                    } else {
+                        if (e != error::error_code::no_more_data)
+                            assert("frame parser error that is NOT no_more_data!"
+                                == nullptr);
+                        return e;
                     }
                 }
             }
@@ -1138,12 +1285,22 @@ namespace mpeg {
             : parser(0, file_path, file_size) {}
 
         template <typename IO> mpeg::error parse(IO&& myio) {
+            using namespace std;
+            static auto ctr = 0;
 
+            std::cout << endl;
+            std::cout << "-----------------------------------------" << endl;
+
+            std::cout << "Parsing: " << this->filepath << endl;
+            cout << "Files parsed so far: " << ctr++ << endl;
             mpeg::error e;
+
+            const auto myctr = ctr;
+            CAST(void, ctr);
             e = find_first_frames(myio);
             if (e) {
                 if (e == error::error_code::no_more_data) {
-                    e = error::error_code::none;
+                    e = error::error_code::noerror;
 
                 } else {
                     assert(0);
@@ -1158,12 +1315,16 @@ namespace mpeg {
                     const auto& f = any_valid_frame();
                     printf("single frame dur in ms = %d\n", f.frame_dur_in_ms());
                     auto dur_ms = nframes * CAST(unsigned long, f.frame_dur_in_ms());
-                    int chans = f.props_const().channelmode;
+                    const int chans = detail::nchannels(
+                        CAST(my::mpeg::detail::ChannelEnum, f.props_const().channelmode));
+                    assert(
+                        chans > 0 && chans <= 2 && "bad/weird num channels" != nullptr);
                     dur_ms *= chans;
-                    printf("Dur: %f seconds.\n", (float)(dur_ms) / 1000.0f);
+                    printf("Dur: %f seconds.\n", CAST(float, dur_ms) / 1000.0f);
+                    assert(dur_ms > 10);
                 }
             }
-            assert(e == error::error_code::none);
+            assert(e == error::error_code::noerror);
             return e;
         }
     };

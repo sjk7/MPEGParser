@@ -19,6 +19,9 @@
 #include "./include/my_mpeg.hpp"
 
 using namespace std;
+using seek_t = my::io::seek_type;
+int read_file(char* const pdata, int& how_much, const seek_t& seek, std::fstream& f);
+
 [[maybe_unused]] void test_all_mp3() {
     const std::string my_extn = ".mp3";
 
@@ -40,10 +43,15 @@ using namespace std;
     my::files_finder finder(searchdir, recursive);
     int my_count = 0;
 
-    finder.start([&](const auto& /*item*/, const auto& /* u8path*/, const auto& extn) {
+    finder.start([&](const auto& /*item*/, const auto& u8path, const auto& extn) {
         if (extn == ".mp3") {
             ++my_count;
-            // read_mp3(u8path);
+            std::fstream f;
+            f.open(u8path.c_str(), std::ios::binary | std::ios::in);
+            assert(f);
+            const auto e = parse_mp3(u8path, f, my::fs::file_size(u8path));
+            assert(e == my::mpeg::error::error_code::no_more_data
+                || e == my::mpeg::error::error_code::noerror);
         }
         return 0;
     });
@@ -135,7 +143,11 @@ int64_t test_buffer(const std::string& path) {
     }
     auto fsz = my::fs::file_size(path);
 
-#if __cplusplus >= 201703L
+#ifdef _MSC_VER
+#pragma warning(disable : 26496) // just flat out wrong here
+#endif
+
+#if 0 // __cplusplus >= 201703L
     my::mpeg::buffer buf(path, [&](char* ptr, int& how_much, const seek_t& seek) {
         return read_file(ptr, how_much, seek, file);
     });
@@ -190,12 +202,40 @@ void test_file_read(const std::string& path) {
 #pragma warning(disable : 26485) // no decaying arrays
 #endif
 
+my::mpeg::error parse_mp3(string_view path, fstream& file, const uintmax_t file_size) {
+
+#if 1 // __cplusplus >= 201703L
+    my::mpeg::buffer buf(path, [&](char* const ptr, int& how_much, const seek_t& seek) {
+        return read_file(ptr, how_much, seek, file);
+    });
+#else
+    const auto lam = [&](char* const ptr, int& how_much, const seek_t& seek) {
+        return read_file(ptr, how_much, seek, file);
+    };
+    using lam_t = decltype(lam);
+    auto buf = my::mpeg::buffer<lam_t>::make_buffer(path, lam);
+#endif
+
+    my::mpeg::parser p(path, file_size);
+    const auto e = p.parse(buf);
+    if (e) assert(e == my::mpeg::error::error_code::no_more_data);
+    return e;
+}
+
 int main(int /*unused*/, const char* const argv[]) {
 
     assert(argv);
 #ifdef _WIN32
     _set_error_mode(_OUT_TO_MSGBOX);
 #endif
+
+    // NOTE: MUST HAVE COMPILER SWITCH
+    // /Zc:__cplusplus
+    static_assert(__cplusplus >= 201101L, "expected you to use c++11 or later");
+    // To get correctly reported __cplusplus version
+    cout << "Using c++ version: " << __cplusplus << endl;
+    cout << "------------------------------------------\n";
+
     puts("Current directory:");
     puts(argv[0]);
     const std::string path("./ztest_files/192.mp3");
@@ -209,34 +249,12 @@ int main(int /*unused*/, const char* const argv[]) {
         assert("File open error." == nullptr);
         return -1;
     }
+    const auto e = parse_mp3(path, file, file_size);
+    assert(e == my::mpeg::error::error_code::no_more_data
+        || e == my::mpeg::error::error_code::noerror);
 
-    // auto my_file_size = CAST(int64_t, file_size);
+    // test_file_read(path);
 
-    using seek_t = my::io::seek_type;
-    // using seek_value_type = my::io::seek_value_type;
-
-    // NOTE: MUST HAVE COMPILER SWITCH
-    // /Zc:__cplusplus
-    static_assert(__cplusplus >= 201101L, "expected you to use c++11 or later");
-    // To get correctly reported __cplusplus version
-    cout << "Using c++ version: " << __cplusplus << endl;
-    cout << "------------------------------------------\n";
-    cout << __cplusplus << endl;
-#if __cplusplus >= 201703L
-    my::mpeg::buffer buf(path, [&](char* const ptr, int& how_much, const seek_t& seek) {
-        return read_file(ptr, how_much, seek, file);
-    });
-#else
-    auto lam = [&](char* const ptr, int& how_much, const seek_t& seek) {
-        return read_file(ptr, how_much, seek, file);
-    };
-    using lam_t = decltype(lam);
-    auto buf = my::mpeg::buffer<lam_t>::make_buffer(path, lam);
-#endif
-
-    my::mpeg::parser p(path, file_size);
-    const auto e = p.parse(buf);
-    (void)e;
-    test_file_read(path);
+    test_all_mp3();
     return 0;
 }
