@@ -1,2 +1,13 @@
 ﻿  mpeg_audio_test.cpp
+c:\users\coolie\source\mpegaudioparser\mpegparser\mpegaudioparse\include\my_mpeg.hpp(1077): warning C4018: '>': signed/unsigned mismatch
+  c:\users\coolie\source\mpegaudioparser\mpegparser\mpegaudioparse\include\my_mpeg.hpp(1143): note: see reference to function template instantiation 'my::mpeg::error my::mpeg::parser::find_first_frames<my::mpeg::buffer<main::<lambda_9bbd08d71bf281941c8486ced28becbf>>&>(IO)' being compiled
+          with
+          [
+              IO=my::mpeg::buffer<main::<lambda_9bbd08d71bf281941c8486ced28becbf>> &
+          ]
+  c:\users\coolie\source\mpegaudioparser\mpegparser\mpegaudioparse\mpeg_audio_test.cpp(238): note: see reference to function template instantiation 'my::mpeg::error my::mpeg::parser::parse<my::mpeg::buffer<main::<lambda_9bbd08d71bf281941c8486ced28becbf>>&>(IO)' being compiled
+          with
+          [
+              IO=my::mpeg::buffer<main::<lambda_9bbd08d71bf281941c8486ced28becbf>> &
+          ]
   MPEGAudioParse.vcxproj -> C:\Users\coolie\source\MPEGAudioParser\MPEGParser\MPEGAudioParse\Debug\MPEGAudioParse.exe

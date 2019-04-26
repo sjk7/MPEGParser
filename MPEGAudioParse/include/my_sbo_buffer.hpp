@@ -76,8 +76,13 @@ namespace io {
             // just like vector, clear() does not free any memory
             void clear() noexcept { m_size = 0; }
             constexpr size_t size() const noexcept { return m_size; }
+            constexpr int size_i() const noexcept { return static_cast<int>(m_size); }
             constexpr size_t capacity() const noexcept {
                 return m_capacity - BUFFER_GUARD > 0 ? m_capacity - BUFFER_GUARD : 0;
+            }
+            constexpr int capacity_i() const noexcept {
+                return m_capacity - BUFFER_GUARD > 0 ? (int)m_capacity - (int)BUFFER_GUARD
+                                                     : (int)0;
             }
             const byte_type* cdata() const noexcept {
                 if (m_dyn_buf) {
