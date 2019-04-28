@@ -47,9 +47,15 @@ int read_file(char* const pdata, int& how_much, const seek_t& seek, std::fstream
         if (extn == ".mp3") {
             ++my_count;
             std::fstream f;
+            const std::string mypath
+                = "C:\\users\\coolie\\source\\MPEGAudioParser\\MPEGParser\\MPE"
+                  "GAudioParse\\ztest_files\\Commodores - Lady.mp3";
             f.open(u8path.c_str(), std::ios::binary | std::ios::in);
             assert(f);
             const auto e = parse_mp3(u8path, f, my::fs::file_size(u8path));
+
+            // const auto e = parse_mp3(mypath, f, my::fs::file_size(mypath));
+
             assert(e == my::mpeg::error::error_code::no_more_data
                 || e == my::mpeg::error::error_code::noerror);
         }
@@ -218,6 +224,7 @@ my::mpeg::error parse_mp3(string_view path, fstream& file, const uintmax_t file_
 
     my::mpeg::parser p(path, file_size);
     const auto e = p.parse(buf);
+
     if (e) assert(e == my::mpeg::error::error_code::no_more_data);
     return e;
 }
@@ -238,9 +245,13 @@ int main(int /*unused*/, const char* const argv[]) {
 
     puts("Current directory:");
     puts(argv[0]);
-    const std::string path("./ztest_files/192.mp3");
-    assert(my::fs::exists(path) && "test file does not exist");
+    // const std::string path("./ztest_files/192.mp3");
+
     // const std::string path("./ztest_files/128.mp3");
+    const std::string path = "C:\\users\\coolie\\source\\MPEGAudioParser\\MPEGParser\\MPE"
+                             "GAudioParse\\ztest_files\\Fart.mp3";
+
+    assert(my::fs::exists(path) && "test file does not exist");
 
     const auto file_size = my::fs::file_size(path);
     fstream file(path.c_str(), std::ios_base::binary | std::ios_base::in);

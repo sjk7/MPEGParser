@@ -106,7 +106,8 @@ namespace mpeg {
             bad_mpeg_channels = 11,
             bad_mpeg_emphasis = 12,
             tiny_file = 13,
-            prev_frame_bad = 14
+            prev_frame_bad = 14,
+            data_incomplete = 15
         };
 
         // static constexpr int buffer_too_small = -6;
@@ -135,7 +136,7 @@ namespace mpeg {
                 "bad mpeg bitrate", "bad samplerate", "lost sync", "need_more_data",
                 "bad mpeg channels", "bad mpeg emphasis",
                 "file payload too small to contain any meaningful audio",
-                "previous frame bad"};
+                "previous frame bad", "data incomplete"};
 
             if (is_errno()) {
                 return strerror(-to_int());
@@ -444,6 +445,10 @@ namespace mpeg {
                 printf("Parsing MPEG header @ file position %lu ...\n",
                     static_cast<unsigned long>(file_position));
             }
+
+            if (m_sbo.size() < MPEG_HEADER_SIZE) {
+                return error::error_code::need_more_data;
+            }
             set_file_position(file_position);
             error e = frame_version(*this);
             if (e) {
@@ -462,6 +467,12 @@ namespace mpeg {
                 return e;
             }
             e = frame_emph_copyright_etc(*this);
+            if (e) return e;
+
+            if (m_sbo.size_i() < this->length_in_bytes()) {
+                e = mpeg::error::error_code::data_incomplete;
+            }
+
             return e;
         }
 
@@ -767,7 +778,11 @@ namespace mpeg {
                     assert("Error reading iodevice" == nullptr);
                 }
             }
-            myio.size_set(how_much);
+            if (your_buf == nullptr) {
+                assert("always assumed you wanted to use your own buffer" == nullptr);
+                myio.size_set(how_much);
+            }
+
             return e;
         }
 
@@ -932,8 +947,11 @@ namespace mpeg {
             f.clear();
             const auto orig_io_pos = io_pos;
             auto& frame = f;
-            int how_much = (frame.m_sbo.capacity()) - io_pos;
-            auto p = (frame.m_sbo.begin());
+            const auto icap = f.m_sbo.capacity_i();
+            const auto sffs = icap;
+            int how_much = icap - io_pos;
+            assert(how_much <= sffs);
+            auto p = (f.m_sbo.begin());
             error e;
 
             if (!avoid_io) {
@@ -942,63 +960,46 @@ namespace mpeg {
                 assert(e.to_int() == 0);
                 const auto sbo_sz = io_pos + how_much;
                 frame.m_sbo.size_set(CAST(size_t, sbo_sz));
+                e = frame.parse_header(filepos);
+                if (e == error::error_code::data_incomplete || e.to_int() == 0) {
+                } else {
+                    return e;
+                }
             }
 
-            const auto io_pos_stash = io_pos;
-            if (e) {
+            if (e && e != error::error_code::data_incomplete) {
                 return e;
             } else {
                 io_pos = 0; // we set things up so the data continues from io_pos 0. See
                             // (memcpy) in find_next_frame.
             }
 
-            const byte_type* psync = nullptr;
-
-            while (!psync) {
-
-                psync = reinterpret_cast<const byte_type*>(
-                    detail::find_sync(f.m_sbo, io_pos));
-                if (psync == nullptr) {
-                    assert("lost sync" == nullptr);
-                    e = error::error_code::lost_sync;
-                    return e; // return unconditionally since psync is NULL.
-                }
-                const auto skipped = psync - f.m_sbo.cbegin();
-                CAST(void, skipped);
-                assert(skipped == 0); // record this error?
-                e = f.parse_header(filepos);
-                const auto fl = f.length_in_bytes();
-                if (e == error::error_code::noerror) {
-                    const auto sbo_sz = f.m_sbo.size_i();
-                    const auto data_size = sbo_sz; //                 -io_pos_stash;
-                    if (data_size < fl) {
-                        return error::error_code::need_more_data;
-                    }
-                    io_pos += fl;
-                    break;
-                }
-                if (e) {
-                    assert("Could not parse frame header" == nullptr);
-                    filepos++;
-                }
-            }; // while (!psync)
+            auto psync = detail::find_sync(f.m_sbo, io_pos);
+            if (psync == nullptr) {
+                assert("lost sync" == nullptr);
+                e = error::error_code::lost_sync;
+                return e; // return unconditionally since psync is NULL.
+            }
+            const auto skipped = psync - f.m_sbo.cbeginc();
+            CAST(void, skipped);
+            assert(skipped == 0); // record this error?
 
             const auto fsz_total = f.length_in_bytes();
             auto* ptr = psync + fsz_total;
             // finish reading all the data for the frame:
-            if (ptr >= f.m_sbo.end()) {
-
-                int how_much = (ptr - f.m_sbo.end());
-
+            if (ptr > f.m_sbo.cendc()) {
+                assert(e == error::error_code::data_incomplete);
+                int now_how_much = (ptr - f.m_sbo.cendc());
                 const auto old_size = f.m_sbo.size();
-                f.m_sbo.resize(CAST(size_t, how_much) + old_size);
+                f.m_sbo.resize(CAST(size_t, now_how_much) + old_size
+                    + 1); // adding one so that padded frames do not cause re-alloc
                 auto pwhere = f.m_sbo.data() + old_size;
-                e = detail::read_io(io, how_much, pwhere);
-
+                e = detail::read_io(io, now_how_much, pwhere);
                 if (e) {
                     return e;
                 }
-
+                f.m_sbo.resize(old_size + now_how_much);
+                io_pos += now_how_much;
             } else {
                 // fits in sbo
             }
@@ -1025,7 +1026,8 @@ namespace mpeg {
         error get_id3(IO&& io, detail::id3v2Header& v2Header, detail::ID3V1& v1Tag) {
 
             error e = error::error_code::need_more_data;
-            memset(&v1Tag, 0, 3);
+            memset(&v1Tag, 0, sizeof(v1Tag));
+            memset(&v2Header, 0, sizeof(v2Header));
             int how_much = 128;
             const seek_t sk(128, seek_value_type::seek_from_end);
 
@@ -1057,6 +1059,7 @@ namespace mpeg {
                 = sz - prev_fl; // we can only copy the remains of the previous buffer
             if (to_copy > 0) {
                 io_pos = to_copy;
+                next_frame.m_sbo.resize(to_copy);
                 memcpy(next_frame.m_sbo.begin(), &prev_frame.m_sbo[prev_fl], to_copy);
             }
 
@@ -1167,9 +1170,10 @@ namespace mpeg {
                     }
 
                     buf_pos += cur_frame.length_in_bytes();
-                    const auto remain_in_buffer
-                        = cur_frame.m_sbo.capacity_i() - cur_frame.length_in_bytes();
-                    if (remain_in_buffer <= 0) {
+                    const auto capa = cur_frame.m_sbo.capacity_i();
+                    const auto fsz = cur_frame.size_in_bytes();
+                    const auto remain_in_buffer = capa - fsz;
+                    if (remain_in_buffer < 0) {
                         assert(0);
                     }
 

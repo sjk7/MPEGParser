@@ -28,9 +28,7 @@ namespace io {
                 "sbo_buffer: bad type for T. Must be 1 byte wide and trivially "
                 "assignable");
 
-            byte_type* end_internal() noexcept {
-                return begin() + m_capacity + BUFFER_GUARD;
-            }
+            byte_type* end_internal() noexcept { return begin() + m_capacity; }
 
             protected:
             size_t m_size = {0};
@@ -100,6 +98,12 @@ namespace io {
             byte_type* begin() noexcept { return data(); }
             byte_type* end() noexcept { return data() + m_size; }
             const byte_type* cbegin() const noexcept { return cdata(); }
+            const unsigned char* cbeginc() const noexcept {
+                return reinterpret_cast<const unsigned char*>(cbegin());
+            }
+            const unsigned char* cendc() const noexcept {
+                return reinterpret_cast<const unsigned char*>(cend());
+            }
             const byte_type* cend() const noexcept { return cdata() + m_size; }
             byte_type& operator[](size_t where) noexcept { return *(begin() + where); }
             const byte_type& operator[](size_t where) const noexcept {
@@ -168,6 +172,7 @@ namespace io {
 
                         if (m_dyn_size == 0) {
                             assert(new_size >= old_size);
+                            printf("call to alloc() : %lu\n", new_size);
                             m_dyn_buf = static_cast<byte_type*>(
                                 malloc(new_size + BUFFER_GUARD));
                             if (!m_dyn_buf) {
@@ -185,6 +190,7 @@ namespace io {
 
                         if (new_actual > m_dyn_size) {
                             const size_t mysize = new_actual;
+                            printf("call to realloc() : %lu\n", new_size);
                             auto ptr = realloc(m_dyn_buf, mysize);
                             pnew = CAST(byte_type*, ptr);
                             if (pnew == nullptr) {
@@ -207,9 +213,9 @@ namespace io {
                     }
                 }
 
-                if (new_size > m_capacity || old_size == 0) {
+                if (new_size > capacity() || old_size == 0) {
                     if (new_size > m_capacity) {
-                        m_capacity = new_size;
+                        m_capacity = new_size + BUFFER_GUARD;
                     }
 
                     // this is allowed, because we over-allocate by BUFFER_GUARD
