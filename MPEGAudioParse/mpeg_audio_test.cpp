@@ -49,7 +49,7 @@ int read_file(char* const pdata, int& how_much, const seek_t& seek, std::fstream
             std::fstream f;
             const std::string mypath
                 = "C:\\users\\coolie\\source\\MPEGAudioParser\\MPEGParser\\MPE"
-                  "GAudioParse\\ztest_files\\Commodores - Lady.mp3";
+                  "GAudioParse\\ztest_files\\shortkayfm-steve.mp3";
             f.open(u8path.c_str(), std::ios::binary | std::ios::in);
             assert(f);
             const auto e = parse_mp3(u8path, f, my::fs::file_size(u8path));
@@ -249,7 +249,7 @@ int main(int /*unused*/, const char* const argv[]) {
 
     // const std::string path("./ztest_files/128.mp3");
     const std::string path = "C:\\users\\coolie\\source\\MPEGAudioParser\\MPEGParser\\MPE"
-                             "GAudioParse\\ztest_files\\Fart.mp3";
+                             "GAudioParse\\ztest_files\\shortkayfm-steve.mp3";
 
     assert(my::fs::exists(path) && "test file does not exist");
 

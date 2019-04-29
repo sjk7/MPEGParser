@@ -296,6 +296,8 @@ namespace mpeg {
         mutable bool valid = {false};
 
         const mpeg_properties& props_const() const noexcept { return props; }
+
+        // size_in_bytes() returns the TOTAL length of the frame, including the header
         const int size_in_bytes() const noexcept { return frame_get_length(); }
 
         int frame_dur_in_ms() const noexcept {
@@ -331,16 +333,16 @@ namespace mpeg {
             m_frame_len = 0;
         }
         bool vbr() const noexcept { return m_vbr; }
+        void set_file_position(int64_t file_pos = -1) noexcept {
+            valid = false;
+            file_position = file_pos;
+            header_bytes = reinterpret_cast<const unsigned char*>(m_sbo.cbegin());
+        }
 
         protected:
         bool m_vbr = {false};
         mutable int m_frame_len = 0;
-        void set_file_position(int64_t file_pos = -1) noexcept {
-            valid = false;
-            file_position = file_pos;
 
-            header_bytes = reinterpret_cast<const unsigned char*>(m_sbo.cbegin());
-        }
         int frame_get_length() const noexcept {
             int sz = 0;
             if (!valid) {
@@ -740,14 +742,14 @@ namespace mpeg {
          * returns a pointer to a possible MPEG sync point,
          * or NULL if the buffer is exhausted.
          */
-        template <typename IO>
-        const unsigned char* find_sync(IO& buf, const int buf_position) noexcept {
+        /*/
+        const byte* find_sync(
+            const byte* buf, const int buf_position, const size_t bufsz) noexcept {
 
-            const auto* e = reinterpret_cast<const unsigned char*>(buf.data_end());
-            const auto* p = reinterpret_cast<const unsigned char*>(buf.begin());
-            if (!p) {
-                return nullptr;
-            }
+            const auto* const e = (buf + bufsz);
+            const auto* p = buf;
+            if (!p) return nullptr;
+
             const auto sz = e - p;
             assert(sz);
             p += buf_position;
@@ -759,7 +761,30 @@ namespace mpeg {
             }
             return nullptr;
         }
+        /*/
+        using byte = my::io::byte_type;
+        const byte* find_sync(const byte* buf, int offset, int bufsize) {
 
+            auto my_buf = reinterpret_cast<const uint8_t*>(buf);
+            auto p = my_buf;
+            auto e = p + bufsize;
+
+            while (p < e - 1) {
+                auto pval = *p;
+                auto ret = p;
+                if (pval == 255) {
+                    ++p;
+                    auto next_p = *p;
+                    if (next_p >= 224) {
+                        return reinterpret_cast<const byte*>(ret);
+                    }
+                } else {
+                    ++p;
+                }
+            }
+
+            return nullptr;
+        }
         template <typename IO>
         [[maybe_unused]] static error read_io(IO&& io, int& how_much,
             char* const your_buf, my::io::seek_type sk = my::io::seek_type(),
@@ -940,69 +965,48 @@ namespace mpeg {
         private:
         detail::frames_t m_frames{}; // frame[NUM_MPEG_HEADERS];
 
-        template <typename IO>
-        error single_frame(IO&& io, int& io_pos, frame& f, int64_t filepos,
-            bool avoid_io = false, my::io::seek_type sk = my::io::seek_type()) {
+        void copy_frame_overflow(
+            const frame* const pprev_frame, frame& cur_frame) noexcept {
 
-            f.clear();
-            const auto orig_io_pos = io_pos;
-            auto& frame = f;
-            const auto icap = f.m_sbo.capacity_i();
-            const auto sffs = icap;
-            int how_much = icap - io_pos;
-            assert(how_much <= sffs);
-            auto p = (f.m_sbo.begin());
+            if (pprev_frame->m_sbo.size_i() > pprev_frame->size_in_bytes()) {
+                const auto prev_frame_size = pprev_frame->size_in_bytes();
+                const auto copy_len = pprev_frame->m_sbo.size_i() - prev_frame_size;
+
+                if (copy_len > 0) {
+                    auto copy_from = pprev_frame->m_sbo.cbegin() + prev_frame_size;
+                    auto copy_to = cur_frame.m_sbo.begin();
+                    cur_frame.m_sbo.resize(cur_frame.m_sbo.size() + copy_len);
+                    memcpy(copy_to, copy_from, copy_len);
+                }
+            }
+        }
+
+        error single_frame(frame& cur_frame, frame* pprev_frame,
+            my::io::seek_type sk = my::io::seek_type()) noexcept {
+
             error e;
-
-            if (!avoid_io) {
-                e = detail::read_io(io, how_much, p + io_pos, sk);
-                if (e == error::error_code::no_more_data) return e;
-                assert(e.to_int() == 0);
-                const auto sbo_sz = io_pos + how_much;
-                frame.m_sbo.size_set(CAST(size_t, sbo_sz));
-                e = frame.parse_header(filepos);
-                if (e == error::error_code::data_incomplete || e.to_int() == 0) {
-                } else {
-                    return e;
-                }
+            auto frame_pos = int64_t{0};
+            if (pprev_frame) {
+                copy_frame_overflow(pprev_frame, cur_frame);
+                frame_pos = pprev_frame->file_position + pprev_frame->size_in_bytes();
             }
 
-            if (e && e != error::error_code::data_incomplete) {
+            auto& sbo = cur_frame.m_sbo;
+            if (sbo.size() == 0) return error::error_code::need_more_data;
+
+            auto* sync = detail::find_sync(sbo.begin(), 0, sbo.size());
+            if (!sync) {
+                return error::error_code::lost_sync;
+            }
+            const auto skipped = sync - sbo.data();
+            assert(!skipped);
+
+            e = cur_frame.parse_header(frame_pos);
+            if (e == error::error_code::data_incomplete
+                || e == error::error_code::need_more_data) {
                 return e;
-            } else {
-                io_pos = 0; // we set things up so the data continues from io_pos 0. See
-                            // (memcpy) in find_next_frame.
             }
 
-            auto psync = detail::find_sync(f.m_sbo, io_pos);
-            if (psync == nullptr) {
-                assert("lost sync" == nullptr);
-                e = error::error_code::lost_sync;
-                return e; // return unconditionally since psync is NULL.
-            }
-            const auto skipped = psync - f.m_sbo.cbeginc();
-            CAST(void, skipped);
-            assert(skipped == 0); // record this error?
-
-            const auto fsz_total = f.length_in_bytes();
-            auto* ptr = psync + fsz_total;
-            // finish reading all the data for the frame:
-            if (ptr > f.m_sbo.cendc()) {
-                assert(e == error::error_code::data_incomplete);
-                int now_how_much = (ptr - f.m_sbo.cendc());
-                const auto old_size = f.m_sbo.size();
-                f.m_sbo.resize(CAST(size_t, now_how_much) + old_size
-                    + 1); // adding one so that padded frames do not cause re-alloc
-                auto pwhere = f.m_sbo.data() + old_size;
-                e = detail::read_io(io, now_how_much, pwhere);
-                if (e) {
-                    return e;
-                }
-                f.m_sbo.resize(old_size + now_how_much);
-                io_pos += now_how_much;
-            } else {
-                // fits in sbo
-            }
             return e;
         }
 
@@ -1046,34 +1050,10 @@ namespace mpeg {
 
         template <typename IO>
         error find_next_frame(
-            IO&& buf, int& buf_pos, const frame& prev_frame, frame& next_frame) {
+            IO&& buf, int& buf_pos, frame& prev_frame, frame& next_frame) {
 
             error e;
-            const auto prev_fl = prev_frame.length_in_bytes();
-            if (!prev_frame.valid) return error::error_code::prev_frame_bad;
-            const auto next_frame_pos = prev_frame.file_position + prev_fl;
-
-            int io_pos = 0;
-            const auto sz = prev_frame.m_sbo.size();
-            const auto to_copy
-                = sz - prev_fl; // we can only copy the remains of the previous buffer
-            if (to_copy > 0) {
-                io_pos = to_copy;
-                next_frame.m_sbo.resize(to_copy);
-                memcpy(next_frame.m_sbo.begin(), &prev_frame.m_sbo[prev_fl], to_copy);
-            }
-
-            bool avoid_io = false;
-            // add 1 to account for unknown padding in the next frame:
-            const int to_copy_i = CAST(int, to_copy);
-            if (to_copy_i < prev_fl + 1) {
-                avoid_io = false;
-            } else {
-                avoid_io = true;
-            }
-
-            e = single_frame(
-                buf, io_pos, next_frame, prev_frame.file_position + prev_fl, avoid_io);
+            e = single_frame(next_frame, &prev_frame);
 
             return e;
         }
@@ -1100,6 +1080,43 @@ namespace mpeg {
                 stderr, "%s\n", "You asked for any valid frame, but there were none.\n");
             return m_frames[0];
         }
+
+        template <typename IO>
+        error frame_load_data(
+            IO&& io, frame& f, int how_much, seek_type sk = seek_type{}) {
+
+            int got = how_much;
+            auto& sbo = f.m_sbo;
+            sbo.resize(sbo.size() + how_much);
+            auto e = detail::read_io(io, got, f.m_sbo.begin() + f.size_in_bytes(), sk);
+            if (e) {
+                assert(0);
+                return e;
+            }
+            if (got > 0) {
+                if (got < how_much) {
+                    e = error::error_code::no_more_data;
+                }
+            } else {
+                e = error::error_code::need_more_data;
+            }
+
+            return e;
+        }
+
+        // does all the things possible to find the next frame
+        template <typename IO> error buf2frame(IO&& io, frame* pprev, frame& fcur) {
+            if (pprev) {
+                copy_frame_overflow(pprev, fcur);
+            }
+
+            auto e = error::error_code::none;
+            while (e != error::error_code::need_more_data) {
+                int how_much = fcur.m_sbo.capacity_i();
+                e = frame_load_data(io, fcur, how_much);
+            }
+        };
+
         template <typename IO> error find_first_frames(IO&& io) {
 
             init_frames();
@@ -1132,7 +1149,7 @@ namespace mpeg {
             int buf_pos = 0;
 
             int n_confirmed_frames = 0;
-            my::io::seek_type sk(file_pos, seek_value_type::seek_from_begin);
+            auto sk = my::io::seek_type(file_pos, seek_value_type::seek_from_begin);
             nframes = 0;
             using namespace std;
             int io_pos = 0;
@@ -1142,8 +1159,14 @@ namespace mpeg {
 
                 auto& cur_frame = m_frames[0];
                 assert(io_pos == 0);
-                e = single_frame(io, io_pos, cur_frame, file_pos, false, sk);
-                sk = seek_type{0};
+                cur_frame.set_file_position(file_pos);
+                e = frame_load_data(io, cur_frame, cur_frame.m_sbo.capacity(), sk);
+                if (e) {
+                    assert(0);
+                    return e;
+                }
+                e = single_frame(cur_frame, nullptr, sk);
+
                 if (e) {
                     if (e == error::error_code::no_more_data) {
                         return e;
@@ -1196,7 +1219,8 @@ namespace mpeg {
                             e = find_next_frame(io, my_io_pos, m_frames[prev_frame_index],
                                 m_frames[next_frame_idx]);
                         } else {
-                            e = single_frame(io, my_io_pos, *pcur_frame, fp);
+                            e = single_frame(
+                                *pcur_frame, &m_frames[prev_frame_index], fp);
                         }
 
                         if (e != error::error_code::no_more_data) assert(e.to_int() == 0);
@@ -1213,7 +1237,7 @@ namespace mpeg {
                                     m_frames[0].vbr_set(true);
                                 }
 
-                                fprintf(stderr, "%s/n",
+                                fprintf(stderr, "%s\n",
                                     frame_mismatch_string(baddun).c_str());
                             }
                         }
