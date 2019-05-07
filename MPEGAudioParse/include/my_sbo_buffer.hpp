@@ -79,11 +79,14 @@ namespace io {
                 return i;
             }
             constexpr size_t capacity() const noexcept {
-                return m_capacity - BUFFER_GUARD > 0 ? m_capacity - BUFFER_GUARD : 0;
+                return m_capacity - BUFFER_GUARD > 0 ? m_capacity - BUFFER_GUARD
+                                                     : 0;
             }
             constexpr int capacity_i() const noexcept {
-                return m_capacity - BUFFER_GUARD > 0 ? (int)m_capacity - (int)BUFFER_GUARD
-                                                     : (int)0;
+                return m_capacity - BUFFER_GUARD > 0
+                    ? static_cast<int>(m_capacity)
+                        - static_cast<int>(BUFFER_GUARD)
+                    : (int)0;
             }
             const byte_type* cdata() const noexcept {
                 if (m_dyn_buf) {
@@ -92,7 +95,9 @@ namespace io {
                 { return &m_sbo_buf[0]; }
             }
 
-            byte_type* data() noexcept { return m_dyn_buf ? m_dyn_buf : &m_sbo_buf[0]; }
+            byte_type* data() noexcept {
+                return m_dyn_buf ? m_dyn_buf : &m_sbo_buf[0];
+            }
             byte_type* data_begin() noexcept { return data(); }
             byte_type* data_end() noexcept { return data() + m_size; }
             byte_type* begin() noexcept { return data(); }
@@ -105,7 +110,9 @@ namespace io {
                 return reinterpret_cast<const unsigned char*>(cend());
             }
             const byte_type* cend() const noexcept { return cdata() + m_size; }
-            byte_type& operator[](size_t where) noexcept { return *(begin() + where); }
+            byte_type& operator[](size_t where) noexcept {
+                return *(begin() + where);
+            }
             const byte_type& operator[](size_t where) const noexcept {
                 return *(cdata() + where);
             }
@@ -172,10 +179,10 @@ namespace io {
 
                         if (m_dyn_size == 0) {
                             assert(new_size >= old_size);
-                            printf("call to alloc() : %lu\n", new_size);
+                            printf("call to alloc() : %zu\n", new_size);
                             m_dyn_buf = static_cast<byte_type*>(
                                 malloc(new_size + BUFFER_GUARD));
-                            if (!m_dyn_buf) {
+                            if (m_dyn_buf == nullptr) {
                                 errno = ENOMEM;
                                 perror("Out of memory line 179");
                                 exit(-1);
@@ -190,7 +197,7 @@ namespace io {
 
                         if (new_actual > m_dyn_size) {
                             const size_t mysize = new_actual;
-                            printf("call to realloc() : %lu\n", new_size);
+                            printf("call to realloc() : %zu\n", new_size);
                             auto ptr = realloc(m_dyn_buf, mysize);
                             pnew = CAST(byte_type*, ptr);
                             if (pnew == nullptr) {
@@ -198,8 +205,8 @@ namespace io {
                                     "realloc failed [ %lu ]\n -- not enough "
                                     "memory @ "
                                     "%s:%ul",
-                                    static_cast<unsigned long>(new_size), __FILE__,
-                                    __LINE__);
+                                    static_cast<unsigned long>(new_size),
+                                    __FILE__, __LINE__);
                             }
                             m_dyn_buf = pnew;
 
@@ -221,7 +228,8 @@ namespace io {
                     // this is allowed, because we over-allocate by BUFFER_GUARD
 #ifndef NDEBUG
                     // puts("wrote buf guard\n");
-                    memcpy(end_internal() - BUFFER_GUARD, "BADF00D", BUFFER_GUARD);
+                    memcpy(
+                        end_internal() - BUFFER_GUARD, "BADF00D", BUFFER_GUARD);
 #endif
                 }
 
@@ -239,7 +247,8 @@ namespace io {
 #ifdef _MSC_VER
 #pragma warning(default : 6386)
 #endif
-            void append_data(const byte_type* const data, size_t cb = 0) noexcept {
+            void append_data(
+                const byte_type* const data, size_t cb = 0) noexcept {
 
                 if (data && cb == 0) {
                     fprintf(stderr,

@@ -27,7 +27,7 @@ class files_finder {
             if (fs::is_regular_file(p)) {
 
                 auto& path = p.path();
-                m_u8path = path.generic_string().c_str();
+                m_u8path = path.generic_string();
                 m_u8extn = path.extension().u8string();
                 stop_now = cb(p, m_u8path, m_u8extn);
                 ++n;

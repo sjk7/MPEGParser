@@ -20,7 +20,32 @@
 
 using namespace std;
 using seek_t = my::io::seek_type;
-int read_file(char* const pdata, int& how_much, const seek_t& seek, std::fstream& f);
+int read_file(char* pdata, int& how_much, const seek_t& seek, std::fstream& f);
+
+my::mpeg::error parse_mp3(
+    string_view path, fstream& file, const uintmax_t file_size) {
+
+#if 1 // __cplusplus >= 201703L
+    my::mpeg::buffer buf(
+        path, [&](char* const ptr, int& how_much, const seek_t& seek) {
+            return read_file(ptr, how_much, seek, file);
+        });
+#else
+    const auto lam = [&](char* const ptr, int& how_much, const seek_t& seek) {
+        return read_file(ptr, how_much, seek, file);
+    };
+    using lam_t = decltype(lam);
+    auto buf = my::mpeg::buffer<lam_t>::make_buffer(path, lam);
+#endif
+
+    my::mpeg::parser p(path, file_size);
+    const auto e = p.parse(buf);
+
+    if (e) {
+        assert(e == my::mpeg::error::error_code::no_more_data);
+    }
+    return e;
+}
 
 [[maybe_unused]] void test_all_mp3() {
     const std::string my_extn = ".mp3";
@@ -43,7 +68,8 @@ int read_file(char* const pdata, int& how_much, const seek_t& seek, std::fstream
     my::files_finder finder(searchdir, recursive);
     int my_count = 0;
 
-    finder.start([&](const auto& /*item*/, const auto& u8path, const auto& extn) {
+    finder.start([&](const auto& /*item*/, const auto& u8path,
+                     const auto& extn) {
         if (extn == ".mp3") {
             ++my_count;
             std::fstream f;
@@ -71,14 +97,16 @@ using seek_t = my::io::seek_type;
 using seek_value_type = my::io::seek_value_type;
 
 // return 0 normally, -1 or -errno if some file error
-int read_file(char* const pdata, int& how_much, const seek_t& seek, std::fstream& f) {
+int read_file(
+    char* const pdata, int& how_much, const seek_t& seek, std::fstream& f) {
 
     if (pdata == nullptr) {
         return -EINVAL;
     }
     const auto way = CAST(std::ios::seekdir, seek.seek);
 
-    if (!f && seek.seek == seek_t::value_type::seek_from_cur && seek.position >= 0) {
+    if (!f && seek.seek == seek_t::value_type::seek_from_cur
+        && seek.position >= 0) {
         return -1; // already bad, probably eos last time.
     }
 
@@ -208,27 +236,6 @@ void test_file_read(const std::string& path) {
 #pragma warning(disable : 26485) // no decaying arrays
 #endif
 
-my::mpeg::error parse_mp3(string_view path, fstream& file, const uintmax_t file_size) {
-
-#if 1 // __cplusplus >= 201703L
-    my::mpeg::buffer buf(path, [&](char* const ptr, int& how_much, const seek_t& seek) {
-        return read_file(ptr, how_much, seek, file);
-    });
-#else
-    const auto lam = [&](char* const ptr, int& how_much, const seek_t& seek) {
-        return read_file(ptr, how_much, seek, file);
-    };
-    using lam_t = decltype(lam);
-    auto buf = my::mpeg::buffer<lam_t>::make_buffer(path, lam);
-#endif
-
-    my::mpeg::parser p(path, file_size);
-    const auto e = p.parse(buf);
-
-    if (e) assert(e == my::mpeg::error::error_code::no_more_data);
-    return e;
-}
-
 int main(int /*unused*/, const char* const argv[]) {
 
     assert(argv);
@@ -248,9 +255,13 @@ int main(int /*unused*/, const char* const argv[]) {
     // const std::string path("./ztest_files/192.mp3");
 
     // const std::string path("./ztest_files/128.mp3");
-    const std::string path = "C:\\users\\coolie\\source\\MPEGAudioParser\\MPEGParser\\MPE"
-                             "GAudioParse\\ztest_files\\shortkayfm-steve.mp3";
+    // const std::string path =
+    // "C:\\users\\coolie\\source\\MPEGAudioParser\\MPEGParser\\MPE"
+    //                         "GAudioParse\\ztest_files\\shortkayfm-steve.mp3";
 
+    const std::string path
+        = "V:\\v3final\\DPS++\\MPEGParser\\MPEGParser\\MPEGAudioParse\\ztest_"
+          "files\\shortkayfm-steve.mp3";
     assert(my::fs::exists(path) && "test file does not exist");
 
     const auto file_size = my::fs::file_size(path);
