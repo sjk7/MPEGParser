@@ -216,6 +216,7 @@ void test_file_read(const std::string& path) {
 
     int64_t grand_tot = 0;
     const int64_t expected = 0;
+    (void)expected;
     cout << endl;
 
     for (int i = 0; i < 1; ++i) {
@@ -254,14 +255,14 @@ int main(int /*unused*/, const char* const argv[]) {
     puts(argv[0]);
     // const std::string path("./ztest_files/192.mp3");
 
-    // const std::string path("./ztest_files/128.mp3");
+    const std::string path("../ztest_files/shortkayfm-steve.mp3");
     // const std::string path =
     // "C:\\users\\coolie\\source\\MPEGAudioParser\\MPEGParser\\MPE"
     //                         "GAudioParse\\ztest_files\\shortkayfm-steve.mp3";
 
-    const std::string path
-        = "V:\\v3final\\DPS++\\MPEGParser\\MPEGParser\\MPEGAudioParse\\ztest_"
-          "files\\shortkayfm-steve.mp3";
+    //const std::string path
+    //    = "V:\\v3final\\DPS++\\MPEGParser\\MPEGParser\\MPEGAudioParse\\ztest_"
+    //      "files\\shortkayfm-steve.mp3";
     assert(my::fs::exists(path) && "test file does not exist");
 
     const auto file_size = my::fs::file_size(path);
